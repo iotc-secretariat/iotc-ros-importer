@@ -1,0 +1,23 @@
+Package: iotc.ros.importer
+Type: Package
+Title: IOTC functions for ros data importer
+Version: 0.0.1
+Author: Tony Chemit <tchemit@ultreia.io>
+Maintainer: Tony Chemit <tchemit@ultreia.io>
+Description: IOTC functions for ros data importer
+License: GNU GENERAL PUBLIC LICENSE v 3.0
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Depends: 
+    DBI,
+    RPostgres,
+    iotc.core.db.data (>= 0.2.1),
+    iotc.core.utils.misc (>= 0.2.1),
+    iotc.core.gis.cwp.IO.standalone (>= 0.2.1),
+    iotc.data.reference.codelists,
+    data.table (>= 1.14.9),
+    digest,
+    openxlsx,
+    stringi,
+    stringr
