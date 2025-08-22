@@ -1,11 +1,40 @@
 # importing the required library
 library("R6")
 
-Column <- R6Class(
-  "Column",
+DEBUG <- FALSE
+
+ColumnLocation <- R6Class(
+  "ColumnLocation",
+  public = list(
+    initialize = function(table, column) {
+      stopifnot(!is.na(table), is.character(table), nchar(table) > 0)
+      stopifnot(!is.na(column), is.character(column), nchar(column) > 0)
+      private$.table <- table
+      private$.column <- column
+    },
+    table = function() {
+      private$.table
+    },
+    column = function() {
+      private$.column
+    },
+    print = function() {
+      cat(self$table(), " → ", self$column(), sep = "")
+    }
+  ),
+  private = list(
+    # schema + table name
+    .table = NULL,
+    # column name
+    .column = NULL
+  )
+)
+
+AbstractColumn <- R6Class(
+  "AbstractColumn",
   public = list(
     initialize = function(name, mandatory = FALSE) {
-      stopifnot(!is.na(name), is.character(name), length(name) > 0)
+      stopifnot(!is.na(name), is.character(name), nchar(name) > 0)
       stopifnot(!is.na(mandatory), is.logical(mandatory))
       private$.name <- name
       private$.mandatory <- mandatory
@@ -15,14 +44,61 @@ Column <- R6Class(
     },
     mandatory = function() {
       private$.mandatory
-    },
-    print = function(prefix = "") {
-      cat(prefix, "Column: ", self$name(), sep = "")
+    }
+  ),
+  private = list(
+    # column name
+    .name = NULL,
+    # is column mandatory
+    .mandatory = NULL,
+    .print = function(prefix = "", name) {
+      cat(prefix, name, ": ", self$name(), sep = "")
       if (self$mandatory()) {
         cat(" (Mandatory)", sep = "")
       } else {
         cat(" (Optional)", sep = "")
       }
+    }
+  )
+)
+
+AbstractColumnWithColumnLocation <- R6Class(
+  "AbstractColumnWithColumnLocation",
+  inherit = AbstractColumn,
+  public = list(
+    initialize = function(name, mandatory = FALSE, column_location) {
+      super$initialize(name, mandatory)
+      stopifnot(!rlang::is_empty(column_location))
+      private$.column_location <- column_location
+    },
+    column_location = function() {
+      private$.column_location
+    }
+  ),
+  private = list(
+    # column location
+    .column_location = NULL,
+    .print = function(prefix = "", name) {
+      super$.print(prefix, name)
+      cat(" - location: ( ")
+      self$column_location()$print()
+      cat(" )")
+    }
+  )
+)
+
+SimpleColumn <- R6Class(
+  "SimpleColumn",
+  inherit = AbstractColumnWithColumnLocation,
+  public = list(
+    initialize = function(name, mandatory = FALSE, column_location) {
+      if (DEBUG) {
+        cat("> SimpleColumn:", name, "\n")
+      }
+      super$initialize(name, mandatory, column_location)
+    },
+    print = function(prefix = "") {
+      super$.print(prefix, "SimpleColumn")
       cat("\n", sep = "")
       invisible(self)
     }
@@ -37,59 +113,49 @@ Column <- R6Class(
 
 ForeignKeyColumn <- R6Class(
   "ForeignKeyColumn",
-  inherit = Column,
+  inherit = AbstractColumnWithColumnLocation,
   public = list(
     initialize = function(name,
                           mandatory = FALSE,
-                          foreign_table,
-                          foreign_column) {
-      super$initialize(name, mandatory)
-      stopifnot(!is.na(foreign_table),
-                is.character(foreign_table),
-                length(foreign_table) > 0)
-      stopifnot(!is.na(foreign_column),
-                is.character(foreign_column),
-                length(foreign_column) > 0)
-      private$.foreign_table <- foreign_table
-      private$.foreign_column <- foreign_column
+                          column_location,
+                          foreign_column_location) {
+      if (DEBUG) {
+        cat("> ForeignKeyColumn:", name, "\n")
+      }
+      super$initialize(name, mandatory, column_location)
+      stopifnot(!rlang::is_empty(foreign_column_location))
+      private$.foreign_column_location <- foreign_column_location
     },
-    foreign_table = function(x) {
-      private$.foreign_table
-    },
-    foreign_column = function() {
-      private$.foreign_column
+    foreign_column_location = function() {
+      private$.foreign_column_location
     },
     print = function(prefix = "") {
-      cat(prefix, "Column: ", self$name(), sep = "")
-      if (self$mandatory()) {
-        cat(" (Mandatory)", sep = "")
-      } else {
-        cat(" (Optional)", sep = "")
-      }
-      cat(" (foreign-key: ", self$foreign_table(),
-          ".", self$foreign_column(), ")\n", sep = "")
+      super$.print(prefix, "ForeignKeyColumn")
+      cat(" - foreign-key: ( ", sep = "")
+      self$foreign_column_location()$print()
+      cat(" )\n", sep = "")
       invisible(self)
     }
   ),
   private = list(
-    # foreign table
-    .foreign_table = NULL,
-    # foreign column
-    .foreign_column = NULL
+    # foreign column location
+    .foreign_column_location = NULL
   )
 )
 
 MeasurementValueColumn <- R6Class(
   "MeasurementValueColumn",
-  inherit = Column,
+  inherit = AbstractColumnWithColumnLocation,
   public = list(
-    initialize = function(name, mandatory = FALSE, measurement_table, unit) {
-      super$initialize(name, mandatory)
-      print(append(" field :",name))
+    initialize = function(name, mandatory = FALSE, column_location, measurement_table, unit = NA) {
+      if (DEBUG) {
+        cat("> MeasurementValueColumn:", name, "\n")
+      }
+      super$initialize(name, mandatory, column_location)
       stopifnot(!is.na(measurement_table),
-                is.character(measurement_table), length(measurement_table) > 0)
+                is.character(measurement_table), nchar(measurement_table) > 0)
       if (!is.na(unit)) {
-        stopifnot(length(unit) > 0)
+        stopifnot(nchar(unit) > 0)
       }
       private$.measurement_table <- measurement_table
       private$.unit <- unit
@@ -101,16 +167,12 @@ MeasurementValueColumn <- R6Class(
       private$.unit
     },
     print = function(prefix = "") {
-      cat(prefix, "Column: ", self$name(), sep = "")
-      if (self$mandatory()) {
-        cat(" (Mandatory)", sep = "")
-      } else {
-        cat(" (Optional)", sep = "")
+      super$.print(prefix, "MeasurementValueColumn")
+      cat(" - measurement_table: (", self$measurement_table(), ")", sper = "")
+      if (!is.na(self$unit())) {
+        cat(" - unit: (", self$unit(), ")", sper = "")
       }
-      cat(" (measurement_table: ", self$measurement_table(), sper = "")
-      if (!is.na(private$.unit)) {
-        cat(" (unit: ", as.character(self$unit()), ")\n", sper = "")
-      }
+      cat("\n")
       invisible(self)
     }
   ),
@@ -124,9 +186,12 @@ MeasurementValueColumn <- R6Class(
 
 MeasurementUnitColumn <- R6Class(
   "MeasurementUnitColumn",
-  inherit = Column,
+  inherit = AbstractColumn,
   public = list(
     initialize = function(name, mandatory = FALSE, units) {
+      if (DEBUG) {
+        cat("> MeasurementUnitColumn:", name, "\n")
+      }
       super$initialize(name, mandatory)
       stopifnot(!is.na(units), is.vector(units), length(units) > 0)
       private$.units <- units
@@ -135,13 +200,8 @@ MeasurementUnitColumn <- R6Class(
       private$.units
     },
     print = function(prefix = "") {
-      cat(prefix, "Column: ", self$name(), sep = "")
-      if (self$mandatory()) {
-        cat(" (Mandatory)", sep = "")
-      } else {
-        cat(" (Optional)", sep = "")
-      }
-      cat(" (units: ", as.character(self$units()), ")\n", sper = "")
+      super$.print(prefix, "MeasurementUnitColumn")
+      cat(" - units: (", as.character(self$units()), ")\n", sper = "")
       invisible(self)
     }
   ),
@@ -155,8 +215,10 @@ Sheet <- R6Class(
   "Sheet",
   public = list(
     initialize = function(name, columns) {
-      print(name)
-      stopifnot(!is.na(name), is.character(name), length(name) > 0)
+      if (DEBUG) {
+        cat("Sheet:", name, "\n")
+      }
+      stopifnot(!is.na(name), is.character(name), nchar(name) > 0)
       stopifnot(!is.na(columns), is.vector(columns), length(columns) > 0)
       private$.name <- name
       private$.columns <- columns
@@ -193,7 +255,7 @@ ImportFile <- R6Class(
   "ImportFile",
   public = list(
     initialize = function(name, sheets) {
-      stopifnot(!is.na(name), is.character(name), length(name) > 0)
+      stopifnot(!is.na(name), is.character(name), nchar(name) > 0)
       stopifnot(!is.na(sheets), is.vector(sheets), length(sheets) > 0)
       private$.name <- name
       private$.sheets <- sheets
@@ -225,3 +287,46 @@ ImportFile <- R6Class(
     .sheets = NULL
   )
 )
+column_location <- function(table, column) {
+  ColumnLocation$new(table, column)
+}
+
+optional_simple_column <- function(name, column_location) {
+  SimpleColumn$new(name, mandatory = FALSE, column_location)
+}
+
+mandatory_simple_column <- function(name, column_location) {
+  SimpleColumn$new(name, mandatory = TRUE, column_location)
+}
+
+optional_fk_column <- function(name, column_location, foreign_column_location) {
+  ForeignKeyColumn$new(name, mandatory = FALSE, column_location, foreign_column_location)
+}
+
+mandatory_fk_column <- function(name, column_location, foreign_column_location) {
+  ForeignKeyColumn$new(name, mandatory = TRUE, column_location, foreign_column_location)
+}
+
+optional_measurement_column <- function(name, column_location, measurement_table, unit = NA) {
+  MeasurementValueColumn$new(name, mandatory = FALSE, column_location, measurement_table, unit)
+}
+
+mandatory_measurement_column <- function(name, column_location, measurement_table, unit = NA) {
+  MeasurementValueColumn$new(name, mandatory = TRUE, column_location, measurement_table, unit)
+}
+
+optional_measurement_unit_column <- function(name, units) {
+  MeasurementUnitColumn$new(name, mandatory = FALSE, units)
+}
+
+mandatory_measurement_unit_column <- function(name,  units) {
+  MeasurementUnitColumn$new(name, mandatory = TRUE, units)
+}
+
+sheet <- function(name, columns) {
+  Sheet$new(name, columns)
+}
+
+import_file <- function(name, sheets) {
+  ImportFile$new(name, sheets)
+}
