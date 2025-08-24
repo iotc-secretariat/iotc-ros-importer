@@ -1046,31 +1046,56 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
       # Fixme : not found
       mandatory_simple_column("TRANSSHIPMENT_NUMBER", column_location("a", "b")),
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_START_EVENT_DATE_TIME_UTC", column_location("ros_common.transhipment_details", "transhipment_start_date_time")),
       # Fixme : there is only latitude and longitude on this table...
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_START_EVENT_LATITUDE", column_location("ros_common.transhipment_details", "latitude")),
       # Fixme : there is only latitude and longitude on this table...
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_START_EVENT_LONGITUDE", column_location("ros_common.transhipment_details", "longitude")),
-      # by ros_common.transhipment_details.carrier_vessel_identification_id
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_END_EVENT_DATE_TIME_UTC", column_location("ros_common.transhipment_details", "transhipment_end_date_time")),
       # Fixme : there is only latitude and longitude on this table...
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_END_EVENT_LATITUDE", column_location("ros_common.transhipment_details", "latitude")),
       # Fixme : there is only latitude and longitude on this table...
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_END_EVENT_LONGITUDE", column_location("ros_common.transhipment_details", "longitude")),
       # Fixme : this is not linked to code-list refs_fishery.transhipment_categories
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_CATEGORY_CODE", column_location("ros_common.transhipment_details", "category")),
       # optional_fk_column("VESSEL_TRANSSHIPMENT_EVENT_CATEGORY_CODE", column_location("ros_common.transhipment_details", "category"), column_location("refs_fishery.transhipment_categories", "code")),
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       # by ros_common.transhipment_details.carrier_vessel_identification_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_CARRIER_OR_FISHING_VESSEL_NAME", column_location("ros_common.carrier_vessel_identification", "vessel_name")),
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       # by ros_common.transhipment_details.carrier_vessel_identification_id
       optional_fk_column("VESSEL_TRANSSHIPMENT_EVENT_CARRIER_OR_FISHING_VESSEL_FLAG_OR_CHARTERING_CODE", column_location("ros_common.carrier_vessel_identification", "vessel_flag_code"), column_location("refs_admin.countries", "code")),
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       # by ros_common.transhipment_details.carrier_vessel_identification_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_CARRIER_OR_FISHING_VESSEL_IRCS", column_location("ros_common.carrier_vessel_identification", "vessel_ircs")),
       # Fixme : not found, w<er have only here flag_code
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       # by ros_common.transhipment_details.carrier_vessel_identification_id
       optional_fk_column("VESSEL_TRANSSHIPMENT_EVENT_CARRIER_OR_FISHING_VESSEL_REGISTRATION_COUNTRY_CODE", column_location("ros_common.carrier_vessel_identification", "b"), column_location("refs_admin.countries", "code")),
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       # by ros_common.transhipment_details.carrier_vessel_identification_id
       optional_fk_column("VESSEL_TRANSSHIPMENT_EVENT_CARRIER_OR_FISHING_VESSEL_REGISTRATION_PORT_CODE", column_location("ros_common.carrier_vessel_identification", "vessel_registration_port_code"), column_location("refs_admin.ports", "code")),
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       # by ros_common.transhipment_details.carrier_vessel_identification_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_CARRIER_OR_FISHING_VESSEL_REGISTRATION_NUMBER", column_location("ros_common.carrier_vessel_identification", "vessel_registration_number")))),
     #[20] = "T-PRODUCTS" | From row 6 - 6 columns
@@ -1078,10 +1103,19 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
       # Fixme : not found
       mandatory_simple_column("TRANSSHIPMENT_NUMBER", column_location("a", "b")),
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
+      # by ros_common.transhipment_details_product_transhipped.transhipment_detail_id
       # by ros_common.transhipment_details_product_transhipped.species_by_product_id
       optional_fk_column("PRODUCT_TRANSSHIPPED_SPECIES_CODE", column_location("ros_common.species_by_product_type", "species_code"), column_location("refs_biological.species", "code")),
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
+      # by ros_common.transhipment_details_product_transhipped.transhipment_detail_id
       # by ros_common.transhipment_details_product_transhipped.species_by_product_id
       optional_fk_column("PRODUCT_TRANSSHIPPED_PROCESSING_TYPE_CODE", column_location("ros_common.species_by_product_type", "processing_type_code"), column_location("refs_fishery.fish_processing_types", "code")),
+      # by ros_ll.observer_data.vessel_and_trip_information_id
+      # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
+      # by ros_common.transhipment_details_product_transhipped.transhipment_detail_id
       # by ros_common.transhipment_details_product_transhipped.species_by_product_id
       optional_measurement_column("PRODUCT_TRANSSHIPPED_QUANTITY_VALUE", column_location("ros_common.species_by_product_type", "value"), "ros_common.species_by_product_type"),
       optional_measurement_unit_column("PRODUCT_TRANSSHIPPED_QUANTITY_KG_T", c("KG", "T"))))
