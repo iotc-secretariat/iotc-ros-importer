@@ -3,8 +3,8 @@
 
 ROS_3_2_1_LL_IMPORT_MODEL <-
   import_file("Ros 3.2.1 - LL", c(
-    #[ 2] = "O-INFO" | From row 6 - 25 columns
-    sheet("O-INFO", c(
+
+    sheet("O-INFO", '#[ 2] = O-INFO | From row 6 - 25 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
       # by ros_common.general_vessel_and_trip_information.observer_identification_id
       mandatory_simple_column("OBSERVER_IDENTIFICATION_OBSERVER_IOTC_NUMBER", column_location("ros_common.observer_identification", "iotc_number")),
@@ -15,10 +15,9 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_common.general_vessel_and_trip_information.observer_trip_detail_id
       # by ros_common.observer_trip_details.embarkation_location_id
       optional_fk_column("OBSERVER_TRIP_DETAILS_EMBARKATION_IN_PORT_COUNTRY_CODE", column_location("ros_common.locations", "country_code"), column_location("refs_admin.countries", "code")),
-      # Fixme: does not exist in ros_common.locations
       # by ros_common.general_vessel_and_trip_information.observer_trip_detail_id
       # by ros_common.observer_trip_details.embarkation_location_id
-      optional_fk_column("OBSERVER_TRIP_DETAILS_EMBARKATION_IN_PORT_PORT_CODE", column_location("ros_common.locations", "name"), column_location("refs_admin.ports", "code")),
+      optional_fk_column("OBSERVER_TRIP_DETAILS_EMBARKATION_IN_PORT_PORT_CODE", column_location("ros_common.locations", "name"), column_location("refs_admin.ports", "code"), 'Fixme: does not exist in ros_common.locations'),
       # by ros_common.general_vessel_and_trip_information.observer_trip_detail_id
       # by ros_common.observer_trip_details.embarkation_location_id
       optional_simple_column("OBSERVER_TRIP_DETAILS_EMBARKATION_AT_SEA_LATITUDE", column_location("ros_common.locations", "latitude")),
@@ -30,10 +29,9 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_common.general_vessel_and_trip_information.observer_trip_detail_id
       # by ros_common.observer_trip_details.disembarkation_location_id
       optional_fk_column("OBSERVER_TRIP_DETAILS_DISEMBARKATION_IN_PORT_COUNTRY_CODE", column_location("ros_common.locations", "country_code"), column_location("refs_admin.countries", "code")),
-      # Fixme: does not exist in ros_common.locations
       # by ros_common.general_vessel_and_trip_information.observer_trip_detail_id
       # by ros_common.observer_trip_details.disembarkation_location_id
-      optional_fk_column("OBSERVER_TRIP_DETAILS_DISEMBARKATION_IN_PORT_PORT_CODE", column_location("ros_common.locations", "name"), column_location("refs_admin.ports", "code")),
+      optional_fk_column("OBSERVER_TRIP_DETAILS_DISEMBARKATION_IN_PORT_PORT_CODE", column_location("ros_common.locations", "name"), column_location("refs_admin.ports", "code"), 'Fixme: does not exist in ros_common.locations'),
       # by ros_common.general_vessel_and_trip_information.observer_trip_detail_id
       # by ros_common.observer_trip_details.disembarkation_location_id
       optional_simple_column("OBSERVER_TRIP_DETAILS_DISEMBARKATION_AT_SEA_LATITUDE", column_location("ros_common.locations", "latitude")),
@@ -56,26 +54,20 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       optional_simple_column("OBSERVED_TRIP_SUMMARY_NUMBER_OF_DAYS_TRANSITING", column_location("ros_common.observed_trip_summary", "number_of_days_transiting")),
       # by ros_common.general_vessel_and_trip_information.observed_trip_summary_id
       mandatory_simple_column("OBSERVED_TRIP_SUMMARY_NUMBER_OF_DAYS_LOST", column_location("ros_common.observed_trip_summary", "number_of_days_lost")),
-      # Fixme (not a fk?)
       # by ros_common.reasons_for_days_lost.observed_trip_summary_id
-      optional_fk_column("OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_1_CODE", column_location("ros_common.reasons_for_days_lost", "code"), column_location("refs_fishery.reasons_days_lost", "code")),
-      # Fixme (not a fk?)
+      optional_fk_column("OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_1_CODE", column_location("ros_common.reasons_for_days_lost", "code"), column_location("refs_fishery.reasons_days_lost", "code"), 'Fixme (not a fk?)'),
       # by ros_common.reasons_for_days_lost.observed_trip_summary_id
-      optional_fk_column("OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_2_CODE", column_location("ros_common.reasons_for_days_lost", "code"), column_location("refs_fishery.reasons_days_lost", "code")),
-      # Fixme (not a fk?)
+      optional_fk_column("OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_2_CODE", column_location("ros_common.reasons_for_days_lost", "code"), column_location("refs_fishery.reasons_days_lost", "code"), 'Fixme (not a fk?)'),
       # by ros_common.reasons_for_days_lost.observed_trip_summary_id
-      optional_fk_column("OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_3_CODE", column_location("ros_common.reasons_for_days_lost", "code"), column_location("refs_fishery.reasons_days_lost", "code")),
-      # Fixme (not a fk?)
+      optional_fk_column("OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_3_CODE", column_location("ros_common.reasons_for_days_lost", "code"), column_location("refs_fishery.reasons_days_lost", "code"), 'Fixme (not a fk?)'),
       # by ros_common.reasons_for_days_lost.observed_trip_summary_id
-      optional_fk_column("OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_4_CODE", column_location("ros_common.reasons_for_days_lost", "code"), column_location("refs_fishery.reasons_days_lost", "code")))),
-    #[ 3] = "V-INFO" | From row 6 - 32 columns
-    sheet("V-INFO", c(
+      optional_fk_column("OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_4_CODE", column_location("ros_common.reasons_for_days_lost", "code"), column_location("refs_fishery.reasons_days_lost", "code"), 'Fixme (not a fk?)'))),
+    sheet("V-INFO", '#[ 3] = V-INFO | From row 6 - 32 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
       mandatory_simple_column("VESSEL_INFORMATION_IDENTIFICATION_NAME", column_location("ros_common.vessel_identification", "NAME")),
-      # Fixme (not found in table)
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
-      mandatory_fk_column("VESSEL_INFORMATION_IDENTIFICATION_FLAG_OR_CHARTERING_CODE", column_location("ros_common.vessel_identification", "flag_code"), column_location("refs_admin.countries", "code")),
+      mandatory_fk_column("VESSEL_INFORMATION_IDENTIFICATION_FLAG_OR_CHARTERING_CODE", column_location("ros_common.vessel_identification", "flag_code"), column_location("refs_admin.countries", "code"), 'Fixme : not found'),
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
       mandatory_simple_column("VESSEL_INFORMATION_IDENTIFICATION_IOTC_NUMBER", column_location("ros_common.vessel_identification", "iotc_number")),
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
@@ -144,8 +136,7 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_common.general_vessel_and_trip_information.vessel_owner_and_personnel_id
       # by ros_common.vessel_owner_and_personnel.charter_or_operator_id
       optional_simple_column("VESSEL_INFORMATION_OWNER_AND_PERSONNEL_CHARTER_OR_OPERATOR_CONTACT_DETAILS", column_location("ros_common.person_contact_details", "contact_details")),
-      # Fixme : not found
-      optional_simple_column("VESSEL_INFORMATION_OWNER_AND_PERSONNEL_CHARTER_OR_OPERATOR_CONTACT_DETAILS2", column_location("ros_common.person_contact_details", "contact_details")),
+      optional_simple_column("VESSEL_INFORMATION_OWNER_AND_PERSONNEL_CHARTER_OR_OPERATOR_CONTACT_DETAILS2", column_location("ros_common.person_contact_details", "contact_details"), 'Fixme : not found'),
       # by ros_common.general_vessel_and_trip_information.vessel_owner_and_personnel_id
       # by ros_common.vessel_owner_and_personnel.fishing_master_id
       optional_simple_column("VESSEL_INFORMATION_OWNER_AND_PERSONNEL_FISHING_MASTER_FULL_NAME", column_location("ros_common.person_details", "full_name")),
@@ -160,31 +151,23 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       optional_fk_column("VESSEL_INFORMATION_OWNER_AND_PERSONNEL_SKIPPER_CAPTAIN_NATIONALITY_CODE", column_location("ros_common.person_details", "nationality_code"), column_location("refs_admin.countries", "code")),
       # by ros_common.general_vessel_and_trip_information.vessel_owner_and_personnel_id
       optional_simple_column("VESSEL_INFORMATION_OWNER_AND_PERSONNEL_CREW_NUMBER", column_location("ros_common.vessel_owner_and_personnel", "number_of_crew")))),
-    #[ 4] = "V-TRIP" | From row 6 - 11 columns
-    sheet("V-TRIP", c(
+    sheet("V-TRIP", '#[ 4] = V-TRIP | From row 6 - 11 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      optional_fk_column("TRIP_DETAILS_VESSEL_DEPARTURE_PORT_COUNTRY_CODE", column_location("a", "b"), column_location("refs_admin.countries", "code")),
+      optional_fk_column("TRIP_DETAILS_VESSEL_DEPARTURE_PORT_COUNTRY_CODE", column_location("a", "b"), column_location("refs_admin.countries", "code"), 'Fixme : not found'),
       # by ros_common.general_vessel_and_trip_information.vessel_trip_details_id
       optional_fk_column("TRIP_DETAILS_VESSEL_DEPARTURE_PORT_PORT_CODE", column_location("ros_common.vessel_trip_details", "departure_port_code"), column_location("refs_admin.ports", "code")),
-      # Fixme : not found
-      optional_simple_column("TRIP_DETAILS_VESSEL_DEPARTURE_PORT_LATITUDE", column_location("a", "b")),
-      # Fixme : not found
-      optional_simple_column("TRIP_DETAILS_VESSEL_DEPARTURE_PORT_LONGITUDE", column_location("a", "b")),
+      optional_simple_column("TRIP_DETAILS_VESSEL_DEPARTURE_PORT_LATITUDE", column_location("a", "b"), 'Fixme : not found'),
+      optional_simple_column("TRIP_DETAILS_VESSEL_DEPARTURE_PORT_LONGITUDE", column_location("a", "b"), 'Fixme : not found'),
       # by ros_common.general_vessel_and_trip_information.vessel_trip_details_id
       optional_simple_column("TRIP_DETAILS_VESSEL_DEPARTURE_TIMESTAMP", column_location("ros_common.vessel_trip_details", "date_time_vessel_sailed")),
-      # Fixme : not found
-      optional_fk_column("TRIP_DETAILS_VESSEL_RETURN_PORT_COUNTRY_CODE", column_location("a", "b"), column_location("refs_admin.countries", "code")),
+      optional_fk_column("TRIP_DETAILS_VESSEL_RETURN_PORT_COUNTRY_CODE", column_location("a", "b"), column_location("refs_admin.countries", "code"), 'Fixme : not found'),
       # by ros_common.general_vessel_and_trip_information.vessel_trip_details_id
       optional_fk_column("TRIP_DETAILS_VESSEL_RETURN_PORT_PORT_CODE", column_location("ros_common.vessel_trip_details", "return_port_code"), column_location("refs_admin.ports", "code")),
-      # Fixme : not found
-      optional_simple_column("TRIP_DETAILS_VESSEL_RETURN_PORT_LATITUDE", column_location("a", "b")),
-      # Fixme : not found
-      optional_simple_column("TRIP_DETAILS_VESSEL_RETURN_PORT_LONGITUDE", column_location("a", "b")),
+      optional_simple_column("TRIP_DETAILS_VESSEL_RETURN_PORT_LATITUDE", column_location("a", "b"), 'Fixme : not found'),
+      optional_simple_column("TRIP_DETAILS_VESSEL_RETURN_PORT_LONGITUDE", column_location("a", "b"), 'Fixme : not found'),
       # by ros_common.general_vessel_and_trip_information.vessel_trip_details_id
       optional_simple_column("TRIP_DETAILS_VESSEL_RETURN_TIMESTAMP", column_location("ros_common.vessel_trip_details", "date_time_vessel_returned_to_port")))),
-    #[ 5] = "V-ATTRIBUTES" | From row 6 - 50 columns
-    sheet("V-ATTRIBUTES", c(
+    sheet("V-ATTRIBUTES", '#[ 5] = V-ATTRIBUTES | From row 6 - 50 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
       # by ros_common.general_vessel_and_trip_information.vessel_attributes_id
       mandatory_measurement_column("VESSEL_ATTRIBUTES_TONNAGE_VALUE", column_location("ros_common.vessel_attributes", "tonnage_id"), "ros_common.tonnages"),
@@ -273,28 +256,23 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       mandatory_fk_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_CATEGORY_1_CODE", column_location("ros_common.waste_managements", "waste_category_code"), column_location("refs_fishery.waste_categories", "code")),
       # by ros_common.waste_managements.general_vessel_and_trip_information_id
       mandatory_fk_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_STORAGE_DISPOSAL_METHOD_1_CODE", column_location("ros_common.waste_managements", "waste_storage_or_disposal_method_code"), column_location("refs_fishery.waste_disposal_methods", "code")),
-      # Fixme : not found
-      optional_simple_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_OTHER_1", column_location("ros_common.waste_managements", "b")),
+      optional_simple_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_OTHER_1", column_location("ros_common.waste_managements", "b"), 'Fixme : not found'),
       # by ros_common.waste_managements.general_vessel_and_trip_information_id
       optional_fk_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_2_CATEGORY_2_CODE", column_location("ros_common.waste_managements", "waste_category_code"), column_location("refs_fishery.waste_categories", "code")),
       # by ros_common.waste_managements.general_vessel_and_trip_information_id
       optional_fk_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_2_STORAGE_DISPOSAL_METHOD_2_CODE", column_location("ros_common.waste_managements", "waste_storage_or_disposal_method_code"), column_location("refs_fishery.waste_disposal_methods", "code")),
-      # Fixme : not found
-      optional_simple_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_2_OTHER_2", column_location("ros_common.waste_managements", "b")),
+      optional_simple_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_2_OTHER_2", column_location("ros_common.waste_managements", "b"), 'Fixme : not found'),
       # by ros_common.waste_managements.general_vessel_and_trip_information_id
       optional_fk_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_3_CATEGORY_3_CODE", column_location("ros_common.waste_managements", "waste_category_code"), column_location("refs_fishery.waste_categories", "code")),
       # by ros_common.waste_managements.general_vessel_and_trip_information_id
       optional_fk_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_3_STORAGE_DISPOSAL_METHOD_3_CODE", column_location("ros_common.waste_managements", "waste_storage_or_disposal_method_code"), column_location("refs_fishery.waste_disposal_methods", "code")),
-      # Fixme : not found
-      optional_simple_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_3_OTHER_3", column_location("ros_common.waste_managements", "b")),
+      optional_simple_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_3_OTHER_3", column_location("ros_common.waste_managements", "b"), 'Fixme : not found'),
       # by ros_common.waste_managements.general_vessel_and_trip_information_id
       optional_fk_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_4_CATEGORY_4_CODE", column_location("ros_common.waste_managements", "waste_category_code"), column_location("refs_fishery.waste_categories", "code")),
       # by ros_common.waste_managements.general_vessel_and_trip_information_id
       optional_fk_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_4_STORAGE_DISPOSAL_METHOD_4_CODE", column_location("ros_common.waste_managements", "waste_storage_or_disposal_method_code"), column_location("refs_fishery.waste_disposal_methods", "code")),
-      # Fixme : not found
-      optional_simple_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_4_OTHER_4", column_location("ros_common.waste_managements", "b")))),
-    #[ 6] = "G-GENERAL" | From row 6 - 33 columns
-    sheet("G-GENERAL", c(
+      optional_simple_column("VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_4_OTHER_4", column_location("ros_common.waste_managements", "b"), 'Fixme : not found'))),
+    sheet("G-GENERAL", '#[ 6] = G-GENERAL | From row 6 - 33 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.gear_specifications.special_equipment_id
@@ -316,14 +294,10 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.gear_specifications.general_gear_attributes_id
       optional_measurement_column("GENERAL_GEAR_ATTRIBUTES_MAINLINE_DIAMETER_VALUE", column_location("ros_ll.general_gear_attributes", "mainline_diameter_id"), "ros_common.diameters"),
       optional_measurement_unit_column("GENERAL_GEAR_ATTRIBUTES_MAINLINE_DIAMETER_MM_CM", c("MM", "CM")),
-      # Fixme : not found
-      optional_fk_column("ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_1_CODE", column_location("a", "b"), column_location("refs_fishery.branchline_storages", "code")),
-      # Fixme : not found
-      optional_fk_column("ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_2_CODE", column_location("a", "b"), column_location("refs_fishery.branchline_storages", "code")),
-      # Fixme : not found
-      optional_fk_column("ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_3_CODE", column_location("a", "b"), column_location("refs_fishery.branchline_storages", "code")),
-      # Fixme : not found
-      optional_fk_column("ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_4_CODE", column_location("a", "b"), column_location("refs_fishery.branchline_storages", "code")),
+      optional_fk_column("ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_1_CODE", column_location("a", "b"), column_location("refs_fishery.branchline_storages", "code"), 'Fixme : not found'),
+      optional_fk_column("ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_2_CODE", column_location("a", "b"), column_location("refs_fishery.branchline_storages", "code"), 'Fixme : not found'),
+      optional_fk_column("ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_3_CODE", column_location("a", "b"), column_location("refs_fishery.branchline_storages", "code"), 'Fixme : not found'),
+      optional_fk_column("ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_4_CODE", column_location("a", "b"), column_location("refs_fishery.branchline_storages", "code"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.gear_specifications.general_gear_attributes_id
       # by ros_ll.gear_specifications_mitigation_device.gear_specification_id
@@ -379,8 +353,7 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.gear_specifications.tori_line_detail_id
       optional_simple_column("TORI_LINE_DETAILS_TOWED_OBJECTS_TYPE", column_location("ros_ll.tori_line_details", "towed_objects_type")))),
-    #[ 7] = "G-CONFIG-BRANCHLINES" | From row 6 - 8 columns
-    sheet("G-CONFIG-BRANCHLINES", c(
+    sheet("G-CONFIG-BRANCHLINES", '#[ 7] = G-CONFIG-BRANCHLINES | From row 6 - 8 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.observer_data.gear_specifications_id
@@ -408,10 +381,8 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.branchline_sections.branchline_configuration_id      
       mandatory_measurement_column("BRANCHLINE_CONFIGURATIONS_DIAMETER_VALUE", column_location("ros_ll.branchline_sections", "diameter_id"), "ros_common.diameters"),
       mandatory_measurement_unit_column("BRANCHLINE_CONFIGURATIONS_DIAMETER_MM_CM", c("MM", "CM")))),
-    #[ 8] = "E-SET" | From row 6 - 24 columns
-    sheet("E-SET", c(
+    sheet("E-SET", '#[ 8] = E-SET | From row 6 - 24 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.fishing_events.setting_operation_id
@@ -508,11 +479,9 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.fishing_events.setting_operation_id
       # by ros_ll.setting_operations_target_species.setting_operation_id
       optional_simple_column("SETTING_OPERATIONS_VMS_ON", column_location("ros_ll.setting_operations", "vms_on")))),
-    #[ 9] = "E-SET-LIGHTS" | From row 6 - 5 columns
-    sheet("E-SET-LIGHTS", c(
+    sheet("E-SET-LIGHTS", '#[ 9] = E-SET-LIGHTS | From row 6 - 5 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.fishing_events.setting_operation_id
@@ -528,11 +497,9 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.fishing_events.setting_operation_id
       # by ros_ll.lights_by_type_and_colour.setting_operation_id
       optional_simple_column("SETTING_OPERATIONS_ATTACHED_LIGHTS_NUM_LIGHTS", column_location("ros_ll.lights_by_type_and_colour", "number_of_lights_by_type_and_colour")))),
-    #[ 10] = "E-SET-BRANCHLINES" | From row 6 - 4 columns
-    sheet("E-SET-BRANCHLINES", c(
+    sheet("E-SET-BRANCHLINES", '#[ 10] = E-SET-BRANCHLINES | From row 6 - 4 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.fishing_events.setting_operation_id
@@ -543,19 +510,15 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.fishing_events.setting_operation_id
       # by ros_ll.branchlines_set.setting_operation_id
       optional_simple_column("SETTING_OPERATIONS_BRANCHLINE_DETAILS_NUM_BRANCHLINES_SET", column_location("ros_ll.branchlines_set", "number_of_branchlines")))),
-    #[ 11] = "E-SET-HOOKS" | From row 6 - 5 columns
-    sheet("E-SET-HOOKS", c(
+    sheet("E-SET-HOOKS", '#[ 11] = E-SET-HOOKS | From row 6 - 5 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number"), 'Fixme : not found'),
       mandatory_fk_column("SETTING_OPERATIONS_HOOKS_DETAILS_TYPE_CODE", column_location("ros_ll.hooks_by_type", "hook_type_code"), column_location("refs_fishery.hook_types", "code")),
       mandatory_simple_column("SETTING_OPERATIONS_HOOKS_DETAILS_PERCENTAGE", column_location("ros_ll.hooks_by_type", "percentage_of_set")),
       optional_simple_column("SETTING_OPERATIONS_HOOKS_DETAILS_VARIATIONS", column_location("ros_ll.hooks_by_type", "variations")))),
-    #[ 12] = "E-SET-BAITS" | From row 6 - 6 columns
-    sheet("E-SET-BAITS", c(
+    sheet("E-SET-BAITS", '#[ 12] = E-SET-BAITS | From row 6 - 6 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.fishing_events.setting_operation_id
@@ -576,11 +539,9 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.fishing_events.setting_operation_id
       # by ros_ll.baits_by_conditions.setting_operation_id
       optional_simple_column("SETTING_OPERATIONS_BAITS_DETAILS_BAIT_DYE_COLOUR", column_location("ros_ll.baits_by_conditions", "dye_colour")))),
-    #[13] = "E-SET-MITIGATION-MEASURES" | From row 6 - 14 columns
-    sheet("E-SET-MITIGATION-MEASURES", c(
+    sheet("E-SET-MITIGATION-MEASURES", '#[13] = E-SET-MITIGATION-MEASURES | From row 6 - 14 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.fishing_events.mitigation_measure_id
@@ -633,11 +594,9 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.fishing_events.mitigation_measure_id
       # by ros_ll.mitigation_measures_mitigation_devices.mitigation_measure_id
       optional_fk_column("SETTING_OPERATIONS_MITIGATION_MEASURES_OTHER_MITIGATION_MEASURES_USED_MEASURE_4_CODE", column_location("ros_ll.mitigation_measures_mitigation_devices", "mitigation_device_code"), column_location("refs_fishery.mitigation_devices", "code")))),
-    #[14] = "E-SET-HAULING" | From row 6 - 20 columns
-    sheet("E-SET-HAULING", c(
+    sheet("E-SET-HAULING", '#[14] = E-SET-HAULING | From row 6 - 20 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.fishing_events.hauling_operation_id
@@ -718,11 +677,9 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.fishing_events.hauling_operation_id
       mandatory_fk_column("HAULING_OPERATIONS_SAMPLING_PROTOCOL_CODE", column_location("ros_ll.hauling_operations", "sampling_protocol_code"), column_location("refs_biological.sampling_protocols", "code")))),
-    #[15] = "E-SET-HAULING-BITEOFFS" | From row 6 - 4 columns
-    sheet("E-SET-HAULING-BITEOFFS", c(
+    sheet("E-SET-HAULING-BITEOFFS", '#[15] = E-SET-HAULING-BITEOFFS | From row 6 - 4 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.fishing_events.setting_operation_id
@@ -733,11 +690,9 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.fishing_events.setting_operation_id
       # by ros_ll.baits_by_conditions.setting_operations_id
       optional_simple_column("HAULING_OPERATIONS_BITEOFFS_DETAILS_BRANCHLINE_NUM_BITEOFFS", column_location("ros_ll.biteoffs_by_branchlines_set", "number_of_biteoffs")))),
-    #[16] = "E-SET-CATCHES" | From row 6 - 12 columns
-    sheet("E-SET-CATCHES", c(
+    sheet("E-SET-CATCHES", '#[16] = E-SET-CATCHES | From row 6 - 12 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.catch_details.fishing_event_id
@@ -762,20 +717,16 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.catch_details.fishing_event_id
       optional_simple_column("CATCH_DETAILS_NUM_FISH", column_location("ros_ll.catch_details", "estimated_catch_in_numbers")),
-      # Fixme : not found
-      optional_fk_column("CATCH_DETAILS_WEIGHT_PROCESSING_TYPE_CODE", column_location("ros_ll.catch_details", "b"), column_location("refs_fishery.fish_processing_types", "code")),
+      optional_fk_column("CATCH_DETAILS_WEIGHT_PROCESSING_TYPE_CODE", column_location("ros_ll.catch_details", "b"), column_location("refs_fishery.fish_processing_types", "code"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.catch_details.fishing_event_id
       optional_measurement_column("CATCH_DETAILS_WEIGHT_VALUE", column_location("ros_ll.catch_details", "estimated_weight_id"), "ros_common.estimated_weights"),
       optional_measurement_unit_column("CATCH_DETAILS_WEIGHT_KG_T", c("KG", "T")),
-      # Fixme : not found
-      optional_fk_column("CATCH_DETAILS_WEIGHT_ESTIMATION_METHOD_CODE", column_location("ros_ll.catch_details", "b"), column_location("refs_biological.sampling_methods_for_catch_estimation", "code")))),
-    #[17] = "E-SET-CATCHES-SPECIMEN" | From row 6 - 32 columns
-    sheet("E-SET-CATCHES-SPECIMEN", c(
+      optional_fk_column("CATCH_DETAILS_WEIGHT_ESTIMATION_METHOD_CODE", column_location("ros_ll.catch_details", "b"), column_location("refs_biological.sampling_methods_for_catch_estimation", "code"), 'Fixme : not found'))),
+    sheet("E-SET-CATCHES-SPECIMEN", '#[17] = E-SET-CATCHES-SPECIMEN | From row 6 - 32 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.catch_details.fishing_event_id
@@ -806,8 +757,8 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.catch_details.fishing_event_id
       # by ros_ll.specimens.catch_detail_id
-      # by ros_ll.specimens.depredation_detail_id (Fixme : why not using refs_biological.depredation_sources?)
-      optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_DEPREDATION_DETAILS_DEPREDATION_SOURCE_CODE", column_location("ros_common.depredation_details", "depredation_source_code"), column_location("refs_biological.scars", "code")), # Link not found
+      # by ros_ll.specimens.depredation_detail_id
+      optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_DEPREDATION_DETAILS_DEPREDATION_SOURCE_CODE", column_location("ros_common.depredation_details", "depredation_source_code"), column_location("refs_biological.scars", "code"), 'Fixme : why not using refs_biological.depredation_sources'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.catch_details.fishing_event_id
@@ -890,8 +841,7 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.specimens.biometric_information_id
       # by ros_common.biometric_information.estimated_weight_id
       optional_measurement_column("SPECIMEN_DETAILS_ALL_SPECIES_WEIGHT_VALUE_KG", column_location("ros_common.measured_weights", "value"), "ros_common.estimated_weights", "KG"),
-      # Fixme : not found
-      optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_WEIGHT_ESTIMATION_METHOD_CODE", column_location("a", "b"), column_location("refs_biological.", "code")), # Not found
+      optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_WEIGHT_ESTIMATION_METHOD_CODE", column_location("a", "b"), column_location("refs_biological.", "code"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.catch_details.fishing_event_id
@@ -918,7 +868,7 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.specimens.catch_detail_id
       # by ros_ll.specimens.biometric_information_id
       # by ros_common.biometric_information.sample_collection_detail_id
-      optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_SAMPLE_COLLECTED_TYPE", column_location("ros_common.sample_collection_detailsa", "sample_type")),
+      optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_SAMPLE_COLLECTED_TYPE", column_location("ros_common.sample_collection_details", "sample_type")),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.fishing_events.observer_data_id
       # by ros_ll.catch_details.fishing_event_id
@@ -962,11 +912,9 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.specimens.catch_detail_id
       # by ros_ll.specimens.tag_detail_id
       optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_FINDER_NAME_AND_CONTACT_DETAILS", column_location("ros_ll.tag_details", "tag_finder_id"), column_location("ros_common.person_contact_details", "id")))),
-    #[18] = "E-SET-CATCHES-SPECIMEN-SSI" | From row 6 - 16 columns
-    sheet("E-SET-CATCHES-SPECIMEN-SSI", c(
+    sheet("E-SET-CATCHES-SPECIMEN-SSI", '#[18] = E-SET-CATCHES-SPECIMEN-SSI | From row 6 - 16 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.setting_operations", "set_number"), 'Fixme : not found'),
       mandatory_simple_column("CATCH_NUMBER", column_location("ros_ll.catch_details", "catch_detail_number")),
       mandatory_simple_column("SPECIMEN_NUMBER", column_location("ros_ll.specimens", "specimen_number")),
       # by ros_ll.observer_data.vessel_and_trip_information_id
@@ -1041,37 +989,30 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.specimens.catch_detail_id
       # by ros_ll.specimens.additional_catch_details_on_ssis_id
       optional_simple_column("SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_PHOTO_ID", column_location("ros_ll.additional_catch_details_on_ssi", "photo_id")))),
-    #[19] = "T-EVENTS" | From row 6 - 15 columns
-    sheet("T-EVENTS", c(
+    sheet("T-EVENTS", '#[19] = T-EVENTS | From row 6 - 15 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("TRANSSHIPMENT_NUMBER", column_location("a", "b")),
+      mandatory_simple_column("TRANSSHIPMENT_NUMBER", column_location("a", "b"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_START_EVENT_DATE_TIME_UTC", column_location("ros_common.transhipment_details", "transhipment_start_date_time")),
-      # Fixme : there is only latitude and longitude on this table...
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
-      optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_START_EVENT_LATITUDE", column_location("ros_common.transhipment_details", "latitude")),
-      # Fixme : there is only latitude and longitude on this table...
+      optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_START_EVENT_LATITUDE", column_location("ros_common.transhipment_details", "latitude"), 'Fixme : there is only latitude and longitude on this table'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
-      optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_START_EVENT_LONGITUDE", column_location("ros_common.transhipment_details", "longitude")),
+      optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_START_EVENT_LONGITUDE", column_location("ros_common.transhipment_details", "longitude"), 'Fixme : there is only latitude and longitude on this table'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_END_EVENT_DATE_TIME_UTC", column_location("ros_common.transhipment_details", "transhipment_end_date_time")),
-      # Fixme : there is only latitude and longitude on this table...
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
-      optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_END_EVENT_LATITUDE", column_location("ros_common.transhipment_details", "latitude")),
-      # Fixme : there is only latitude and longitude on this table...
+      optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_END_EVENT_LATITUDE", column_location("ros_common.transhipment_details", "latitude"), 'Fixme : there is only latitude and longitude on this table'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
-      optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_END_EVENT_LONGITUDE", column_location("ros_common.transhipment_details", "longitude")),
-      # Fixme : this is not linked to code-list refs_fishery.transhipment_categories
+      optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_END_EVENT_LONGITUDE", column_location("ros_common.transhipment_details", "longitude"), 'Fixme : there is only latitude and longitude on this table'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
-      optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_CATEGORY_CODE", column_location("ros_common.transhipment_details", "category")),
+      optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_CATEGORY_CODE", column_location("ros_common.transhipment_details", "category"), 'Fixme : this is not linked to code-list refs_fishery.transhipment_categories'),
       # optional_fk_column("VESSEL_TRANSSHIPMENT_EVENT_CATEGORY_CODE", column_location("ros_common.transhipment_details", "category"), column_location("refs_fishery.transhipment_categories", "code")),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
@@ -1098,11 +1039,9 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       # by ros_common.transhipment_details.carrier_vessel_identification_id
       optional_simple_column("VESSEL_TRANSSHIPMENT_EVENT_CARRIER_OR_FISHING_VESSEL_REGISTRATION_NUMBER", column_location("ros_common.carrier_vessel_identification", "vessel_registration_number")))),
-    #[20] = "T-PRODUCTS" | From row 6 - 6 columns
-    sheet("T-PRODUCTS", c(
+    sheet("T-PRODUCTS", '#[20] = T-PRODUCTS | From row 6 - 6 columns', c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
-      # Fixme : not found
-      mandatory_simple_column("TRANSSHIPMENT_NUMBER", column_location("a", "b")),
+      mandatory_simple_column("TRANSSHIPMENT_NUMBER", column_location("a", "b"), 'Fixme : not found'),
       # by ros_ll.observer_data.vessel_and_trip_information_id
       # by ros_ll.observer_data_transhipment_details.transhipment_detail_id
       # by ros_common.transhipment_details_product_transhipped.transhipment_detail_id
@@ -1121,7 +1060,10 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       optional_measurement_unit_column("PRODUCT_TRANSSHIPPED_QUANTITY_KG_T", c("KG", "T"))))
   ))
 
-ROS_3_2_1_LL_IMPORT_MODEL$print()
+json_content <- ROS_3_2_1_LL_IMPORT_MODEL$toJson()
+output_file_path <- paste0("../models/", ROS_LL_v3_2_1, ".json")
+cat(json_content, file = output_file_path)
+
 
 #' Load xls content for Longline domain with ROS model 3.2.1
 #'
@@ -1133,4 +1075,8 @@ load_ll_3_2_1_xls <- function(path) {
 }
 
 path <- "/home/tchemit/projects/iotc/2025/ROS_DATA_TO_INPUT/EU-FRANCE/ROS_LL_data_reporting_EU.FRA.REU_2023.xlsx"
-taiste <- load_ll_3_2_1_xls(path)
+# taiste <- load_ll_3_2_1_xls(path)
+
+target_file_path <- paste0("./", ROS_LL_v3_2_1, "_model.R")
+model_content <- load_model(output_file_path)
+write_model(ROS_LL_v3_2_1, model_content, target_file_path)
