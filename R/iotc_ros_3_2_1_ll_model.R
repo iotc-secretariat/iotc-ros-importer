@@ -82,28 +82,23 @@ ROS_3_2_1_LL_IMPORT_MODEL <-
       optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_REGISTRATION_NUMBER", column_location("ros_common.vessel_identification", "registration_number")),
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
       # by ros_common.vessel_identification.vessel_identification_phone
-      # Fixme Remove this nasty table texts...
-      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_PHONE_1", column_location("ros_common.texts", "value")),
+      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_PHONE_1", column_location("ros_common.texts", "value"), 'Fixme Remove this nasty table texts...'),
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
       # by ros_common.vessel_identification.vessel_identification_phone
-      # Fixme Remove this nasty table texts...
-      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_PHONE_2", column_location("ros_common.texts", "value")),
+      #
+      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_PHONE_2", column_location("ros_common.texts", "value"), 'Fixme Remove this nasty table texts...'),
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
       # by ros_common.vessel_identification.vessel_identification_fax
-      # Fixme Remove this nasty table texts...
-      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_FAX_1", column_location("ros_common.texts", "value")),
+      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_FAX_1", column_location("ros_common.texts", "value"), 'Fixme Remove this nasty table texts...'),
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
       # by ros_common.vessel_identification.vessel_identification_fax
-      # Fixme Remove this nasty table texts...
-      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_FAX_2", column_location("ros_common.texts", "value")),
+      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_FAX_2", column_location("ros_common.texts", "value"), 'Fixme Remove this nasty table texts...'),
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
       # by ros_common.vessel_identification.vessel_identification_email
-      # Fixme Remove this nasty table texts...
-      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_EMAIL_1", column_location("ros_common.texts", "value")),
+      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_EMAIL_1", column_location("ros_common.texts", "value"), 'Fixme Remove this nasty table texts...'),
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
       # by ros_common.vessel_identification.vessel_identification_email
-      # Fixme Remove this nasty table texts...
-      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_EMAIL_2", column_location("ros_common.texts", "value")), # by vessel_identification_email
+      optional_simple_column("VESSEL_INFORMATION_IDENTIFICATION_CONTACT_EMAIL_2", column_location("ros_common.texts", "value")),
       # by ros_common.general_vessel_and_trip_information.vessel_identification_id
       # by ros_common.vessel_identification_licensed_target_species.vessel_identification_id
       optional_fk_column("VESSEL_INFORMATION_IDENTIFICATION_LICENSED_TARGET_SPECIES_SPECIES_1_CODE", column_location("ros_common.vessel_identification_licensed_target_species", "licensed_target_species_code"), column_location("refs_biological.species", "code")),
