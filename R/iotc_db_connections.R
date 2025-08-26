@@ -21,10 +21,10 @@ IOTC_REFERENCE_DATA <- "IOTC_ReferenceData"
 #' @param client_encoding The character set used by the client (defaults to UTF-8)
 #' @return An Sql connection to \code{IOTC_ROS} on \code{server}
 #' @export
-DB_IOTC_ROS <- function(server = get_default_db_server(),
+DB_IOTC_ROS <- function(server = get_default_db_server(SERVER_CACHE),
                         database = IOTC_ROS,
-                        username = get_username_for_db(IOTC_ROS),
-                        password = get_password_for_db(IOTC_ROS),
+                        username = get_username_for_db(CREDENTIALS_CACHE, IOTC_ROS),
+                        password = get_password_for_db(CREDENTIALS_CACHE, IOTC_ROS),
                         client_encoding = "UTF-8") {
   return(connect_to_pg(server, database, username, password, client_encoding))
 }
@@ -38,15 +38,15 @@ DB_IOTC_ROS <- function(server = get_default_db_server(),
 #' @param client_encoding The character set used by the client (defaults to UTF-8)
 #' @return An Sql connection to \code{IOTC_REFERENCE_DATA} on \code{server}
 #' @export
-DB_IOTC_REFERENCE_DATA <- function(server = get_default_db_server(),
+DB_IOTC_REFERENCE_DATA <- function(server = get_default_db_server(SERVER_CACHE),
                                    database = IOTC_REFERENCE_DATA,
-                                   username = get_username_for_db(IOTC_ROS),
-                                   password = get_password_for_db(IOTC_ROS),
+                                   username = get_username_for_db(CREDENTIALS_CACHE, IOTC_REFERENCE_DATA),
+                                   password = get_password_for_db(CREDENTIALS_CACHE, IOTC_REFERENCE_DATA),
                                    client_encoding = "UTF-8") {
   return(connect_to_pg(server, database, username, password, client_encoding))
 }
 
-connect_to_pg <- function(server = get_default_db_server(),
+connect_to_pg <- function(server = get_default_db_server(SERVER_CACHE),
                           database,
                           username,
                           password,
