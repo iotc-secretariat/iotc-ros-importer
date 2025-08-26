@@ -615,4 +615,17 @@ write_model <- function(name, content, target_file_path) {
   }
 }
 
+#' ROS LL v3.2.1
+#' @export
 ROS_LL_v3_2_1 <- "ROS_LL_v3_2_1"
+
+#' Generate the R file for the ROS LL v3.2.1, using the \code{json} model.
+#'
+#' Working directory is in this file directory, adapt if necessary
+#' @export
+generate_ros_ll_3_2_1_model <- function() {
+  json_model_path <- paste0("../models/", ROS_LL_v3_2_1, ".json")
+  r_file_path <- paste0("./", ROS_LL_v3_2_1, "_model.R")
+  model_content <- load_model(json_model_path)
+  write_model(ROS_LL_v3_2_1, model_content, r_file_path)
+}
