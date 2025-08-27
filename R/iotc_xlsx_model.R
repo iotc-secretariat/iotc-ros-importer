@@ -629,3 +629,8 @@ generate_ros_ll_3_2_1_model <- function() {
   model_content <- load_model(json_model_path)
   write_model(ROS_LL_v3_2_1, model_content, r_file_path)
 }
+
+#' To generate ros ll v3.2.1 model
+# target_file_path <- paste0("./", ROS_LL_v3_2_1, "_model.R")
+# model_content <- load_model(output_file_path)
+# write_model(ROS_LL_v3_2_1, model_content, target_file_path)
