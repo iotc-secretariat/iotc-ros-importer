@@ -29,10 +29,10 @@ This document summarizes some points to fix to perform import of the ROS Longlin
 
 ## Sheet V-ATTRIBUTES
 
-* [ ] ```VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_OTHER_1```, this data should be located in table ```ros_common.waste_managements```, but we do not have a ```other``` column, need to add it?
-* [ ] ```VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_OTHER_2```, this data should be located in table ```ros_common.waste_managements```, but we do not have a ```other``` column, need to add it?
-* [ ] ```VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_OTHER_3```, this data should be located in table ```ros_common.waste_managements```, but we do not have a ```other``` column, need to add it?
-* [ ] ```VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_OTHER_4```, this data should be located in table ```ros_common.waste_managements```, but we do not have a ```other``` column, need to add it?
+* [ ] ```VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_OTHER_1```, this data should be located in table ```ros_common.waste_managements```, but we do not have a ```other``` column, need to add it? | **Not sure what is expected in the columns OTHER - free text - no idea what this is**
+* [ ] ```VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_OTHER_2```, this data should be located in table ```ros_common.waste_managements```, but we do not have a ```other``` column, need to add it? | **Not sure what is expected in the columns OTHER - free text - no idea what this is**
+* [ ] ```VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_OTHER_3```, this data should be located in table ```ros_common.waste_managements```, but we do not have a ```other``` column, need to add it? **Not sure what is expected in the columns OTHER - free text - no idea what this is**
+* [ ] ```VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_OTHER_4```, this data should be located in table ```ros_common.waste_managements```, but we do not have a ```other``` column, need to add it? **Not sure what is expected in the columns OTHER - free text - no idea what this is**
 
 ## Sheet G-GENERAL
 
