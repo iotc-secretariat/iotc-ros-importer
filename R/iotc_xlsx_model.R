@@ -129,12 +129,6 @@ SimpleColumn <- R6Class(
               self$column_location()$toJson(),
               com)
     }
-  ),
-  private = list(
-    # column name
-    .name = NULL,
-    # is column mandatory
-    .mandatory = NULL
   )
 )
 
