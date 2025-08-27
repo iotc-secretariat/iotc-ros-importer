@@ -97,6 +97,34 @@ AbstractColumnWithColumnLocation <- R6Class(
   )
 )
 
+
+IgnoredColumn <- R6Class(
+  "IgnoredColumn",
+  inherit = AbstractColumn,
+  public = list(
+    initialize = function(name, comment = NA) {
+      if (DEBUG) {
+        cat("> IgnoredColumn:", name, "\n")
+      }
+      super$initialize(name, TRUE, comment)
+    },
+    print = function(prefix = "") {
+      super$.print(prefix, "IgnoredColumn")
+      invisible(self)
+    },
+    toJson = function() {
+      if (is.na(self$comment())) {
+        com <- ""
+      } else {
+        com <- sprintf(', "comment": "%s"', self$comment())
+      }
+      sprintf('{ "IgnoredColumn": "%s"%s}',
+              self$name(),
+              com)
+    }
+  )
+)
+
 SimpleColumn <- R6Class(
   "SimpleColumn",
   inherit = AbstractColumnWithColumnLocation,
@@ -419,6 +447,10 @@ column_location <- function(table, column) {
   ColumnLocation$new(table, column)
 }
 
+ignored_column <- function(name, comment = NA) {
+  IgnoredColumn$new(name, comment)
+}
+
 optional_simple_column <- function(name, column_location, comment = NA) {
   SimpleColumn$new(name, mandatory = FALSE, column_location, comment)
 }
@@ -497,6 +529,7 @@ load_sheet <- function(name, content) {
   if (with_fks) {
     fks <- sheet_comluns[["fk"]]
   }
+  with_location <- "location" %in% types
   with_unit <- "unit" %in% types
   if (with_unit) {
     units <- sheet_comluns[["unit"]]
@@ -514,9 +547,11 @@ load_sheet <- function(name, content) {
       tmp <- sheet_comluns[[i]]
       y <- tmp[[j]]
       if (!is.na(tmp[[j]])) {
-        location <- locations[j]
-        if (!is.na(location)) {
-          l <- split_location(location)
+        if (with_location) {
+          location <- locations[j]
+          if (!is.na(location)) {
+            l <- split_location(location)
+          }
         }
         if (with_fks) { fk <- fks[j]
           if (!is.na(fk)) {
@@ -543,7 +578,10 @@ load_sheet <- function(name, content) {
         } else {
           unit <- ""
         }
-        if (grepl("MandatorySimpleColumn", i)) {
+        if (grepl("IgnoredColumn", i)) {
+          t <- sprintf('ignored_column("%s"%s)', y, comment)
+          result_columns <- append(result_columns, t)
+        } else if (grepl("MandatorySimpleColumn", i)) {
           t <- sprintf('mandatory_simple_column("%s", column_location("%s", "%s")%s)', y, l[[1]], l[[2]], comment)
           result_columns <- append(result_columns, t)
         } else if (grepl("OptionalSimpleColumn", i)) {
