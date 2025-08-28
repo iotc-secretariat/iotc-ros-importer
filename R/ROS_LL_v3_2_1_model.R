@@ -223,7 +223,7 @@ ROS_LL_v3_2_1_MODEL <-
       mandatory_simple_column("SETTING_OPERATIONS_MITIGATION_MEASURES_MIN_DECK_LIGHTING_USED", column_location("ros_ll.mitigation_measures", "minimum_deck_lighting_used")),
       mandatory_simple_column("SETTING_OPERATIONS_MITIGATION_MEASURES_HOOKS_SET_BETWEEN_DUSK_DAWN", column_location("ros_ll.mitigation_measures", "hooks_set_between_dusk_and_dawn")),
       optional_simple_column("SETTING_OPERATIONS_MITIGATION_MEASURES_BRANCHLINE_WEIGHTED", column_location("ros_ll.mitigation_measures", "branchline_weighted")),
-      mandatory_measurement_column("SETTING_OPERATIONS_MITIGATION_MEASURES_AVG_BRANCHLINE_WEIGHT_G", column_location("ros_ll.mitigation_measures", "branchline_average_weight_id"), "ros_common.weights", "G"),
+      mandatory_measurement_column("SETTING_OPERATIONS_MITIGATION_MEASURES_AVG_BRANCHLINE_WEIGHT_G", column_location("ros_ll.mitigation_measures", "average_sinker_weight_id"), "ros_common.weights", "G"),
       mandatory_simple_column("SETTING_OPERATIONS_MITIGATION_MEASURES_PERC_BRANCHLINE_WEIGHTED", column_location("ros_ll.mitigation_measures", "percentage_of_branchlines_weighted")),
       mandatory_measurement_column("SETTING_OPERATIONS_MITIGATION_MEASURES_HOOK_SINKER_DISTANCE_CM", column_location("ros_ll.mitigation_measures", "hook_sinker_distance_id"), "ros_common.distances", "CM"),
       mandatory_simple_column("SETTING_OPERATIONS_MITIGATION_MEASURES_UNDERWATER_SETTING", column_location("ros_ll.mitigation_measures", "hooks_pods")),
