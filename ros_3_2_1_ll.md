@@ -101,28 +101,3 @@ It was decided to not import this sheet
 ## Sheet T-PRODUCTS
                                        
 It was decided to not import this sheet
-
-## Actions to perform on the database to go to version 3.3.0
-
-* [ ] Add a foreign key on ```ros_common.reasons_for_days_lost→inoperativity_reason``` to ```refs_fishery.reasons_days_lost→code```
-* [ ] Rename column ```ros_common.locations→NAME``` to ```ros_common.locations→port_code``` and add a foreign key to ```refs_admin.ports→code```
-* [ ] Rename column ```ros_ll.mitigation_measures→underwater_setting``` to ```ros_ll.mitigation_measures→hooks_pods```
-* [ ] Rename column ```ros_common.measured_lengths→curved``` to ```ros_common.measured_lengths→straight``` and inverse existing values
-* [ ] Remove column ```ros_common.observer_identification→nationality_code```
-* [ ] Remove column ```ros_common.vessel_owner_and_personnel.registered_vessel_owner_id```
-* [ ] Remove column ```ros_common.vessel_owner_and_personnel.charter_or_operator_id```
-* [ ] Remove column ```ros_common.vessel_electronics→sea_surface_temperature_gauge```
-* [ ] Remove column ```ros_common.vessel_electronics→weather_facsimile```
-* [ ] Remove column ```ros_ll.general_gear_attributes→line_material_type_code```
-* [ ] Remove column ```ros_ll.general_gear_attributes→mainline_length_id```
-* [ ] Remove column ```ros_ll.general_gear_attributes→mainline_diameter_id```
-* [ ] Remove column ```ros_ll.setting_operations→vms_on```
-* [ ] Remove table ```ros_common.transhipment_details```
-* [ ] Remove table ```ros_common.transhipment_details_product_transhipped```
-* [ ] Remove table ```ros_common.species_by_product_type```
-* [ ] Remove table ```ros_ll.hauling_operations_stunning_methods```
-* [ ] Remove table ```ros_common.texts``` (no more used)
-* [ ] Remove table ```ros_common.vessel_identification_email```
-* [ ] Remove table ```ros_common.vessel_identification_fax```
-* [ ] Remove table ```ros_common.vessel_identification_phone```
-* [ ] Remove table ```ros_common.measured_weights``` (never used)
