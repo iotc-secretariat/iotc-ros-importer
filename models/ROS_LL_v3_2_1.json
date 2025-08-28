@@ -220,7 +220,7 @@
  { "MandatorySimpleColumn": "SETTING_OPERATIONS_MITIGATION_MEASURES_MIN_DECK_LIGHTING_USED", "location": "ros_ll.mitigation_measures→minimum_deck_lighting_used"} , 
  { "MandatorySimpleColumn": "SETTING_OPERATIONS_MITIGATION_MEASURES_HOOKS_SET_BETWEEN_DUSK_DAWN", "location": "ros_ll.mitigation_measures→hooks_set_between_dusk_and_dawn"} , 
  { "OptionalSimpleColumn": "SETTING_OPERATIONS_MITIGATION_MEASURES_BRANCHLINE_WEIGHTED", "location": "ros_ll.mitigation_measures→branchline_weighted"} ,
- { "MandatoryMeasurementValueColumn": "SETTING_OPERATIONS_MITIGATION_MEASURES_AVG_BRANCHLINE_WEIGHT_G", "location": "ros_ll.mitigation_measures→branchline_average_weight_id", "measurement_table": "ros_common.weights", "unit": "G"} , 
+ { "MandatoryMeasurementValueColumn": "SETTING_OPERATIONS_MITIGATION_MEASURES_AVG_BRANCHLINE_WEIGHT_G", "location": "ros_ll.mitigation_measures→average_sinker_weight_id", "measurement_table": "ros_common.weights", "unit": "G"} ,
  { "MandatorySimpleColumn": "SETTING_OPERATIONS_MITIGATION_MEASURES_PERC_BRANCHLINE_WEIGHTED", "location": "ros_ll.mitigation_measures→percentage_of_branchlines_weighted"} , 
  { "MandatoryMeasurementValueColumn": "SETTING_OPERATIONS_MITIGATION_MEASURES_HOOK_SINKER_DISTANCE_CM", "location": "ros_ll.mitigation_measures→hook_sinker_distance_id", "measurement_table": "ros_common.distances", "unit": "CM"} , 
  { "MandatorySimpleColumn": "SETTING_OPERATIONS_MITIGATION_MEASURES_UNDERWATER_SETTING", "location": "ros_ll.mitigation_measures→hooks_pods"} ,
