@@ -1,6 +1,6 @@
 { "Ros 3.2.1 - LL": { 
  "O-INFO": { "comment": "#[ 2] = O-INFO | From row 6 - 25 columns", "columns": [ 
- { "MandatorySimpleColumn": "OBSERVED_TRIP_NUMBER", "location": "ros_common.general_vessel_and_trip_information→trip_number"} , 
+ { "MandatorySimpleColumn": "OBSERVED_TRIP_NUMBER", "location": "ros_common.general_vessel_and_trip_information→trip_original_id"} , 
  { "MandatorySimpleColumn": "OBSERVER_IDENTIFICATION_OBSERVER_IOTC_NUMBER", "location": "ros_common.observer_identification→iotc_number"} , 
  { "OptionalSimpleColumn": "OBSERVER_IDENTIFICATION_FULL_NAME", "location": "ros_common.observer_identification→full_name"} , 
  { "IgnoredColumn": "OBSERVER_IDENTIFICATION_NATIONALITY_CODE", "comment": "Removed in version 3.3.0"} ,
@@ -157,7 +157,7 @@
  { "OptionalSimpleColumn": "TORI_LINE_DETAILS_TOWED_OBJECTS_TYPE", "location": "ros_ll.tori_line_details→towed_objects_type"} ] } , 
  "G-CONFIG-BRANCHLINES": { "comment": "#[ 7] = G-CONFIG-BRANCHLINES | From row 6 - 8 columns", "columns": [ 
  { "IgnoredColumn": "OBSERVED_TRIP_NUMBER", "comment": "Not used here"} ,
- { "MandatorySimpleColumn": "BRANCHLINE_CONFIGURATIONS_CONFIGURATION_NUMBER", "location": "ros_ll.branchline_configurations→configuration_number"} , 
+ { "MandatorySimpleColumn": "BRANCHLINE_CONFIGURATIONS_CONFIGURATION_NUMBER", "location": "ros_ll.branchline_configurations→configuration_original_id"} , 
  { "MandatorySimpleColumn": "BRANCHLINE_CONFIGURATIONS_SECTION_NUMBER", "location": "ros_ll.branchline_sections→section_number"} , 
  { "OptionalForeignKeyColumn": "BRANCHLINE_CONFIGURATIONS_MATERIAL_TYPE_CODE", "location": "ros_ll.branchline_sections→branchline_material_type_code", "fk": "refs_fishery.line_material_types→code"} , 
  { "MandatoryMeasurementValueColumn": "BRANCHLINE_CONFIGURATIONS_LENGTH_VALUE", "location": "ros_ll.branchline_sections→length_id", "measurement_table": "ros_common.lengths"} , 
@@ -166,7 +166,7 @@
  { "MandatoryMeasurementUnitColumn": "BRANCHLINE_CONFIGURATIONS_DIAMETER_MM_CM", "units": ["MM" ,"CM"]} ] } , 
  "E-SET": { "comment": "#[ 8] = E-SET | From row 6 - 24 columns", "columns": [ 
  { "IgnoredColumn": "OBSERVED_TRIP_NUMBER", "comment": "Not used here"} ,
- { "MandatorySimpleColumn": "SET_NUMBER", "location": "ros_ll.fishing_events→event_number"} ,
+ { "MandatorySimpleColumn": "SET_NUMBER", "location": "ros_ll.fishing_events→event_original_id"} ,
  { "MandatorySimpleColumn": "SETTING_OPERATIONS_START_SETTING_DATE_TIME_UTC", "location": "ros_ll.setting_operations→start_setting_date_and_time"} , 
  { "MandatorySimpleColumn": "SETTING_OPERATIONS_START_SETTING_LATITUDE", "location": "ros_ll.setting_operations→start_setting_latitude"} , 
  { "MandatorySimpleColumn": "SETTING_OPERATIONS_START_SETTING_LONGITUDE", "location": "ros_ll.setting_operations→start_setting_longitude"} , 
@@ -198,7 +198,7 @@
  "E-SET-BRANCHLINES": { "comment": "#[ 10] = E-SET-BRANCHLINES | From row 6 - 4 columns", "columns": [ 
  { "IgnoredColumn": "OBSERVED_TRIP_NUMBER", "comment": "Not used here"} ,
  { "IgnoredColumn": "SET_NUMBER", "comment": "Not used here"} ,
- { "OptionalSimpleColumn": "SETTING_OPERATIONS_BRANCHLINE_DETAILS_CONFIGURATION_NUMBER", "location": "ros_ll.branchlines_set→branchline_configuration_number"} , 
+ { "OptionalSimpleColumn": "SETTING_OPERATIONS_BRANCHLINE_DETAILS_CONFIGURATION_NUMBER", "location": "ros_ll.branchlines_set→branchline_configuration_original_id"} , 
  { "OptionalSimpleColumn": "SETTING_OPERATIONS_BRANCHLINE_DETAILS_NUM_BRANCHLINES_SET", "location": "ros_ll.branchlines_set→number_of_branchlines"} ] } , 
  "E-SET-HOOKS": { "comment": "#[ 11] = E-SET-HOOKS | From row 6 - 5 columns", "columns": [ 
  { "IgnoredColumn": "OBSERVED_TRIP_NUMBER", "comment": "Not used here"} ,
@@ -252,12 +252,12 @@
  "E-SET-HAULING-BITEOFFS": { "comment": "#[15] = E-SET-HAULING-BITEOFFS | From row 6 - 4 columns", "columns": [ 
  { "IgnoredColumn": "OBSERVED_TRIP_NUMBER", "comment": "Not used here"} ,
  { "IgnoredColumn": "SET_NUMBER", "comment": "Not used here"} ,
- { "OptionalSimpleColumn": "HAULING_OPERATIONS_BITEOFFS_DETAILS_BRANCHLINE_CONFIGURATION_NUMBER", "location": "ros_ll.biteoffs_by_branchlines_set→branchline_configuration_number"} , 
+ { "OptionalSimpleColumn": "HAULING_OPERATIONS_BITEOFFS_DETAILS_BRANCHLINE_CONFIGURATION_NUMBER", "location": "ros_ll.biteoffs_by_branchlines_set→branchline_configuration_original_id"} , 
  { "OptionalSimpleColumn": "HAULING_OPERATIONS_BITEOFFS_DETAILS_BRANCHLINE_NUM_BITEOFFS", "location": "ros_ll.biteoffs_by_branchlines_set→number_of_biteoffs"} ] } , 
  "E-SET-CATCHES": { "comment": "#[16] = E-SET-CATCHES | From row 6 - 12 columns", "columns": [ 
  { "IgnoredColumn": "OBSERVED_TRIP_NUMBER", "comment": "Not used here"} ,
  { "IgnoredColumn": "SET_NUMBER", "comment": "Not used here"} ,
- { "MandatorySimpleColumn": "CATCH_NUMBER", "location": "ros_ll.catch_details→catch_detail_number"} , 
+ { "MandatorySimpleColumn": "CATCH_NUMBER", "location": "ros_ll.catch_details→catch_detail_original_id"} , 
  { "MandatoryForeignKeyColumn": "CATCH_DETAILS_SPECIES_CODE", "location": "ros_ll.catch_details→species_code", "fk": "refs_biological.species→code"} , 
  { "MandatoryForeignKeyColumn": "CATCH_DETAILS_FATE_TYPE", "location": "ros_ll.catch_details→type_of_fate_code", "fk": "refs_biological.types_of_fate→code"} , 
  { "MandatoryForeignKeyColumn": "CATCH_DETAILS_FATE_CODE", "location": "ros_ll.catch_details→fates_code", "fk": "refs_biological.fates→code"} , 
@@ -271,7 +271,7 @@
  { "IgnoredColumn": "OBSERVED_TRIP_NUMBER", "comment": "Not used here"} ,
  { "IgnoredColumn": "SET_NUMBER", "comment": "Not used here"} ,
  { "IgnoredColumn": "CATCH_NUMBER", "comment": "Not used here"} ,
- { "MandatorySimpleColumn": "SPECIMEN_NUMBER", "location": "ros_ll.specimens→specimen_number"} ,
+ { "MandatorySimpleColumn": "SPECIMEN_NUMBER", "location": "ros_ll.specimens→specimen_original_id"} ,
  { "MandatoryForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_SAMPLING_PERIOD_CODE", "location": "ros_ll.specimens→b", "fk": "refs_biological.sampling_periods→code"} , 
  { "MandatoryForeignKeyColumn": "SPECIMEN_DETAILS_NON_TARGET_SPECIES_ADDITIONAL_DETAILS_CONDITION_AT_CAPTURE_CODE", "location": "ros_common.additional_details_on_non_target_species→condition_at_capture_code", "fk": "refs_biological.incidental_captures_conditions→code"} ,
  { "MandatoryForeignKeyColumn": "SPECIMEN_DETAILS_NON_TARGET_SPECIES_ADDITIONAL_DETAILS_CONDITION_AT_RELEASE_CODE", "location": "ros_common.additional_details_on_non_target_species→condition_at_release_code", "fk": "refs_biological.incidental_captures_conditions→code"} ,
@@ -297,8 +297,8 @@
  { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_RELEASE", "location": "ros_ll.tag_details→tag_release"} , 
  { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_RECOVERY", "location": "ros_ll.tag_details→tag_recovery"} , 
  { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TYPE_CODE", "location": "ros_ll.tag_details→tag_type_code", "fk": "refs_biological.tag_types→code"} , 
- { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_1", "location": "ros_ll.tag_details→tag_number"} , 
- { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_2", "location": "ros_ll.tag_details→alternate_tag_number"} , 
+ { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_1", "location": "ros_ll.tag_details→tag_original_id"} , 
+ { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_2", "location": "ros_ll.tag_details→alternate_tag_original_id"} , 
  { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_FINDER_NAME_AND_CONTACT_DETAILS", "location": "ros_ll.tag_details→tag_finder_id", "fk": "ros_common.person_contact_details→id"} ] } , 
  "E-SET-CATCHES-SPECIMEN-SSI": { "comment": "#[18] = E-SET-CATCHES-SPECIMEN-SSI | From row 6 - 16 columns", "columns": [ 
  { "IgnoredColumn": "OBSERVED_TRIP_NUMBER", "comment": "Not used here"} ,

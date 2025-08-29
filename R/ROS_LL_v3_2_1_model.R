@@ -3,7 +3,7 @@
 ROS_LL_v3_2_1_MODEL <-
   import_file("ROS_LL_v3_2_1", c(
     sheet("O-INFO", "#[ 2] = O-INFO | From row 6 - 25 columns", c(
-      mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_number")),
+      mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information", "trip_original_id")),
       mandatory_simple_column("OBSERVER_IDENTIFICATION_OBSERVER_IOTC_NUMBER", column_location("ros_common.observer_identification", "iotc_number")),
       optional_simple_column("OBSERVER_IDENTIFICATION_FULL_NAME", column_location("ros_common.observer_identification", "full_name")),
       ignored_column("OBSERVER_IDENTIFICATION_NATIONALITY_CODE", "Removed in version 3.3.0"),
@@ -160,7 +160,7 @@ ROS_LL_v3_2_1_MODEL <-
       optional_simple_column("TORI_LINE_DETAILS_TOWED_OBJECTS_TYPE", column_location("ros_ll.tori_line_details", "towed_objects_type")))),
     sheet("G-CONFIG-BRANCHLINES", "#[ 7] = G-CONFIG-BRANCHLINES | From row 6 - 8 columns", c(
       ignored_column("OBSERVED_TRIP_NUMBER", "Not used here"),
-      mandatory_simple_column("BRANCHLINE_CONFIGURATIONS_CONFIGURATION_NUMBER", column_location("ros_ll.branchline_configurations", "configuration_number")),
+      mandatory_simple_column("BRANCHLINE_CONFIGURATIONS_CONFIGURATION_NUMBER", column_location("ros_ll.branchline_configurations", "configuration_original_id")),
       mandatory_simple_column("BRANCHLINE_CONFIGURATIONS_SECTION_NUMBER", column_location("ros_ll.branchline_sections", "section_number")),
       optional_fk_column("BRANCHLINE_CONFIGURATIONS_MATERIAL_TYPE_CODE", column_location("ros_ll.branchline_sections", "branchline_material_type_code"), column_location("refs_fishery.line_material_types", "code")),
       mandatory_measurement_column("BRANCHLINE_CONFIGURATIONS_LENGTH_VALUE", column_location("ros_ll.branchline_sections", "length_id"), "ros_common.lengths"),
@@ -169,7 +169,7 @@ ROS_LL_v3_2_1_MODEL <-
       mandatory_measurement_unit_column("BRANCHLINE_CONFIGURATIONS_DIAMETER_MM_CM", c("MM", "CM")))),
     sheet("E-SET", "#[ 8] = E-SET | From row 6 - 24 columns", c(
       ignored_column("OBSERVED_TRIP_NUMBER", "Not used here"),
-      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.fishing_events", "event_number")),
+      mandatory_simple_column("SET_NUMBER", column_location("ros_ll.fishing_events", "event_original_id")),
       mandatory_simple_column("SETTING_OPERATIONS_START_SETTING_DATE_TIME_UTC", column_location("ros_ll.setting_operations", "start_setting_date_and_time")),
       mandatory_simple_column("SETTING_OPERATIONS_START_SETTING_LATITUDE", column_location("ros_ll.setting_operations", "start_setting_latitude")),
       mandatory_simple_column("SETTING_OPERATIONS_START_SETTING_LONGITUDE", column_location("ros_ll.setting_operations", "start_setting_longitude")),
@@ -201,7 +201,7 @@ ROS_LL_v3_2_1_MODEL <-
     sheet("E-SET-BRANCHLINES", "#[ 10] = E-SET-BRANCHLINES | From row 6 - 4 columns", c(
       ignored_column("OBSERVED_TRIP_NUMBER", "Not used here"),
       ignored_column("SET_NUMBER", "Not used here"),
-      optional_simple_column("SETTING_OPERATIONS_BRANCHLINE_DETAILS_CONFIGURATION_NUMBER", column_location("ros_ll.branchlines_set", "branchline_configuration_number")),
+      optional_simple_column("SETTING_OPERATIONS_BRANCHLINE_DETAILS_CONFIGURATION_NUMBER", column_location("ros_ll.branchlines_set", "branchline_configuration_original_id")),
       optional_simple_column("SETTING_OPERATIONS_BRANCHLINE_DETAILS_NUM_BRANCHLINES_SET", column_location("ros_ll.branchlines_set", "number_of_branchlines")))),
     sheet("E-SET-HOOKS", "#[ 11] = E-SET-HOOKS | From row 6 - 5 columns", c(
       ignored_column("OBSERVED_TRIP_NUMBER", "Not used here"),
@@ -255,12 +255,12 @@ ROS_LL_v3_2_1_MODEL <-
     sheet("E-SET-HAULING-BITEOFFS", "#[15] = E-SET-HAULING-BITEOFFS | From row 6 - 4 columns", c(
       ignored_column("OBSERVED_TRIP_NUMBER", "Not used here"),
       ignored_column("SET_NUMBER", "Not used here"),
-      optional_simple_column("HAULING_OPERATIONS_BITEOFFS_DETAILS_BRANCHLINE_CONFIGURATION_NUMBER", column_location("ros_ll.biteoffs_by_branchlines_set", "branchline_configuration_number")),
+      optional_simple_column("HAULING_OPERATIONS_BITEOFFS_DETAILS_BRANCHLINE_CONFIGURATION_NUMBER", column_location("ros_ll.biteoffs_by_branchlines_set", "branchline_configuration_original_id")),
       optional_simple_column("HAULING_OPERATIONS_BITEOFFS_DETAILS_BRANCHLINE_NUM_BITEOFFS", column_location("ros_ll.biteoffs_by_branchlines_set", "number_of_biteoffs")))),
     sheet("E-SET-CATCHES", "#[16] = E-SET-CATCHES | From row 6 - 12 columns", c(
       ignored_column("OBSERVED_TRIP_NUMBER", "Not used here"),
       ignored_column("SET_NUMBER", "Not used here"),
-      mandatory_simple_column("CATCH_NUMBER", column_location("ros_ll.catch_details", "catch_detail_number")),
+      mandatory_simple_column("CATCH_NUMBER", column_location("ros_ll.catch_details", "catch_detail_original_id")),
       mandatory_fk_column("CATCH_DETAILS_SPECIES_CODE", column_location("ros_ll.catch_details", "species_code"), column_location("refs_biological.species", "code")),
       mandatory_fk_column("CATCH_DETAILS_FATE_TYPE", column_location("ros_ll.catch_details", "type_of_fate_code"), column_location("refs_biological.types_of_fate", "code")),
       mandatory_fk_column("CATCH_DETAILS_FATE_CODE", column_location("ros_ll.catch_details", "fates_code"), column_location("refs_biological.fates", "code")),
@@ -274,7 +274,7 @@ ROS_LL_v3_2_1_MODEL <-
       ignored_column("OBSERVED_TRIP_NUMBER", "Not used here"),
       ignored_column("SET_NUMBER", "Not used here"),
       ignored_column("CATCH_NUMBER", "Not used here"),
-      mandatory_simple_column("SPECIMEN_NUMBER", column_location("ros_ll.specimens", "specimen_number")),
+      mandatory_simple_column("SPECIMEN_NUMBER", column_location("ros_ll.specimens", "specimen_original_id")),
       mandatory_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_SAMPLING_PERIOD_CODE", column_location("ros_ll.specimens", "b"), column_location("refs_biological.sampling_periods", "code")),
       mandatory_fk_column("SPECIMEN_DETAILS_NON_TARGET_SPECIES_ADDITIONAL_DETAILS_CONDITION_AT_CAPTURE_CODE", column_location("ros_common.additional_details_on_non_target_species", "condition_at_capture_code"), column_location("refs_biological.incidental_captures_conditions", "code")),
       mandatory_fk_column("SPECIMEN_DETAILS_NON_TARGET_SPECIES_ADDITIONAL_DETAILS_CONDITION_AT_RELEASE_CODE", column_location("ros_common.additional_details_on_non_target_species", "condition_at_release_code"), column_location("refs_biological.incidental_captures_conditions", "code")),
@@ -300,8 +300,8 @@ ROS_LL_v3_2_1_MODEL <-
       optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_RELEASE", column_location("ros_ll.tag_details", "tag_release")),
       optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_RECOVERY", column_location("ros_ll.tag_details", "tag_recovery")),
       optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TYPE_CODE", column_location("ros_ll.tag_details", "tag_type_code"), column_location("refs_biological.tag_types", "code")),
-      optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_1", column_location("ros_ll.tag_details", "tag_number")),
-      optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_2", column_location("ros_ll.tag_details", "alternate_tag_number")),
+      optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_1", column_location("ros_ll.tag_details", "tag_original_id")),
+      optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_2", column_location("ros_ll.tag_details", "alternate_tag_original_id")),
       optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_FINDER_NAME_AND_CONTACT_DETAILS", column_location("ros_ll.tag_details", "tag_finder_id"), column_location("ros_common.person_contact_details", "id")))),
     sheet("E-SET-CATCHES-SPECIMEN-SSI", "#[18] = E-SET-CATCHES-SPECIMEN-SSI | From row 6 - 16 columns", c(
       ignored_column("OBSERVED_TRIP_NUMBER", "Not used here"),
