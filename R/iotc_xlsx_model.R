@@ -20,9 +20,6 @@ ColumnLocation <- R6Class(
     },
     print = function() {
       cat(self$table(), " → ", self$column(), sep = "")
-    },
-    toJson = function() {
-      sprintf('"%s→%s"', self$table(), self$column())
     }
   ),
   private = list(
@@ -132,16 +129,6 @@ IgnoredColumn <- R6Class(
       super$.print(prefix, "IgnoredColumn")
       cat("\n")
       invisible(self)
-    },
-    toJson = function() {
-      if (is.na(self$comment())) {
-        com <- ""
-      } else {
-        com <- sprintf(', "comment": "%s"', self$comment())
-      }
-      sprintf('{ "IgnoredColumn": "%s"%s}',
-              self$name(),
-              com)
     }
   )
 )
@@ -160,23 +147,6 @@ SimpleColumn <- R6Class(
       super$.print(prefix, "SimpleColumn")
       cat("\n", sep = "")
       invisible(self)
-    },
-    toJson = function() {
-      if (self$mandatory()) {
-        tmp <- "MandatorySimpleColumn"
-      } else {
-        tmp <- "OptionalSimpleColumn"
-      }
-      if (is.na(self$comment())) {
-        com <- ""
-      } else {
-        com <- sprintf(', "comment": "%s"', self$comment())
-      }
-      sprintf('{ "%s": "%s", "location": %s%s}',
-              tmp,
-              self$name(),
-              self$column_location()$toJson(),
-              com)
     }
   )
 )
@@ -207,24 +177,6 @@ ForeignKeyColumn <- R6Class(
       self$foreign_column_location()$print()
       cat(" )\n", sep = "")
       invisible(self)
-    },
-    toJson = function() {
-      if (self$mandatory()) {
-        tmp <- "MandatoryForeignKeyColumn"
-      } else {
-        tmp <- "OptionalForeignKeyColumn"
-      }
-      if (is.na(self$comment())) {
-        com <- ""
-      } else {
-        com <- sprintf(', "comment": "%s"', self$comment())
-      }
-      sprintf('{ "%s": "%s", "location": %s, "fk": %s%s}',
-              tmp,
-              self$name(),
-              self$column_location()$toJson(),
-              self$foreign_column_location()$toJson(),
-              com)
     }
   ),
   private = list(
@@ -264,30 +216,6 @@ MeasurementValueColumn <- R6Class(
       }
       cat("\n")
       invisible(self)
-    },
-    toJson = function() {
-      if (self$mandatory()) {
-        tmp <- "MandatoryMeasurementValueColumn"
-      } else {
-        tmp <- "OptionalMeasurementValueColumn"
-      }
-      if (is.na(self$comment())) {
-        com <- ""
-      } else {
-        com <- sprintf(', "comment": "%s"', self$comment())
-      }
-      if (is.null(self$unit()) || is.na(self$unit())) {
-        unit <- ""
-      } else {
-        unit <- sprintf(', "unit": "%s"', self$unit())
-      }
-      sprintf('{ "%s": "%s", "location": %s, "measurement_table": "%s"%s%s}',
-              tmp,
-              self$name(),
-              self$column_location()$toJson(),
-              self$measurement_table(),
-              unit,
-              com)
     }
   ),
   private = list(
@@ -317,25 +245,6 @@ MeasurementUnitColumn <- R6Class(
       super$.print(prefix, "MeasurementUnitColumn")
       cat(" - units: (", as.character(self$units()), ")\n", sper = "")
       invisible(self)
-    },
-    toJson = function() {
-      if (self$mandatory()) {
-        tmp <- "MandatoryMeasurementUnitColumn"
-      } else {
-        tmp <- "OptionalMeasurementUnitColumn"
-      }
-      u <- ""
-      length_result <- length(self$units())
-      for (i in seq(1, length_result)) {
-        u <- paste0(u, '"', self$units()[[i]], '"')
-        if (i < length_result) {
-          u <- paste0(u, " ,")
-        }
-      }
-      sprintf('{ "%s": "%s", "units": [%s]}',
-              tmp,
-              self$name(),
-              u)
     }
   ),
   private = list(
@@ -379,23 +288,6 @@ Sheet <- R6Class(
         c$print(paste(prefix, " "))
       }
       invisible(self)
-    },
-    toJson = function() {
-      tmp <- "["
-      max <- length(self$columns())
-      for (s in seq(1, max)) {
-        ss <- self$columns()[[s]]
-        sss <- ss$toJson()
-        tmp <- paste(tmp, "\n", sss)
-        if (s < max) {
-          tmp <- paste(tmp, ",")
-        }
-      }
-      tmp <- paste(tmp, "]")
-      sprintf('"%s": { "comment": "%s", "columns": %s }',
-              self$name(),
-              self$comment(),
-              tmp)
     }
   ),
   private = list(
@@ -435,22 +327,6 @@ ImportFile <- R6Class(
              function(x) {
                x$name()
              })
-    },
-    toJson = function() {
-      tmp <- "{"
-      max <- length(self$sheets())
-      for (s in seq(1, max)) {
-        ss <- self$sheets()[[s]]
-        sss <- ss$toJson()
-        tmp <- paste(tmp, "\n", sss)
-        if (s < max) {
-          tmp <- paste(tmp, ",")
-        }
-      }
-      tmp <- paste(tmp, "\n}")
-      sprintf('{ "%s": %s}',
-              self$name(),
-              tmp)[[1]]
     }
   ),
   private = list(
