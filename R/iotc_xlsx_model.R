@@ -1,6 +1,5 @@
 # importing the required library
 library("R6")
-library('jsonlite')
 
 DEBUG <- FALSE
 
@@ -37,12 +36,13 @@ ColumnLocation <- R6Class(
 AbstractColumn <- R6Class(
   "AbstractColumn",
   public = list(
-    initialize = function(name, mandatory = FALSE, comment = NA) {
+    initialize = function(name, mandatory = FALSE, comment = NA, actions = NA) {
       stopifnot(!is.na(name), is.character(name), nchar(name) > 0)
       stopifnot(!is.na(mandatory), is.logical(mandatory))
       private$.name <- name
       private$.mandatory <- mandatory
       private$.comment <- comment
+      private$.actions <- actions
     },
     name = function() {
       private$.name
@@ -52,6 +52,9 @@ AbstractColumn <- R6Class(
     },
     comment = function() {
       private$.comment
+    },
+    actions = function() {
+      private$.actions
     }
   ),
   private = list(
@@ -61,12 +64,29 @@ AbstractColumn <- R6Class(
     .comment = NULL,
     # is column mandatory
     .mandatory = NULL,
+    # optional actions
+    .actions = NULL,
     .print = function(prefix = "", name) {
       cat(prefix, name, ": ", self$name(), sep = "")
       if (self$mandatory()) {
         cat(" (Mandatory)", sep = "")
       } else {
         cat(" (Optional)", sep = "")
+      }
+      if (length(self$actions()) == 1 && is.na(self$actions())) {
+
+      } else if (!is.null(self$actions())) {
+        cat(" - actions: [")
+        i <- 1
+        m <- length(self$actions())
+        for (action in self$actions()) {
+          action$print()
+          if (i < m) {
+            cat(", ")
+          }
+          i <- i + 1
+        }
+        cat(" ]")
       }
     }
   )
@@ -76,8 +96,8 @@ AbstractColumnWithColumnLocation <- R6Class(
   "AbstractColumnWithColumnLocation",
   inherit = AbstractColumn,
   public = list(
-    initialize = function(name, mandatory = FALSE, column_location, comment = NA) {
-      super$initialize(name, mandatory, comment)
+    initialize = function(name, mandatory = FALSE, column_location, comment = NA, actions = NA) {
+      super$initialize(name, mandatory, comment, actions)
       stopifnot(!rlang::is_empty(column_location))
       private$.column_location <- column_location
     },
@@ -110,6 +130,7 @@ IgnoredColumn <- R6Class(
     },
     print = function(prefix = "") {
       super$.print(prefix, "IgnoredColumn")
+      cat("\n")
       invisible(self)
     },
     toJson = function() {
@@ -129,11 +150,11 @@ SimpleColumn <- R6Class(
   "SimpleColumn",
   inherit = AbstractColumnWithColumnLocation,
   public = list(
-    initialize = function(name, mandatory = FALSE, column_location, comment = NA) {
+    initialize = function(name, mandatory = FALSE, column_location, comment = NA, actions) {
       if (DEBUG) {
         cat("> SimpleColumn:", name, "\n")
       }
-      super$initialize(name, mandatory, column_location, comment)
+      super$initialize(name, mandatory, column_location, comment, actions)
     },
     print = function(prefix = "") {
       super$.print(prefix, "SimpleColumn")
@@ -168,11 +189,12 @@ ForeignKeyColumn <- R6Class(
                           mandatory = FALSE,
                           column_location,
                           foreign_column_location,
-                          comment = NA) {
+                          comment = NA,
+                          actions) {
       if (DEBUG) {
         cat("> ForeignKeyColumn:", name, "\n")
       }
-      super$initialize(name, mandatory, column_location, comment)
+      super$initialize(name, mandatory, column_location, comment, actions)
       stopifnot(!rlang::is_empty(foreign_column_location))
       private$.foreign_column_location <- foreign_column_location
     },
@@ -215,11 +237,11 @@ MeasurementValueColumn <- R6Class(
   "MeasurementValueColumn",
   inherit = AbstractColumnWithColumnLocation,
   public = list(
-    initialize = function(name, mandatory = FALSE, column_location, measurement_table, unit = NA, comment = NA) {
+    initialize = function(name, mandatory = FALSE, column_location, measurement_table, unit = NA, comment = NA, actions) {
       if (DEBUG) {
         cat("> MeasurementValueColumn:", name, "\n")
       }
-      super$initialize(name, mandatory, column_location, comment)
+      super$initialize(name, mandatory, column_location, comment, actions)
       stopifnot(!is.na(measurement_table),
                 is.character(measurement_table), nchar(measurement_table) > 0)
       if (!is.na(unit)) {
@@ -280,11 +302,11 @@ MeasurementUnitColumn <- R6Class(
   "MeasurementUnitColumn",
   inherit = AbstractColumn,
   public = list(
-    initialize = function(name, mandatory = FALSE, units) {
+    initialize = function(name, mandatory = FALSE, units, actions) {
       if (DEBUG) {
         cat("> MeasurementUnitColumn:", name, "\n")
       }
-      super$initialize(name, mandatory)
+      super$initialize(name, mandatory, actions)
       stopifnot(!is.na(units), is.vector(units), length(units) > 0)
       private$.units <- units
     },
@@ -439,9 +461,167 @@ ImportFile <- R6Class(
   )
 )
 
-split_location <- function(value) {
-  unlist(strsplit(value, "→"))
-}
+AbstractColumnAction <- R6Class(
+  "AbstractColumnAction",
+  public = list(
+    initialize = function() {
+    }
+  ),
+  private = list(
+    .print = function(prefix) {
+      cat(prefix, class(self)[[1]])
+    }
+  )
+)
+
+NewQuery <- R6Class(
+  "NewQueryColumnAction",
+  inherit = AbstractColumnAction,
+  public = list(
+    initialize = function(table_location = NA) {
+      if (!is.na(table_location)) {
+        private$.table_location <- table_location
+      }
+    },
+    table_location = function() {
+      private$.table_location
+    },
+    print = function(prefix = "") {
+      super$.print(prefix)
+      if (!is.null(self$table_location())) {
+        cat(" - table location: ( ", self$table_location(), ")", sep = "")
+      }
+      invisible(self)
+    }
+  ),
+  private = list(
+    # optional table location, if not set will use the table location of the associated column
+    .table_location = NULL
+  )
+)
+
+NewMeasurementQuery <- R6Class(
+  "NewMeasurementQueryColumnAction",
+  inherit = AbstractColumnAction,
+  public = list(
+    initialize = function() {
+    },
+    print = function(prefix = "") {
+      super$.print(prefix)
+      invisible(self)
+    }
+  )
+)
+
+FlushQuery <- R6Class(
+  "FlushQueryColumnAction",
+  inherit = AbstractColumnAction,
+  public = list(
+    initialize = function(table_location = NA) {
+      if (!is.na(table_location)) {
+        private$.table_location <- table_location
+      }
+    },
+    table_location = function() {
+      private$.table_location
+    },
+    print = function(prefix = "") {
+      super$.print(prefix)
+      if (!is.null(self$table_location())) {
+        cat(" - table location: ( ", self$table_location(), ")", sep = "")
+      }
+      invisible(self)
+    }
+  ),
+  private = list(
+    # optional table location, if not set will use the table location of the associated column
+    .table_location = NULL
+  )
+)
+
+
+FlushMeasurementQuery <- R6Class(
+  "FlushMeasurementQueryColumnAction",
+  inherit = AbstractColumnAction,
+  public = list(
+    initialize = function() {
+    },
+    print = function(prefix = "") {
+      super$.print(prefix)
+      invisible(self)
+    }
+  )
+)
+
+AddColumn <- R6Class(
+  "AddColumnAction",
+  inherit = AbstractColumnAction,
+  public = list(
+    initialize = function() {
+    },
+    print = function(prefix = "") {
+      super$.print(prefix)
+      invisible(self)
+    }
+  )
+)
+
+AddForeignKeyColumn <- R6Class(
+  "AddForeignKeyColumnAction",
+  inherit = AbstractColumnAction,
+  public = list(
+    initialize = function(column_location) {
+      stopifnot(!is.null(column_location))
+      private$.column_location <- column_location
+    },
+    column_location = function() {
+      private$.column_location
+    },
+    print = function(prefix = "") {
+      super$.print(prefix)
+      cat(" on ( ")
+      self$column_location()$print()
+      cat(" )")
+      invisible(self)
+    }
+  ),
+  private = list(
+    # column location to set as foreign key
+    .column_location = NULL
+  )
+)
+
+AddExternalForeignKeyColumn <- R6Class(
+  "AddExternalForeignKeyColumnAction",
+  inherit = AbstractColumnAction,
+  public = list(
+    initialize = function(table_location, column_location) {
+      stopifnot(!is.null(column_location))
+      stopifnot(!is.na(table_location))
+      private$.column_location <- column_location
+      private$.table_location <- table_location
+    },
+    column_location = function() {
+      private$.column_location
+    },
+    table_location = function() {
+      private$.table_location
+    },
+    print = function(prefix = "") {
+      super$.print(prefix)
+      cat(prefix, " from ( ", self$table_location(), " ) to ( ", sep = "")
+      self$column_location()$print()
+      cat(" )")
+      invisible(self)
+    }
+  ),
+  private = list(
+    # external table
+    .table_location = NULL,
+    # column location to set as foreign key
+    .column_location = NULL
+  )
+)
 
 column_location <- function(table, column) {
   ColumnLocation$new(table, column)
@@ -451,36 +631,64 @@ ignored_column <- function(name, comment = NA) {
   IgnoredColumn$new(name, comment)
 }
 
-optional_simple_column <- function(name, column_location, comment = NA) {
-  SimpleColumn$new(name, mandatory = FALSE, column_location, comment)
+optional_simple_column <- function(name, column_location, comment = NA, actions = NA) {
+  SimpleColumn$new(name, mandatory = FALSE, column_location, comment, actions)
 }
 
-mandatory_simple_column <- function(name, column_location, comment = NA) {
-  SimpleColumn$new(name, mandatory = TRUE, column_location, comment)
+mandatory_simple_column <- function(name, column_location, comment = NA, actions = NA) {
+  SimpleColumn$new(name, mandatory = TRUE, column_location, comment, actions)
 }
 
-optional_fk_column <- function(name, column_location, foreign_column_location, comment = NA) {
-  ForeignKeyColumn$new(name, mandatory = FALSE, column_location, foreign_column_location, comment)
+optional_fk_column <- function(name, column_location, foreign_column_location, comment = NA, actions = NA) {
+  ForeignKeyColumn$new(name, mandatory = FALSE, column_location, foreign_column_location, comment, actions)
 }
 
-mandatory_fk_column <- function(name, column_location, foreign_column_location, comment = NA) {
-  ForeignKeyColumn$new(name, mandatory = TRUE, column_location, foreign_column_location, comment)
+mandatory_fk_column <- function(name, column_location, foreign_column_location, comment = NA, actions = NA) {
+  ForeignKeyColumn$new(name, mandatory = TRUE, column_location, foreign_column_location, comment, actions)
 }
 
-optional_measurement_column <- function(name, column_location, measurement_table, unit = NA, comment = NA) {
-  MeasurementValueColumn$new(name, mandatory = FALSE, column_location, measurement_table, unit, comment)
+optional_measurement_column <- function(name, column_location, measurement_table, unit = NA, comment = NA, actions = NA) {
+  MeasurementValueColumn$new(name, mandatory = FALSE, column_location, measurement_table, unit, comment, actions)
 }
 
-mandatory_measurement_column <- function(name, column_location, measurement_table, unit = NA, comment = NA) {
-  MeasurementValueColumn$new(name, mandatory = TRUE, column_location, measurement_table, unit, comment)
+mandatory_measurement_column <- function(name, column_location, measurement_table, unit = NA, comment = NA, actions = NA) {
+  MeasurementValueColumn$new(name, mandatory = TRUE, column_location, measurement_table, unit, comment, actions)
 }
 
-optional_measurement_unit_column <- function(name, units) {
-  MeasurementUnitColumn$new(name, mandatory = FALSE, units)
+optional_measurement_unit_column <- function(name, units, actions = NA) {
+  MeasurementUnitColumn$new(name, mandatory = FALSE, units, actions)
 }
 
-mandatory_measurement_unit_column <- function(name, units) {
-  MeasurementUnitColumn$new(name, mandatory = TRUE, units)
+mandatory_measurement_unit_column <- function(name, units, actions = NA) {
+  MeasurementUnitColumn$new(name, mandatory = TRUE, units, actions)
+}
+
+new_query <- function(table_location = NA) {
+  NewQuery$new(table_location)
+}
+
+new_measurement_query <- function() {
+  NewMeasurementQuery$new()
+}
+
+flush_measurement_query <- function() {
+  FlushMeasurementQuery$new()
+}
+
+flush_query <- function(table_location = NA) {
+  FlushQuery$new(table_location)
+}
+
+add_column <- function() {
+  AddColumn$new()
+}
+
+add_fk_column <- function(column_location) {
+  AddForeignKeyColumn$new(column_location)
+}
+
+add_external_fk_column <- function(table_location, column_location) {
+  AddExternalForeignKeyColumn$new(table_location, column_location)
 }
 
 sheet <- function(name, comment, columns) {
@@ -491,176 +699,50 @@ import_file <- function(name, sheets) {
   ImportFile$new(name, sheets)
 }
 
-
-load_model <- function(path) {
-  content <- fromJSON(path)
-  real_content <- content[[1]]
-  sheet_names <- names(real_content)
-  result <- list()
-  for (i in sheet_names) {
-    sheet <- load_sheet(i, real_content)
-    result[i] <- list(sheet)
-  }
-  result
+is_ignored_column <- function(object) {
+  class(object)[[1]] == "IgnoredColumn"
 }
 
-load_sheet <- function(name, content) {
-  # cat(name)
-  # cat("\n")
-  sheet_content <- content[[name]]
-  sheet_comment <- sheet_content$comment
-  sheet_comluns <- sheet_content$columns
-  types <- names(sheet_comluns)
-  column_types <- c()
-  result_columns <- list()
-  index <- 1
-  for (i in types) {
-    # if (i |> str_detect("Column")) {
-    if (grepl("Column", i)) {
-      column_types[index] <- i
-      index <- index + 1
-    }
-  }
-  index <- 1
-  locations <- sheet_comluns[["location"]]
-  measurement_tables <- sheet_comluns[["measurement_table"]]
-  with_fks <- "fk" %in% types
-
-  if (with_fks) {
-    fks <- sheet_comluns[["fk"]]
-  }
-  with_location <- "location" %in% types
-  with_unit <- "unit" %in% types
-  if (with_unit) {
-    units <- sheet_comluns[["unit"]]
-  }
-  with_units <- "units" %in% types
-  if (with_units) {
-    unitss <- sheet_comluns[["units"]]
-  }
-  with_comment <- "comment" %in% types
-  if (with_comment) {
-    comments <- sheet_comluns[["comment"]]
-  }
-  for (j in seq(1, nrow(sheet_comluns))) {
-    for (i in column_types) {
-      tmp <- sheet_comluns[[i]]
-      y <- tmp[[j]]
-      if (!is.na(tmp[[j]])) {
-        if (with_location) {
-          location <- locations[j]
-          if (!is.na(location)) {
-            l <- split_location(location)
-          }
-        }
-        if (with_fks) { fk <- fks[j]
-          if (!is.na(fk)) {
-            f <- split_location(fk)
-          }
-        }
-        if (with_comment) {
-          comment <- comments[j]
-          if (is.na(comment)) {
-            comment <- ""
-          } else {
-            comment <- sprintf(', "%s"', comment)
-          }
-        } else {
-          comment <- ""
-        }
-        if (with_unit) {
-          unit <- units[j]
-          if (is.na(unit)) {
-            unit <- ""
-          } else {
-            unit <- sprintf(', "%s"', unit)
-          }
-        } else {
-          unit <- ""
-        }
-        if (grepl("IgnoredColumn", i)) {
-          t <- sprintf('ignored_column("%s"%s)', y, comment)
-          result_columns <- append(result_columns, t)
-        } else if (grepl("MandatorySimpleColumn", i)) {
-          t <- sprintf('mandatory_simple_column("%s", column_location("%s", "%s")%s)', y, l[[1]], l[[2]], comment)
-          result_columns <- append(result_columns, t)
-        } else if (grepl("OptionalSimpleColumn", i)) {
-          t <- sprintf('optional_simple_column("%s", column_location("%s", "%s")%s)', y, l[[1]], l[[2]], comment)
-          result_columns <- append(result_columns, t)
-        } else if (grepl("MandatoryForeignKeyColumn", i)) {
-          t <- sprintf('mandatory_fk_column("%s", column_location("%s", "%s"), column_location("%s", "%s")%s)', y, l[[1]], l[[2]], f[[1]], f[[2]], comment)
-          result_columns <- append(result_columns, t)
-        } else if (grepl("OptionalForeignKeyColumn", i)) {
-          t <- sprintf('optional_fk_column("%s", column_location("%s", "%s"), column_location("%s", "%s")%s)', y, l[[1]], l[[2]], f[[1]], f[[2]], comment)
-          result_columns <- append(result_columns, t)
-        } else if (grepl("MandatoryMeasurementValueColumn", i)) {
-          t <- sprintf('mandatory_measurement_column("%s", column_location("%s", "%s"), "%s"%s%s)', y, l[[1]], l[[2]], measurement_tables[j], unit, comment)
-          result_columns <- append(result_columns, t)
-        } else if (grepl("OptionalMeasurementValueColumn", i)) {
-          t <- sprintf('optional_measurement_column("%s", column_location("%s", "%s"), "%s"%s%s)', y, l[[1]], l[[2]], measurement_tables[j], unit, comment)
-          result_columns <- append(result_columns, t)
-        } else if (grepl("MandatoryMeasurementUnitColumn", i)) {
-          t <- sprintf('mandatory_measurement_unit_column("%s", %s)', y, unitss[j])
-          result_columns <- append(result_columns, t)
-        } else if (grepl("OptionalMeasurementUnitColumn", i)) {
-          t <- sprintf('optional_measurement_unit_column("%s", %s)', y, unitss[j])
-          result_columns <- append(result_columns, t)
-        }
-      }
-    }
-  }
-  result <- list(comment = sheet_comment, columns = result_columns)
-  cat("\n")
-  result
+is_mandatory_simple_column <- function(object) {
+  class(object)[[1]] == "SimpleColumn"
 }
 
-write_model <- function(name, content, target_file_path) {
-  sheet_names <- names(content)
-  cat(paste0("#' The import file model for the ", name, "\n"), file = target_file_path)
-  cat("#' @export\n", file = target_file_path, append = TRUE)
-  cat(paste0(name, "_MODEL <-\n"), file = target_file_path, append = TRUE)
-  cat(sprintf('  import_file("%s", c(\n', name), file = target_file_path, append = TRUE)
-  i <- 1
-  n <- length(sheet_names)
-  for (sheet_name in sheet_names) {
-    sheet_content <- content[[sheet_name]]
-    sheet_comment <- sheet_content[["comment"]]
-    sheet_columns <- sheet_content[["columns"]]
-    s <- length(sheet_columns)
-    cat(sprintf('    sheet("%s", "%s", c(\n', sheet_name, sheet_comment), file = target_file_path, append = TRUE)
-    for (j in seq(1, s)) {
-      t <- ""
-      if (j < s) {
-        t <- ","
-      } else {
-        t <- paste0(t, ")")
-        if (i < n) {
-          t <- paste0(t, "),")
-        } else {
-          t <- paste0(t, ")))")
-        }
-      }
-      t <- paste0(t, "\n")
-      cat(sprintf('      %s%s', sheet_columns[[j]], t), file = target_file_path, append = TRUE)
-    }
-    i <- i + 1
-  }
+is_mandatory_fk_column <- function(object) {
+  class(object)[[1]] == "ForeignKeyColumn"
 }
 
-#' ROS LL v3.2.1
-#' @export
-ROS_LL_v3_2_1 <- "ROS_LL_v3_2_1"
-
-#' Generate the R file for the ROS LL v3.2.1, using the \code{json} model.
-#'
-#' Working directory is in this file directory, adapt if necessary
-#' @export
-generate_ros_ll_3_2_1_model <- function() {
-  json_model_path <- paste0("../models/", ROS_LL_v3_2_1, ".json")
-  r_file_path <- paste0("./", ROS_LL_v3_2_1, "_model.R")
-  model_content <- load_model(json_model_path)
-  write_model(ROS_LL_v3_2_1, model_content, r_file_path)
+is_mandatory_measurement_column <- function(object) {
+  class(object)[[1]] == "MeasurementValueColumn"
 }
 
-#' To generate ros ll v3.2.1 model
-# generate_ros_ll_3_2_1_model()
+is_mandatory_measurement_unit_column <- function(object) {
+  class(object)[[1]] == "MeasurementUnitColumn"
+}
+
+is_new_query <- function(object) {
+  class(object)[[1]] == "NewQuery"
+}
+
+is_new_measurement_query <- function(object) {
+  class(object)[[1]] == "NewMeasurementQuery"
+}
+
+is_flush_measurement_query <- function(object) {
+  class(object)[[1]] == "FlushMeasurementQuery"
+}
+
+is_flush_query <- function(object) {
+  class(object)[[1]] == "FlushQuery"
+}
+
+is_add_column <- function(object) {
+  class(object)[[1]] == "AddColumn"
+}
+
+is_add_fk_column <- function(object) {
+  class(object)[[1]] == "AddForeignKeyColumn"
+}
+
+is_add_external_fk_column <- function(object) {
+  class(object)[[1]] == "AddExternalForeignKeyColumn"
+}
