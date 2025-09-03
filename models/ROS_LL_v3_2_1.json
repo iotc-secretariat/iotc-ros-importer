@@ -306,7 +306,7 @@
  { "IgnoredColumn": "CATCH_NUMBER", "comment": "Not used here"} ,
  { "IgnoredColumn": "SPECIMEN_NUMBER", "comment": "Not used here"} ,
  { "MandatoryForeignKeyColumn": "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_GEAR_INTERACTION_CODE", "location": "ros_ll.additional_catch_details_on_ssi→gear_interaction_code", "fk": "refs_biological.gear_interactions→code", "actions": [ "newQuery", "addFkColumn:ros_common.specimens→additional_catch_details_on_ssis_id", "addColumn" ]} ,
- { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_HOOK_TYPE_CODE", "location": "ros_ll.additional_catch_details_on_ssi→?", "fk": "refs_fishery.hook_types→code", "comment": "Fixme : not found" , "actions": [  "addColumn" ]} ,
+ { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_HOOK_TYPE_CODE", "location": "ros_ll.additional_catch_details_on_ssi→hook_type_code", "fk": "refs_fishery.hook_types→code", "comment": "Added in version 3.3.0" , "actions": [  "addColumn" ]} ,
  { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_BAIT_CONDITION_CODE", "location": "ros_ll.additional_catch_details_on_ssi→bait_condition_code", "fk": "refs_biological.bait_conditions→code", "actions": [  "addColumn" ]} ,
  { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_BAIT_TYPE_CODE", "location": "os_ll.additional_catch_details_on_ssi→bait_type", "fk": "refs_biological.bait_types→code", "actions": [  "addColumn" ]} ,
  { "MandatoryForeignKeyColumn": "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_LEADER_MATERIAL_CODE", "location": "ros_ll.additional_catch_details_on_ssi→leader_material_type_code", "fk": "refs_fishery.line_material_types→code", "actions": [  "addColumn" ]} ,
