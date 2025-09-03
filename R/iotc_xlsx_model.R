@@ -7,14 +7,50 @@ split_table_location <- function(value) {
   unlist(strsplit(value, "\\."))
 }
 
+split_column_location <- function(value) {
+  unlist(strsplit(value, "→"))
+}
+
+TableLocation <- R6Class(
+  "TableLocation",
+  public = list(
+    initialize = function(gav) {
+      # cat(paste0("TableLocation ", gav))
+      stopifnot(!is.na(gav), is.character(gav), nchar(gav) > 0, gav %like% ".+\\..+")
+      split2 <- split_table_location(gav)
+      private$.schema <- split2[[1]]
+      private$.table <- split2[[2]]
+    },
+    table = function() {
+      private$.table
+    },
+    schema = function() {
+      private$.schema
+    },
+    gav = function() {
+      sprintf("%s.%s", self$schema(), self$table())
+    },
+    print = function() {
+      cat(self$gav())
+    }
+  ),
+  private = list(
+    # schema
+    .schema = NULL,
+    # table name
+    .table = NULL
+  )
+)
+
 ColumnLocation <- R6Class(
   "ColumnLocation",
   public = list(
-    initialize = function(table, column) {
-      stopifnot(!is.na(table), is.character(table), nchar(table) > 0)
-      stopifnot(!is.na(column), is.character(column), nchar(column) > 0)
-      private$.table <- table
-      private$.column <- column
+    initialize = function(gav) {
+      # cat(paste0("ColumnLocation ", gav))
+      stopifnot(!is.na(gav), is.character(gav), nchar(gav) > 0, gav %like% ".+\\..+→.+")
+      split <- split_column_location(gav)
+      private$.table <- table_location(split[[1]])
+      private$.column <- split[[2]]
     },
     table = function() {
       private$.table
@@ -37,12 +73,11 @@ ColumnLocation <- R6Class(
   )
 )
 
-
 CodeListCache <- R6Class(
   "CodeListCache",
   public = list(
     initialize = function(table_location, values) {
-      stopifnot(!is.na(table_location))
+      stopifnot(!is.null(table_location))
       stopifnot(!is.null(values))
       private$.table_location <- table_location
       private$.values <- values
@@ -50,7 +85,7 @@ CodeListCache <- R6Class(
       private$.codes <- as.list(values[, code])
       private$.with_code_orig <- "code_orig" %in% names(values)
       if (private$.with_code_orig) {
-        private$.code_orig_mapping <- as.list(values[, .(code_orig, code)])
+        private$.code_orig_mapping <- as.list(values[!is.null(code_orig), .(code_orig, code)])
       }
       # self$print()
     },
@@ -73,7 +108,7 @@ CodeListCache <- R6Class(
       if (self$with_code_orig() && code %in% self$code_orig_mapping()$code_orig) {
         position <- which(code == self$code_orig_mapping()$code_orig)
         code <- self$code_orig_mapping()$code[position]
-      } else if (!code %in% self$code_orig_mapping()$code) {
+      } else if (!code %in% self$codes()) {
         code <- NULL
       }
       code
@@ -87,7 +122,7 @@ CodeListCache <- R6Class(
       code %in% self$codes()
     },
     print = function(prefix = "") {
-      cat(prefix, " code-list ( ", self$table_location(), " ) - codes: ( ", length(self$codes()), " ) with code orig (", self$with_code_orig(), ")", sep = "")
+      cat(prefix, " code-list ( ", self$table_location()$gav(), " ) - codes: ( ", length(self$codes()), " ) with code orig (", self$with_code_orig(), ")", sep = "")
       if (self$with_code_orig()) {
         cat(" code-orig-list ( ", length(self$code_orig_mapping()), " )\n", sep = "")
       }
@@ -134,8 +169,6 @@ AbstractColumn <- R6Class(
     collect_data_tables = function() {
     },
     collect_code_list_tables = function() {
-    },
-    collect_tables = function() {
     }
   ),
   private = list(
@@ -192,20 +225,8 @@ AbstractColumnWithColumnLocation <- R6Class(
           if (a$with_table_location()) {
             result[length(c)] <- a$table_location()
           } else {
-            result[length(c)] <- self$column_location()$table()
+            result[length(c)] <- self$column_location()$table()$gav()
           }
-        }
-      }
-      result
-    },
-    collect_tables = function() {
-      result <- c()
-      table <- self$column_location()
-      gav <- table$gav()
-      result[[gav]] <- table
-      for (a in self$actions()) {
-        if (is_new_query(a)) {
-
         }
       }
       result
@@ -399,14 +420,9 @@ Sheet <- R6Class(
       }))
     },
     collect_code_list_tables = function() {
-      unlist(lapply(self$columns(), function(c) {
+      unlist(unique(lapply(self$columns(), function(c) {
         c$collect_code_list_tables()
-      }))
-    },
-    collect_tables = function() {
-      unlist(lapply(self$columns(), function(c) {
-        c$collect_tables()
-      }))
+      })))
     },
     print = function(prefix = "") {
       cat(prefix, "Sheet: ", self$name(), " with ", length(self$columns()), " column(s)\n", sep = "")
@@ -440,22 +456,17 @@ ImportFile <- R6Class(
       stopifnot(!is.null(connection))
       code_list_tables <- private$.collect_code_list_tables()
       private$.code_list_caches <- lapply(code_list_tables, function(x) {
-        gav <- split_table_location(x)
-        schema <- gav[[1]]
-        table <- gav[[2]]
-        values <- load_codelist(schema, table, columns = NULL, connection)
+        values <- load_codelist(x$schema(), x$table(), columns = NULL, connection)
+        setorder(values, code)
         code_list_cache(x, values)
       })
-      names(private$.code_list_caches) <- code_list_tables
+      names(private$.code_list_caches) <- lapply(code_list_tables, function(x) { x$gav() })
       data_tables <- private$.collect_data_tables()
       private$.data_table_ids <- lapply(data_tables, function(x) {
-        gav <- split_table_location(x)
-        schema <- gav[[1]]
-        table <- gav[[2]]
         query <- paste0("SELECT nextval('", x, "_id_seq');")
         # print(query)
         result_set <- dbSendQuery(connection, query)
-        id <- as.integer(dbFetch(result_set)[["nextval"]])
+        id <- as.integer(dbFetch(result_set)[["nextval"]]) - 1
         dbClearResult(result_set)
         id
       })
@@ -472,16 +483,6 @@ ImportFile <- R6Class(
     },
     code_list_caches = function() {
       private$.code_list_caches
-    },
-    collect_tables = function() {
-      r <- unlist(lapply(self$sheets(), function(s) {
-        s$collect_tables()
-      }))
-      result <- c()
-      for (n in unique(names(r))) {
-        result[[n]] <- r[[n]]
-      }
-      result
     },
     print = function() {
       cat("ImportFile: ", self$name(), " with ", length(self$sheets()), " sheet(s)\n", sep = "")
@@ -512,9 +513,18 @@ ImportFile <- R6Class(
       })))
     },
     .collect_code_list_tables = function() {
-      unique(unlist(lapply(self$sheets(), function(s) {
+      temp <- unlist(lapply(self$sheets(), function(s) {
         s$collect_code_list_tables()
-      })))
+      }))
+      set <- c()
+      result <- list()
+      for (i in temp) {
+        if (!i$gav() %in% set) {
+          set[length(set) + 1] <- i$gav()
+          result[length(result) + 1] <- i
+        }
+      }
+      result
     }
   )
 )
@@ -731,8 +741,12 @@ code_list_cache <- function(table_location, values) {
   CodeListCache$new(table_location, values)
 }
 
-column_location <- function(table, column) {
-  ColumnLocation$new(table, column)
+table_location <- function(gav) {
+  TableLocation$new(gav)
+}
+
+column_location <- function(gav) {
+  ColumnLocation$new(gav)
 }
 
 ignored_column <- function(name, comment = NA) {
