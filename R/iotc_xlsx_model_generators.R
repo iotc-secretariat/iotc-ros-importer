@@ -5,7 +5,7 @@ library("jsonlite")
 ROS_LL_v3_2_1 <- "ROS_LL_v3_2_1"
 
 
-split_location <- function(value) {
+split_column_location <- function(value) {
   unlist(strsplit(value, "→"))
 }
 
@@ -69,7 +69,7 @@ load_sheet <- function(name, content) {
         if (with_location) {
           location <- locations[j]
           if (!is.na(location)) {
-            l <- split_location(location)
+            l <- split_column_location(location)
           }
         }
         action <- ""
@@ -82,7 +82,7 @@ load_sheet <- function(name, content) {
         if (with_fks) {
           fk <- fks[j]
           if (!is.na(fk)) {
-            f <- split_location(fk)
+            f <- split_column_location(fk)
           }
         }
         if (with_comment) {
@@ -120,6 +120,12 @@ load_sheet <- function(name, content) {
         } else if (grepl("OptionalForeignKeyColumn", i)) {
           t <- sprintf('optional_fk_column("%s", column_location("%s", "%s"), column_location("%s", "%s")%s%s)', y, l[[1]], l[[2]], f[[1]], f[[2]], comment, action)
           result_columns <- append(result_columns, t)
+        } else if (grepl("MandatoryAssociationForeignKeyColumn", i)) {
+          t <- sprintf('mandatory_association_fk_column("%s", column_location("%s", "%s"), column_location("%s", "%s")%s%s)', y, l[[1]], l[[2]], f[[1]], f[[2]], comment, action)
+          result_columns <- append(result_columns, t)
+        } else if (grepl("OptionalAssociationForeignKeyColumn", i)) {
+          t <- sprintf('optional_association_fk_column("%s", column_location("%s", "%s"), column_location("%s", "%s")%s%s)', y, l[[1]], l[[2]], f[[1]], f[[2]], comment, action)
+          result_columns <- append(result_columns, t)
         } else if (grepl("MandatoryMeasurementValueColumn", i)) {
           t <- sprintf('mandatory_measurement_column("%s", column_location("%s", "%s"), "%s"%s%s%s)', y, l[[1]], l[[2]], measurement_tables[j], unit, comment, action)
           result_columns <- append(result_columns, t)
@@ -150,16 +156,21 @@ ACTIONS <- c("newQuery" = function(parameters) {
   result
 },
              "newMeasurementQuery" = function(parameters) { "new_measurement_query()" },
+             "newAssociationQuery" = function(parameters) {
+               real_parameters <- unlist(strsplit(parameters, "\\|"))
+               column_location <- split_column_location(real_parameters[[2]])
+               sprintf("new_association_query(\"%s\", column_location(\"%s\", \"%s\"))", real_parameters[[1]], column_location[[1]], column_location[[2]])
+             },
              "flushMeasurementQuery" = function(parameters) { "flush_measurement_query()" },
              "flushQuery" = function(parameters) { "flush_query()" },
              "addColumn" = function(parameters) { "add_column()" },
              "addFkColumn" = function(parameters) {
-               column_location <- split_location(parameters[[1]])
+               column_location <- split_column_location(parameters[[1]])
                sprintf("add_fk_column(column_location(\"%s\", \"%s\"))", column_location[[1]], column_location[[2]])
              },
              "addExternalFkColumn" = function(parameters) {
                real_parameters <- unlist(strsplit(parameters, "\\|"))
-               column_location <- split_location(real_parameters[[2]])
+               column_location <- split_column_location(real_parameters[[2]])
                sprintf("add_external_fk_column(\"%s\", column_location(\"%s\", \"%s\"))", real_parameters[[1]], column_location[[1]], column_location[[2]])
              }
 )
@@ -203,7 +214,8 @@ write_model <- function(name, content, target_file_path) {
   sheet_names <- names(content)
   cat(paste0("#' The import file model for the ", name, "\n"), file = target_file_path)
   cat("#' @export\n", file = target_file_path, append = TRUE)
-  cat(paste0(name, "_MODEL <-\n"), file = target_file_path, append = TRUE)
+  variable_name <- paste0(name, "_MODEL")
+  cat(paste0(variable_name, " <-\n"), file = target_file_path, append = TRUE)
   cat(sprintf('  import_file("%s", c(\n', name), file = target_file_path, append = TRUE)
   i <- 1
   n <- length(sheet_names)
@@ -230,6 +242,13 @@ write_model <- function(name, content, target_file_path) {
     }
     i <- i + 1
   }
+  cat("connection <- DB_IOTC_ROS()\n", file = target_file_path, append = TRUE)
+  cat(sprintf("%s$init(connection)\n", variable_name), file = target_file_path, append = TRUE)
+  cat(sprintf("y <- %s$code_list_caches()\n", variable_name), file = target_file_path, append = TRUE)
+  cat(sprintf("z <- %s$data_table_ids()\n", variable_name), file = target_file_path, append = TRUE)
+  cat('t <- c("GD","GIL", "GILD")\n', file = target_file_path, append = TRUE)
+  cat('ya <-lapply(t, function(x) { list(y$refs_fishery_config.gears$contains_code(x), y$refs_fishery_config.gears$get_code(x))})\n', file = target_file_path, append = TRUE)
+  cat('names(ya) <- t\n', file = target_file_path, append = TRUE)
 }
 
 #' Generate the R file for the ROS LL v3.2.1, using the \code{json} model.

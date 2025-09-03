@@ -3,6 +3,10 @@ library("R6")
 
 DEBUG <- FALSE
 
+split_table_location <- function(value) {
+  unlist(strsplit(value, "\\."))
+}
+
 ColumnLocation <- R6Class(
   "ColumnLocation",
   public = list(
@@ -18,8 +22,11 @@ ColumnLocation <- R6Class(
     column = function() {
       private$.column
     },
+    gav = function() {
+      sprintf("%s→%s", self$table(), self$column())
+    },
     print = function() {
-      cat(self$table(), " → ", self$column(), sep = "")
+      cat(self$gav())
     }
   ),
   private = list(
@@ -27,6 +34,77 @@ ColumnLocation <- R6Class(
     .table = NULL,
     # column name
     .column = NULL
+  )
+)
+
+
+CodeListCache <- R6Class(
+  "CodeListCache",
+  public = list(
+    initialize = function(table_location, values) {
+      stopifnot(!is.na(table_location))
+      stopifnot(!is.null(values))
+      private$.table_location <- table_location
+      private$.values <- values
+      # print(table_location)
+      private$.codes <- as.list(values[, code])
+      private$.with_code_orig <- "code_orig" %in% names(values)
+      if (private$.with_code_orig) {
+        private$.code_orig_mapping <- as.list(values[, .(code_orig, code)])
+      }
+      # self$print()
+    },
+    table_location = function() {
+      private$.table_location
+    },
+    values = function() {
+      private$.values
+    },
+    codes = function() {
+      private$.codes
+    },
+    code_orig_mapping = function() {
+      private$.code_orig_mapping
+    },
+    with_code_orig = function() {
+      private$.with_code_orig
+    },
+    get_code = function(code) {
+      if (self$with_code_orig() && code %in% self$code_orig_mapping()$code_orig) {
+        position <- which(code == self$code_orig_mapping()$code_orig)
+        code <- self$code_orig_mapping()$code[position]
+      } else if (!code %in% self$code_orig_mapping()$code) {
+        code <- NULL
+      }
+      code
+    },
+    contains_code = function(code) {
+      if (self$with_code_orig()) {
+        if (code %in% self$code_orig_mapping()$code_orig) {
+          return(TRUE)
+        }
+      }
+      code %in% self$codes()
+    },
+    print = function(prefix = "") {
+      cat(prefix, " code-list ( ", self$table_location(), " ) - codes: ( ", length(self$codes()), " ) with code orig (", self$with_code_orig(), ")", sep = "")
+      if (self$with_code_orig()) {
+        cat(" code-orig-list ( ", length(self$code_orig_mapping()), " )\n", sep = "")
+      }
+      invisible(self)
+    }
+  ),
+  private = list(
+    # location of the code list table
+    .table_location = NULL,
+    # values for the code list
+    .values = NULL,
+    # codes available for this code list
+    .codes = NULL,
+    # if code_orig is available
+    .with_code_orig = NULL,
+    # optional mapping of code_orig to code
+    .code_orig_mapping = NULL
   )
 )
 
@@ -52,6 +130,12 @@ AbstractColumn <- R6Class(
     },
     actions = function() {
       private$.actions
+    },
+    collect_data_tables = function() {
+    },
+    collect_code_list_tables = function() {
+    },
+    collect_tables = function() {
     }
   ),
   private = list(
@@ -100,6 +184,31 @@ AbstractColumnWithColumnLocation <- R6Class(
     },
     column_location = function() {
       private$.column_location
+    },
+    collect_data_tables = function() {
+      result <- c()
+      for (a in self$actions()) {
+        if (is_new_query(a)) {
+          if (a$with_table_location()) {
+            result[length(c)] <- a$table_location()
+          } else {
+            result[length(c)] <- self$column_location()$table()
+          }
+        }
+      }
+      result
+    },
+    collect_tables = function() {
+      result <- c()
+      table <- self$column_location()
+      gav <- table$gav()
+      result[[gav]] <- table
+      for (a in self$actions()) {
+        if (is_new_query(a)) {
+
+        }
+      }
+      result
     }
   ),
   private = list(
@@ -113,7 +222,6 @@ AbstractColumnWithColumnLocation <- R6Class(
     }
   )
 )
-
 
 IgnoredColumn <- R6Class(
   "IgnoredColumn",
@@ -170,6 +278,9 @@ ForeignKeyColumn <- R6Class(
     },
     foreign_column_location = function() {
       private$.foreign_column_location
+    },
+    collect_code_list_tables = function() {
+      self$foreign_column_location()$table()
     },
     print = function(prefix = "") {
       super$.print(prefix, "ForeignKeyColumn")
@@ -282,6 +393,21 @@ Sheet <- R6Class(
                x$name()
              })
     },
+    collect_data_tables = function() {
+      unlist(lapply(self$columns(), function(c) {
+        c$collect_data_tables()
+      }))
+    },
+    collect_code_list_tables = function() {
+      unlist(lapply(self$columns(), function(c) {
+        c$collect_code_list_tables()
+      }))
+    },
+    collect_tables = function() {
+      unlist(lapply(self$columns(), function(c) {
+        c$collect_tables()
+      }))
+    },
     print = function(prefix = "") {
       cat(prefix, "Sheet: ", self$name(), " with ", length(self$columns()), " column(s)\n", sep = "")
       for (c in self$columns()) {
@@ -308,12 +434,54 @@ ImportFile <- R6Class(
       stopifnot(!is.na(sheets), is.vector(sheets), length(sheets) > 0)
       private$.name <- name
       private$.sheets <- sheets
+
+    },
+    init = function(connection) {
+      stopifnot(!is.null(connection))
+      code_list_tables <- private$.collect_code_list_tables()
+      private$.code_list_caches <- lapply(code_list_tables, function(x) {
+        gav <- split_table_location(x)
+        schema <- gav[[1]]
+        table <- gav[[2]]
+        values <- load_codelist(schema, table, columns = NULL, connection)
+        code_list_cache(x, values)
+      })
+      names(private$.code_list_caches) <- code_list_tables
+      data_tables <- private$.collect_data_tables()
+      private$.data_table_ids <- lapply(data_tables, function(x) {
+        gav <- split_table_location(x)
+        schema <- gav[[1]]
+        table <- gav[[2]]
+        query <- paste0("SELECT nextval('", x, "_id_seq');")
+        # print(query)
+        result_set <- dbSendQuery(connection, query)
+        id <- as.integer(dbFetch(result_set)[["nextval"]])
+        dbClearResult(result_set)
+        id
+      })
+      names(private$.data_table_ids) <- data_tables
     },
     name = function() {
       private$.name
     },
     sheets = function() {
       private$.sheets
+    },
+    data_table_ids = function() {
+      private$.data_table_ids
+    },
+    code_list_caches = function() {
+      private$.code_list_caches
+    },
+    collect_tables = function() {
+      r <- unlist(lapply(self$sheets(), function(s) {
+        s$collect_tables()
+      }))
+      result <- c()
+      for (n in unique(names(r))) {
+        result[[n]] <- r[[n]]
+      }
+      result
     },
     print = function() {
       cat("ImportFile: ", self$name(), " with ", length(self$sheets()), " sheet(s)\n", sep = "")
@@ -333,7 +501,21 @@ ImportFile <- R6Class(
     # sheet name
     .name = NULL,
     # columns of the sheet
-    .sheets = NULL
+    .sheets = NULL,
+    # data tables ids
+    .data_table_ids = NULL,
+    # code list caches
+    .code_list_caches = NULL,
+    .collect_data_tables = function() {
+      unique(unlist(lapply(self$sheets(), function(s) {
+        s$collect_data_tables()
+      })))
+    },
+    .collect_code_list_tables = function() {
+      unique(unlist(lapply(self$sheets(), function(s) {
+        s$collect_code_list_tables()
+      })))
+    }
   )
 )
 
@@ -362,9 +544,12 @@ NewQuery <- R6Class(
     table_location = function() {
       private$.table_location
     },
+    with_table_location = function() {
+      !is.null(self$table_location())
+    },
     print = function(prefix = "") {
       super$.print(prefix)
-      if (!is.null(self$table_location())) {
+      if (self$with_table_location()) {
         cat(" - table location: ( ", self$table_location(), ")", sep = "")
       }
       invisible(self)
@@ -389,6 +574,37 @@ NewMeasurementQuery <- R6Class(
   )
 )
 
+NewAssociationQuery <- R6Class(
+  "NewAssociationQueryColumnAction",
+  inherit = AbstractColumnAction,
+  public = list(
+    initialize = function(table_location, column_location) {
+      stopifnot(!is.null(column_location))
+      stopifnot(!is.na(table_location))
+      private$.column_location <- column_location
+      private$.table_location <- table_location
+    },
+    column_location = function() {
+      private$.column_location
+    },
+    table_location = function() {
+      private$.table_location
+    },
+    print = function(prefix = "") {
+      super$.print(prefix)
+      cat(prefix, " from ( ", self$table_location(), " ) to ( ", sep = "")
+      self$column_location()$print()
+      cat(" )")
+      invisible(self)
+    }
+  ),
+  private = list(
+    # association table
+    .table_location = NULL,
+    # column location to set as foreign key
+    .column_location = NULL
+  )
+)
 FlushQuery <- R6Class(
   "FlushQueryColumnAction",
   inherit = AbstractColumnAction,
@@ -415,9 +631,21 @@ FlushQuery <- R6Class(
   )
 )
 
-
 FlushMeasurementQuery <- R6Class(
   "FlushMeasurementQueryColumnAction",
+  inherit = AbstractColumnAction,
+  public = list(
+    initialize = function() {
+    },
+    print = function(prefix = "") {
+      super$.print(prefix)
+      invisible(self)
+    }
+  )
+)
+
+FlushAssociationQuery <- R6Class(
+  "FlushAssociationQueryColumnAction",
   inherit = AbstractColumnAction,
   public = list(
     initialize = function() {
@@ -499,6 +727,10 @@ AddExternalForeignKeyColumn <- R6Class(
   )
 )
 
+code_list_cache <- function(table_location, values) {
+  CodeListCache$new(table_location, values)
+}
+
 column_location <- function(table, column) {
   ColumnLocation$new(table, column)
 }
@@ -547,8 +779,16 @@ new_measurement_query <- function() {
   NewMeasurementQuery$new()
 }
 
+new_association_query <- function(table_location, column_location) {
+  NewAssociationQuery$new(table_location, column_location)
+}
+
 flush_measurement_query <- function() {
   FlushMeasurementQuery$new()
+}
+
+flush_association_query <- function() {
+  FlushAssociationQuery$new()
 }
 
 flush_query <- function(table_location = NA) {
@@ -579,11 +819,11 @@ is_ignored_column <- function(object) {
   class(object)[[1]] == "IgnoredColumn"
 }
 
-is_mandatory_simple_column <- function(object) {
+is_simple_column <- function(object) {
   class(object)[[1]] == "SimpleColumn"
 }
 
-is_mandatory_fk_column <- function(object) {
+is_fk_column <- function(object) {
   class(object)[[1]] == "ForeignKeyColumn"
 }
 
@@ -591,34 +831,42 @@ is_mandatory_measurement_column <- function(object) {
   class(object)[[1]] == "MeasurementValueColumn"
 }
 
-is_mandatory_measurement_unit_column <- function(object) {
+is_measurement_unit_column <- function(object) {
   class(object)[[1]] == "MeasurementUnitColumn"
 }
 
 is_new_query <- function(object) {
-  class(object)[[1]] == "NewQuery"
+  class(object)[[1]] == "NewQueryColumnAction"
 }
 
 is_new_measurement_query <- function(object) {
-  class(object)[[1]] == "NewMeasurementQuery"
+  class(object)[[1]] == "NewMeasurementQueryColumnAction"
+}
+
+is_new_association_query <- function(object) {
+  class(object)[[1]] == "NewAssociationQueryColumnAction"
 }
 
 is_flush_measurement_query <- function(object) {
-  class(object)[[1]] == "FlushMeasurementQuery"
+  class(object)[[1]] == "FlushMeasurementQueryColumnAction"
+}
+
+is_flush_association_query <- function(object) {
+  class(object)[[1]] == "FlushAssociationQueryColumnAction"
 }
 
 is_flush_query <- function(object) {
-  class(object)[[1]] == "FlushQuery"
+  class(object)[[1]] == "FlushQueryColumnAction"
 }
 
 is_add_column <- function(object) {
-  class(object)[[1]] == "AddColumn"
+  class(object)[[1]] == "AddColumnAction"
 }
 
 is_add_fk_column <- function(object) {
-  class(object)[[1]] == "AddForeignKeyColumn"
+  class(object)[[1]] == "AddForeignKeyColumnAction"
 }
 
 is_add_external_fk_column <- function(object) {
-  class(object)[[1]] == "AddExternalForeignKeyColumn"
+  class(object)[[1]] == "AddExternalForeignKeyColumnAction"
 }
