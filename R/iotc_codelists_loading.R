@@ -2,8 +2,11 @@
 library(iotc.base.common.data)
 
 load_codelist <- function(codelist_domain, codelist_name, columns = NULL, connection = DB_IOTC_REFERENCE_DATA()) {
-  if (is.null(columns)) columns = "*"
-  else columns = paste0(columns, collapse = ", ")
+  if (is.null(columns)) {
+    columns <- "*"
+  } else {
+    columns <- paste0(columns, collapse = ", ")
+  }
   return(
     query(
       connection,
