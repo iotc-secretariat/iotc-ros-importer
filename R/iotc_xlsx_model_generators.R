@@ -4,11 +4,6 @@ library("jsonlite")
 #' @export
 ROS_LL_v3_2_1 <- "ROS_LL_v3_2_1"
 
-
-split_column_location <- function(value) {
-  unlist(strsplit(value, "→"))
-}
-
 load_model <- function(path) {
   content <- fromJSON(path)
   real_content <- content[[1]]
@@ -68,9 +63,6 @@ load_sheet <- function(name, content) {
       if (!is.na(tmp[[j]])) {
         if (with_location) {
           location <- locations[j]
-          if (!is.na(location)) {
-            l <- split_column_location(location)
-          }
         }
         action <- ""
         if (with_actions) {
@@ -81,9 +73,6 @@ load_sheet <- function(name, content) {
         }
         if (with_fks) {
           fk <- fks[j]
-          if (!is.na(fk)) {
-            f <- split_column_location(fk)
-          }
         }
         if (with_comment) {
           comment <- comments[j]
@@ -109,28 +98,28 @@ load_sheet <- function(name, content) {
           t <- sprintf('ignored_column("%s"%s)', y, comment)
           result_columns <- append(result_columns, t)
         } else if (grepl("MandatorySimpleColumn", i)) {
-          t <- sprintf('mandatory_simple_column("%s", column_location("%s", "%s")%s%s)', y, l[[1]], l[[2]], comment, action)
+          t <- sprintf('mandatory_simple_column("%s", column_location("%s")%s%s)', y, location, comment, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("OptionalSimpleColumn", i)) {
-          t <- sprintf('optional_simple_column("%s", column_location("%s", "%s")%s%s)', y, l[[1]], l[[2]], comment, action)
+          t <- sprintf('optional_simple_column("%s", column_location("%s")%s%s)', y, location, comment, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("MandatoryForeignKeyColumn", i)) {
-          t <- sprintf('mandatory_fk_column("%s", column_location("%s", "%s"), column_location("%s", "%s")%s%s)', y, l[[1]], l[[2]], f[[1]], f[[2]], comment, action)
+          t <- sprintf('mandatory_fk_column("%s", column_location("%s"), column_location("%s")%s%s)', y, location, fk, comment, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("OptionalForeignKeyColumn", i)) {
-          t <- sprintf('optional_fk_column("%s", column_location("%s", "%s"), column_location("%s", "%s")%s%s)', y, l[[1]], l[[2]], f[[1]], f[[2]], comment, action)
+          t <- sprintf('optional_fk_column("%s", column_location("%s"), column_location("%s")%s%s)', y, location, fk, comment, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("MandatoryAssociationForeignKeyColumn", i)) {
-          t <- sprintf('mandatory_association_fk_column("%s", column_location("%s", "%s"), column_location("%s", "%s")%s%s)', y, l[[1]], l[[2]], f[[1]], f[[2]], comment, action)
+          t <- sprintf('mandatory_association_fk_column("%s", column_location("%s"), column_location("%s")%s%s)', y, location, fk, comment, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("OptionalAssociationForeignKeyColumn", i)) {
-          t <- sprintf('optional_association_fk_column("%s", column_location("%s", "%s"), column_location("%s", "%s")%s%s)', y, l[[1]], l[[2]], f[[1]], f[[2]], comment, action)
+          t <- sprintf('optional_association_fk_column("%s", column_location("%s"), column_location("%s")%s%s)', y, location, fk, comment, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("MandatoryMeasurementValueColumn", i)) {
-          t <- sprintf('mandatory_measurement_column("%s", column_location("%s", "%s"), "%s"%s%s%s)', y, l[[1]], l[[2]], measurement_tables[j], unit, comment, action)
+          t <- sprintf('mandatory_measurement_column("%s", column_location("%s"), "%s"%s%s%s)', y, location, measurement_tables[j], unit, comment, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("OptionalMeasurementValueColumn", i)) {
-          t <- sprintf('optional_measurement_column("%s", column_location("%s", "%s"), "%s"%s%s%s)', y, l[[1]], l[[2]], measurement_tables[j], unit, comment, action)
+          t <- sprintf('optional_measurement_column("%s", column_location("%s"), "%s"%s%s%s)', y, location, measurement_tables[j], unit, comment, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("MandatoryMeasurementUnitColumn", i)) {
           t <- sprintf('mandatory_measurement_unit_column("%s", %s%s)', y, unitss[j], action)
@@ -158,20 +147,17 @@ ACTIONS <- c("newQuery" = function(parameters) {
              "newMeasurementQuery" = function(parameters) { "new_measurement_query()" },
              "newAssociationQuery" = function(parameters) {
                real_parameters <- unlist(strsplit(parameters, "\\|"))
-               column_location <- split_column_location(real_parameters[[2]])
-               sprintf("new_association_query(\"%s\", column_location(\"%s\", \"%s\"))", real_parameters[[1]], column_location[[1]], column_location[[2]])
+               sprintf("new_association_query(\"%s\", column_location(\"%s\"))", real_parameters[[1]], real_parameters[[2]])
              },
              "flushMeasurementQuery" = function(parameters) { "flush_measurement_query()" },
              "flushQuery" = function(parameters) { "flush_query()" },
              "addColumn" = function(parameters) { "add_column()" },
              "addFkColumn" = function(parameters) {
-               column_location <- split_column_location(parameters[[1]])
-               sprintf("add_fk_column(column_location(\"%s\", \"%s\"))", column_location[[1]], column_location[[2]])
+               sprintf("add_fk_column(column_location(\"%s\"))", parameters[[1]])
              },
              "addExternalFkColumn" = function(parameters) {
                real_parameters <- unlist(strsplit(parameters, "\\|"))
-               column_location <- split_column_location(real_parameters[[2]])
-               sprintf("add_external_fk_column(\"%s\", column_location(\"%s\", \"%s\"))", real_parameters[[1]], column_location[[1]], column_location[[2]])
+               sprintf("add_external_fk_column(\"%s\", column_location(\"%s\"))", real_parameters[[1]], real_parameters[[2]])
              }
 )
 
@@ -246,7 +232,7 @@ write_model <- function(name, content, target_file_path) {
   cat(sprintf("%s$init(connection)\n", variable_name), file = target_file_path, append = TRUE)
   cat(sprintf("y <- %s$code_list_caches()\n", variable_name), file = target_file_path, append = TRUE)
   cat(sprintf("z <- %s$data_table_ids()\n", variable_name), file = target_file_path, append = TRUE)
-  cat('t <- c("GD","GIL", "GILD")\n', file = target_file_path, append = TRUE)
+  cat('t <- c("GD", "GIL", "GILD")\n', file = target_file_path, append = TRUE)
   cat('ya <-lapply(t, function(x) { list(y$refs_fishery_config.gears$contains_code(x), y$refs_fishery_config.gears$get_code(x))})\n', file = target_file_path, append = TRUE)
   cat('names(ya) <- t\n', file = target_file_path, append = TRUE)
 }
