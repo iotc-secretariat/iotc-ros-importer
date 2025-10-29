@@ -1,12 +1,15 @@
-library("iotc.core.db.connections")
+library("odbc")
 library("RPostgres")
+library("digest")
+library("iotc.core.utils.misc")
+library("iotc.core.db.connections")
 
 SERVER_CACHE <- new.env(hash = TRUE)
 CREDENTIALS_CACHE <- new.env(hash = TRUE)
 
 #'The constants holding the name of the IOTC_Ros database
 #'@export
-IOTC_ROS <- "IOTC_Ros"
+IOTC_ROS <- "IOTC_Ros_3_3_0_2025_08_28"
 
 #'The constants holding the name of the IOTC_ReferenceData database
 #'@export
@@ -26,7 +29,7 @@ DB_IOTC_ROS <- function(server = get_default_db_server(SERVER_CACHE),
                         username = get_username_for_db(CREDENTIALS_CACHE, IOTC_ROS),
                         password = get_password_for_db(CREDENTIALS_CACHE, IOTC_ROS),
                         client_encoding = "UTF-8") {
-  return(connect_to_pg(server, database, username, password, client_encoding))
+  connect_to_pg(server, database, username, password, client_encoding)
 }
 
 #' Connects to an instance of \code{IOTC_REFERENCE_DATA} on a given server machine
@@ -43,7 +46,7 @@ DB_IOTC_REFERENCE_DATA <- function(server = get_default_db_server(SERVER_CACHE),
                                    username = get_username_for_db(CREDENTIALS_CACHE, IOTC_REFERENCE_DATA),
                                    password = get_password_for_db(CREDENTIALS_CACHE, IOTC_REFERENCE_DATA),
                                    client_encoding = "UTF-8") {
-  return(connect_to_pg(server, database, username, password, client_encoding))
+  connect_to_pg(server, database, username, password, client_encoding)
 }
 
 connect_to_pg <- function(server = get_default_db_server(SERVER_CACHE),
@@ -53,10 +56,10 @@ connect_to_pg <- function(server = get_default_db_server(SERVER_CACHE),
                           client_encoding = "UTF-8") {
   DEBUG <- db_debug_connections()
   if (DEBUG) l_info(paste("Connecting to", database, "on", server, "using", username, "as username"))
-  return(dbConnect(RPostgres::Postgres(),
-                   host = server,
-                   dbname = database,
-                   user = username,
-                   password = password,
-                   client_encoding = client_encoding))
+  dbConnect(RPostgres::Postgres(),
+            host = server,
+            dbname = database,
+            user = username,
+            password = password,
+            client_encoding = client_encoding)
 }

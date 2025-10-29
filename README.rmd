@@ -1,0 +1,107 @@
+---
+title: "Howto use importer"
+output: html_notebook
+---
+
+# Concepts
+
+## Object model
+
+We use the `R6` package to define some classes (as if you were using Java).
+
+## Models
+
+We use the Model-driven development (MDD) concept.
+
+We define a model in `json` format for each fishery domain and for each version of the model.
+
+In the directory `models` you find the models.
+
+A model is a mapping for each column of the xlsx file to import and map it the corresponding column of the database. We also add some behaviors and actions to do when the column is imported.
+
+From this model we generate a `R` file to be able to do the import.
+
+## Importers
+
+For each domain and version of the model we have an importer.
+
+An importer is the entry point to import the data.
+
+# Workflow to use an importer
+
+We describe here the workflow to use an importer.
+
+## Connections to the database(s) (required)
+
+This first step is to define the connection to the database(s).
+
+You have to load the [iotc_db_connections.R](./R/iotc_db_connections.R) file.
+
+Then set your credentials, says first define the server, then database credentials.
+
+```{r}
+# Load the R file
+source("./R/iotc_db_connections.R")
+# Set the server
+set_default_db_server(SERVER_CACHE, "localhost")
+# Set credentials for IOTC_ROS databse
+set_credentials_for_db(CREDENTIALS_CACHE, IOTC_ROS, "ros-admin", "a")
+# Set credentials for IOTC_Reference_Data databse (this is optional)
+set_credentials_for_db(CREDENTIALS_CACHE, IOTC_REFERENCE_DATA, "ros-admin", "a")
+```
+
+## Importer classes (required)
+
+We have to load the [iotc_importer_classes.R](R/iotc_importer_classes.R) file which contains all classes (we use the R6 package) needed to define a model and do the import.
+
+```{r}
+# Load the R file
+source("R/iotc_importer_classes.R")
+```
+
+## Model generator (optional)
+
+If the model has changed you have to regenerate the `R` corresponding file.
+
+The [iotc_model_generator.R](R/iotc_model_generator.R) file defines a constant of each model available and a main method named `generate_model` to generate the `R` file.
+
+The first thing to do is to load the file.
+```{r}
+# Load the R file
+source("R/iotc_model_generator.R", verbose= FALSE)
+```
+To regenerate a model just use the `generate_model` method with the corresponding model constant.
+
+The generated `R` file is named after the model constant: using the model's constant `ROS_LL_v3_2_1`, the generated `R` file is named [ROS_LL_v3_2_1_model.R](R/ROS_LL_v3_2_1_model.R).
+
+In our example, we regenerate the model of LL in version 3.2.1.
+```{r}
+# Regenerate the R file from the model of LL domain in version 3.2.1
+generate_model(ROS_LL_v3_2_1)
+```
+
+In our example, the generated `R` file contains three things:
+
+1. The R model of importer class named `ROS_LL_v3_2_1_model`.
+2. A method to load a xlsx data file named `load_xls_ROS_LL_v3_2_1`.
+3. A method to prepare the import context named `import_context_ROS_LL_v3_2_1`.
+
+This stuff is internal and you should not use them directly.
+
+## Use an importer (required)
+
+Associated to each generated `R` model file, there is a `R` file to perform the import.
+
+In our example, it is named [ROS_LL_v3_2_1_importer.R](R/ROS_LL_v3_2_1_importer.R)
+```{r}
+# Load the model
+source("R/ROS_LL_v3_2_1_model.R")
+# Load the importer
+source("R/ROS_LL_v3_2_1_importer.R")
+# Open a connection to ROS database
+connection <- DB_IOTC_ROS()
+# Choose a file to import
+file <- "./inputs/EU-FRANCE/ROS_LL_data_reporting_EU.FRA.REU_2022.xlsx"
+# Do import
+import_ROS_LL_v3_2_1(file, connection)
+```

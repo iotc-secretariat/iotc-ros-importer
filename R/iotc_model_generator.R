@@ -1,8 +1,20 @@
 library("jsonlite")
 
-#' ROS LL v3.2.1
+#' ROS LL v3.2.1 constant
 #' @export
 ROS_LL_v3_2_1 <- "ROS_LL_v3_2_1"
+
+#' ROS PS v3.2.1 constant
+#' @export
+ROS_PS_v3_2_1 <- "ROS_PS_v3_2_1"
+
+#' ROS GN v3.2.1 constant
+#' @export
+ROS_GN_v3_2_1 <- "ROS_GN_v3_2_1"
+
+#' ROS PL v3.2.1 constant
+#' @export
+ROS_PL_v3_2_1 <- "ROS_PL_v3_2_1"
 
 load_model <- function(path) {
   content <- fromJSON(path)
@@ -230,27 +242,42 @@ write_model <- function(name, content, target_file_path) {
     }
     i <- i + 1
   }
-  cat("connection <- DB_IOTC_ROS()\n", file = target_file_path, append = TRUE)
-  cat(sprintf("%s$init(connection)\n", variable_name), file = target_file_path, append = TRUE)
-  cat(sprintf("y <- %s$code_list_caches()\n", variable_name), file = target_file_path, append = TRUE)
-  cat(sprintf("z <- %s$data_table_ids()\n", variable_name), file = target_file_path, append = TRUE)
-  cat('t <- c("GD", "GIL", "GILD")\n', file = target_file_path, append = TRUE)
-  cat('ya <-lapply(t, function(x) { list(y$caches()$refs_fishery_config.gears$contains_code(x), y$caches()$refs_fishery_config.gears$get_code(x))})\n', file = target_file_path, append = TRUE)
-  cat('names(ya) <- t\n', file = target_file_path, append = TRUE)
-  cat('z$get_id("ros_common.general_vessel_and_trip_information")\n', file = target_file_path, append = TRUE)
-  cat('z$new_id("ros_common.general_vessel_and_trip_information")\n', file = target_file_path, append = TRUE)
+  tmp <- "
+#' Load xls content using %s
+#'
+#' @param file The xls file to import
+#' @return the loaded xls as a list of data.table (one per none empty sheet)
+#' @export
+load_xls_%s <- function(file) {
+  load_xls(file, %s)
 }
 
-#' Generate the R file for the ROS LL v3.2.1, using the \code{json} model.
+#' Create import context using %s
 #'
+#' @param file path to xsl file to load
+#' @param connection jdbc connectoion to db
+#' @return the import context (See ImportContext class)
+#' @export
+import_context_%s <- function(file, connection) {
+  import_context(%s, file, connection)
+}
+"
+  cat(sprintf(tmp, variable_name, name, variable_name, variable_name, name, variable_name), file = target_file_path, append = TRUE)
+}
+
+#' Generate the R file for the given ROS model name, using his \code{json} model.
+#'
+#' @param model_name to use
 #' Working directory is in this file directory, adapt if necessary
 #' @export
-generate_ros_ll_3_2_1_model <- function() {
-  json_model_path <- paste0("../models/", ROS_LL_v3_2_1, ".json")
-  r_file_path <- paste0("./", ROS_LL_v3_2_1, "_model.R")
+generate_model <- function(model_name) {
+  json_model_path <- paste0("./models/", model_name, ".json")
+  r_file_path <- paste0("./R/", model_name, "_model.R")
   model_content <- load_model(json_model_path)
-  write_model(ROS_LL_v3_2_1, model_content, r_file_path)
+  write_model(model_name, model_content, r_file_path)
 }
 
-#' To generate ros ll v3.2.1 model
-generate_ros_ll_3_2_1_model()
+# TODO
+# review json format → replace column type by flags and make the column name
+#
+#

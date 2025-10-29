@@ -1,5 +1,11 @@
 # importing the required library
-library("R6")
+library(R6)
+library(openxlsx)
+library(RPostgres)
+library(data.table)
+library(stringi)
+library(stringr)
+# library(iotc.base.common.data)
 
 DEBUG <- FALSE
 
@@ -15,7 +21,6 @@ TableLocation <- R6Class(
   "TableLocation",
   public = list(
     initialize = function(gav) {
-      # cat(paste0("TableLocation ", gav))
       stopifnot(!is.na(gav), is.character(gav), nchar(gav) > 0, gav %like% ".+\\..+")
       split2 <- split_table_location(gav)
       private$.schema <- split2[[1]]
@@ -46,7 +51,6 @@ ColumnLocation <- R6Class(
   "ColumnLocation",
   public = list(
     initialize = function(gav) {
-      # cat(paste0("ColumnLocation ", gav))
       stopifnot(!is.na(gav), is.character(gav), nchar(gav) > 0, gav %like% ".+\\..+→.+")
       split <- split_column_location(gav)
       private$.table <- table_location(split[[1]])
@@ -70,129 +74,6 @@ ColumnLocation <- R6Class(
     .table = NULL,
     # column name
     .column = NULL
-  )
-)
-
-CodeListCache <- R6Class(
-  "CodeListCache",
-  public = list(
-    initialize = function(table_location, values) {
-      stopifnot(!is.null(table_location))
-      stopifnot(!is.null(values))
-      private$.table_location <- table_location
-      private$.values <- values
-      private$.codes <- as.list(values[, code])
-      private$.with_code_orig <- "code_orig" %in% names(values)
-      if (private$.with_code_orig) {
-        private$.code_orig_mapping <- as.list(values[!is.null(code_orig), .(code_orig, code)])
-      }
-    },
-    table_location = function() {
-      private$.table_location
-    },
-    values = function() {
-      private$.values
-    },
-    codes = function() {
-      private$.codes
-    },
-    code_orig_mapping = function() {
-      private$.code_orig_mapping
-    },
-    with_code_orig = function() {
-      private$.with_code_orig
-    },
-    get_code = function(code) {
-      if (self$with_code_orig() && code %in% self$code_orig_mapping()$code_orig) {
-        position <- which(code == self$code_orig_mapping()$code_orig)
-        code <- self$code_orig_mapping()$code[position]
-      } else if (!code %in% self$codes()) {
-        code <- NULL
-      }
-      code
-    },
-    contains_code = function(code) {
-      if (self$with_code_orig()) {
-        if (code %in% self$code_orig_mapping()$code_orig) {
-          return(TRUE)
-        }
-      }
-      code %in% self$codes()
-    },
-    print = function(prefix = "") {
-      cat(prefix, " code-list ( ", self$table_location()$gav(), " ) - codes: ( ", length(self$codes()), " ) with code orig (", self$with_code_orig(), ")", sep = "")
-      if (self$with_code_orig()) {
-        cat(" code-orig-list ( ", length(self$code_orig_mapping()), " )\n", sep = "")
-      }
-      invisible(self)
-    }
-  ),
-  private = list(
-    # location of the code list table
-    .table_location = NULL,
-    # values for the code list
-    .values = NULL,
-    # codes available for this code list
-    .codes = NULL,
-    # if code_orig is available
-    .with_code_orig = NULL,
-    # optional mapping of code_orig to code
-    .code_orig_mapping = NULL
-  )
-)
-
-
-DataIdCache <- R6Class(
-  "DataIdCache",
-  public = list(
-    initialize = function(caches) {
-      stopifnot(!is.null(caches))
-      private$.caches <- caches
-    },
-    caches = function() {
-      private$.caches
-    },
-    get_id = function(table_location) {
-      stopifnot(table_location %in% names(private$.caches))
-      self$caches()[[table_location]]
-    },
-    new_id = function(table_location) {
-      stopifnot(table_location %in% names(private$.caches))
-      cache <- private$.caches[[table_location]] + 1
-      private$.caches[[table_location]] <- cache
-      cache
-    }
-  ),
-  private = list(
-    # all caches
-    .caches = NULL
-  )
-)
-
-CodeListCaches <- R6Class(
-  "CodeListCaches",
-  public = list(
-    initialize = function(caches) {
-      stopifnot(!is.null(caches))
-      private$.caches <- caches
-    },
-    caches = function() {
-      private$.caches
-    },
-    get_code = function(table_location, code) {
-      stopifnot(table_location %in% names(private$.caches))
-      cache <- private$.caches[[table_location]]
-      cache$get_code(code)
-    },
-    contains_code = function(table_location, code) {
-      stopifnot(table_location %in% names(private$.caches))
-      cache <- private$.caches[[table_location]]
-      cache$contains_code(code)
-    }
-  ),
-  private = list(
-    # all caches
-    .caches = NULL
   )
 )
 
@@ -511,43 +392,12 @@ ImportFile <- R6Class(
       private$.name <- name
       private$.sheets <- sheets
       names(private$.sheets) <- self$sheet_names()
-
-    },
-    init = function(connection) {
-      stopifnot(!is.null(connection))
-      code_list_tables <- private$.collect_code_list_tables()
-      .code_list_caches <- lapply(code_list_tables, function(x) {
-        t <- table_location(x)
-        values <- load_codelist(t$schema(), t$table(), columns = NULL, connection)
-        setorder(values, code)
-        code_list_cache(x, values)
-      })
-      names(.code_list_caches) <- code_list_tables
-      private$.code_list_caches <- code_list_caches(.code_list_caches)
-
-      data_tables <- private$.collect_data_tables()
-      .data_table_ids <- lapply(data_tables, function(x) {
-        t <- table_location(x)
-        query <- paste0("SELECT t.last_value FROM pg_catalog.pg_sequences t WHERE t.schemaname = '", t$schema(), "' AND sequencename ='", t$table(), "_id_seq'")
-        result_set <- dbSendQuery(connection, query)
-        id <- as.integer(dbFetch(result_set)[["last_value"]])
-        dbClearResult(result_set)
-        id
-      })
-      names(.data_table_ids) <- data_tables
-      private$.data_table_ids <- data_id_cache(.data_table_ids)
     },
     name = function() {
       private$.name
     },
     sheets = function() {
       private$.sheets
-    },
-    data_table_ids = function() {
-      private$.data_table_ids
-    },
-    code_list_caches = function() {
-      private$.code_list_caches
     },
     print = function() {
       cat("ImportFile: ", self$name(), " with ", length(self$sheets()), " sheet(s)\n", sep = "")
@@ -567,23 +417,10 @@ ImportFile <- R6Class(
     # sheet name
     .name = NULL,
     # columns of the sheet
-    .sheets = NULL,
-    # data tables ids
-    .data_table_ids = NULL,
-    # code list caches
-    .code_list_caches = NULL,
-    .collect_data_tables = function() {
-      unique(unlist(lapply(self$sheets(), function(s) {
-        s$collect_data_tables()
-      })))
-    },
-    .collect_code_list_tables = function() {
-      unique(unlist(lapply(self$sheets(), function(s) {
-        s$collect_code_list_tables()
-      })))
-    }
+    .sheets = NULL
   )
 )
+
 
 AbstractColumnAction <- R6Class(
   "AbstractColumnAction",
@@ -793,17 +630,197 @@ AddExternalForeignKeyColumn <- R6Class(
   )
 )
 
-code_list_cache <- function(table_location, values) {
-  CodeListCache$new(table_location, values)
-}
 
-code_list_caches <- function(caches) {
-  CodeListCaches$new(caches)
-}
+CodeListCache <- R6Class(
+  "CodeListCache",
+  public = list(
+    initialize = function(table_location, values) {
+      stopifnot(!is.null(table_location))
+      stopifnot(!is.null(values))
+      private$.table_location <- table_location
+      private$.values <- values
+      private$.codes <- as.list(values[, code])
+      private$.with_code_orig <- "code_orig" %in% names(values)
+      if (private$.with_code_orig) {
+        private$.code_orig_mapping <- as.list(values[!is.null(code_orig), .(code_orig, code)])
+      }
+    },
+    table_location = function() {
+      private$.table_location
+    },
+    values = function() {
+      private$.values
+    },
+    codes = function() {
+      private$.codes
+    },
+    code_orig_mapping = function() {
+      private$.code_orig_mapping
+    },
+    with_code_orig = function() {
+      private$.with_code_orig
+    },
+    get_code = function(code) {
+      if (self$with_code_orig() && code %in% self$code_orig_mapping()$code_orig) {
+        position <- which(code == self$code_orig_mapping()$code_orig)
+        code <- self$code_orig_mapping()$code[position]
+      } else if (!code %in% self$codes()) {
+        code <- NULL
+      }
+      code
+    },
+    contains_code = function(code) {
+      if (self$with_code_orig()) {
+        if (code %in% self$code_orig_mapping()$code_orig) {
+          return(TRUE)
+        }
+      }
+      code %in% self$codes()
+    },
+    print = function(prefix = "") {
+      cat(prefix, " code-list ( ", self$table_location()$gav(), " ) - codes: ( ", length(self$codes()), " ) with code orig (", self$with_code_orig(), ")", sep = "")
+      if (self$with_code_orig()) {
+        cat(" code-orig-list ( ", length(self$code_orig_mapping()), " )\n", sep = "")
+      }
+      invisible(self)
+    }
+  ),
+  private = list(
+    # location of the code list table
+    .table_location = NULL,
+    # values for the code list
+    .values = NULL,
+    # codes available for this code list
+    .codes = NULL,
+    # if code_orig is available
+    .with_code_orig = NULL,
+    # optional mapping of code_orig to code
+    .code_orig_mapping = NULL
+  )
+)
 
-data_id_cache <- function(caches) {
-  DataIdCache$new(caches)
-}
+DataIdCache <- R6Class(
+  "DataIdCache",
+  public = list(
+    initialize = function(caches) {
+      stopifnot(!is.null(caches))
+      private$.caches <- caches
+    },
+    caches = function() {
+      private$.caches
+    },
+    get_id = function(table_location) {
+      stopifnot(table_location %in% names(private$.caches))
+      self$caches()[[table_location]]
+    },
+    new_id = function(table_location) {
+      stopifnot(table_location %in% names(private$.caches))
+      cache <- private$.caches[[table_location]] + 1
+      private$.caches[[table_location]] <- cache
+      cache
+    }
+  ),
+  private = list(
+    # all caches
+    .caches = NULL
+  )
+)
+
+CodeListCaches <- R6Class(
+  "CodeListCaches",
+  public = list(
+    initialize = function(caches) {
+      stopifnot(!is.null(caches))
+      private$.caches <- caches
+    },
+    caches = function() {
+      private$.caches
+    },
+    get_code = function(table_location, code) {
+      stopifnot(table_location %in% names(private$.caches))
+      cache <- private$.caches[[table_location]]
+      cache$get_code(code)
+    },
+    contains_code = function(table_location, code) {
+      stopifnot(table_location %in% names(private$.caches))
+      cache <- private$.caches[[table_location]]
+      cache$contains_code(code)
+    }
+  ),
+  private = list(
+    # all caches
+    .caches = NULL
+  )
+)
+
+ImportContext <- R6Class(
+  "ImportContext",
+  public = list(
+    initialize = function(model, file, connection) {
+      stopifnot(!is.null(model))
+      stopifnot(!is.null(connection))
+      stopifnot(!is.null(file))
+      private$.model <- model
+      private$.xls_data <- load_xls(model, file)
+      code_list_tables <- private$.collect_code_list_tables()
+      .code_list_caches <- lapply(code_list_tables, function(x) {
+        t <- table_location(x)
+        values <- load_codelist(t$schema(), t$table(), columns = NULL, connection)
+        setorder(values, code)
+        code_list_cache(x, values)
+      })
+      names(.code_list_caches) <- code_list_tables
+      private$.code_list_caches <- code_list_caches(.code_list_caches)
+      data_tables <- private$.collect_data_tables()
+      .data_table_ids <- lapply(data_tables, function(x) {
+        t <- table_location(x)
+        query <- paste0("SELECT t.last_value FROM pg_catalog.pg_sequences t WHERE t.schemaname = '", t$schema(), "' AND sequencename ='", t$table(), "_id_seq'")
+        result_set <- dbSendQuery(connection, query)
+        id <- as.integer(dbFetch(result_set)[["last_value"]])
+        dbClearResult(result_set)
+        id
+      })
+      names(.data_table_ids) <- data_tables
+      private$.data_table_ids <- data_id_cache(.data_table_ids)
+    },
+    model = function() {
+      private$.model
+    },
+    xls_data = function() {
+      private$.xls_data
+    },
+    data_table_ids = function() {
+      private$.data_table_ids
+    },
+    code_list_caches = function() {
+      private$.code_list_caches
+    },
+    sheet_names = function() {
+      private$.model$sheet_names()
+    }
+  ),
+  private = list(
+    # import model
+    .model = NULL,
+    # xls data to import
+    .xls_data = NULL,
+    # data tables ids
+    .data_table_ids = NULL,
+    # code list caches
+    .code_list_caches = NULL,
+    .collect_data_tables = function() {
+      unique(unlist(lapply(private$.model$sheets(), function(s) {
+        s$collect_data_tables()
+      })))
+    },
+    .collect_code_list_tables = function() {
+      unique(unlist(lapply(private$.model$sheets(), function(s) {
+        s$collect_code_list_tables()
+      })))
+    }
+  )
+)
+
 
 table_location <- function(gav) {
   TableLocation$new(gav)
@@ -893,6 +910,23 @@ import_file <- function(name, sheets) {
   ImportFile$new(name, sheets)
 }
 
+import_context <- function(model, file, connection) {
+  ImportContext$new(model, file, connection)
+}
+
+
+code_list_cache <- function(table_location, values) {
+  CodeListCache$new(table_location, values)
+}
+
+code_list_caches <- function(caches) {
+  CodeListCaches$new(caches)
+}
+
+data_id_cache <- function(caches) {
+  DataIdCache$new(caches)
+}
+
 is_ignored_column <- function(object) {
   class(object)[[1]] == "IgnoredColumn"
 }
@@ -947,4 +981,72 @@ is_add_fk_column <- function(object) {
 
 is_add_external_fk_column <- function(object) {
   class(object)[[1]] == "AddExternalForeignKeyColumnAction"
+}
+
+#' Generic method to load xsl \code{file}, using the given \code{import_model} xls model.
+#' @param import_model The xls column names model per sheet
+#' @param file The file to import
+#' @return the loaded xls
+#' @export
+load_xls <- function(import_model, file) {
+  sheet_names <- import_model$sheet_names()
+  sheet_models <- import_model$sheets()
+  # Load xsl frames, one per sheet
+  yata_frame <- lapply(sheet_names,
+                       openxlsx::read.xlsx,
+                       xlsxFile = file,
+                       colNames = FALSE,
+                       skipEmptyCols = FALSE,
+                       detectDates = TRUE)
+  # The result (list of data.table, one per sheet, if sheet is empty, then it won't be available in result)
+  result <- list()
+  sheets_size <- length(sheet_models)
+  for (i in seq(1:sheets_size)) {
+    sheet_model <- sheet_models[[i]]
+    sheet_name <- sheet_model$name()
+    sheet_content <- as.data.table(yata_frame[i])
+    if (nrow(sheet_content) < 6) {
+      # No data in this sheet
+      sheet_content <- NULL
+    } else {
+      sheet_content <- sheet_content[6:nrow(sheet_content)]
+      column_names <- unlist(sheet_model$column_names())
+      names(sheet_content) <- column_names
+    }
+    result[[sheet_name]] <- sheet_content
+  }
+  result
+}
+
+
+#' Performs and SQL query through a provided JDBC connection and return its results as a \code{data.table}
+#'
+#' @param connection An JDBC connection to a RDBMS server
+#' @param query The query to perform
+#' @return The results of executing \code{query} through \code{connection} as a data table
+#' @examples
+#' query(connection = DB_IOTC_ROS(), query = "SELECT * FROM V_LEGACY_NC")
+#' @export
+query <- function(connection, query) {
+  data.table(dbGetQuery(connection, query))
+}
+
+#' Generic method to load the content of a given code list.
+#'
+#' @param codelist_domain The code list domain
+#' @param codelist_name The code list name
+#' @param columns The optional columns to load (if not specified, then will load all columns of the code list)
+#' @param connection where to load the code list
+#' @return the loaded code list as a data.Table
+#' @export
+load_codelist <- function(codelist_domain, codelist_name, columns = NULL, connection) {
+  if (is.null(columns)) {
+    columns <- "*"
+  } else {
+    columns <- paste0(columns, collapse = ", ")
+  }
+  query(
+    connection,
+    paste0("SELECT ", columns, " FROM ", codelist_domain, ".", codelist_name)
+  )
 }

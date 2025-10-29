@@ -299,8 +299,7 @@
  { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TYPE_CODE", "location": "ros_ll.tag_details→tag_type_code", "fk": "refs_biological.tag_types→code", "actions": [  "addColumn" ]} ,
  { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_1", "location": "ros_ll.tag_details→tag_original_id", "actions": [  "addColumn" ]} ,
  { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_2", "location": "ros_ll.tag_details→alternate_tag_original_id", "actions": [  "addColumn" ]} ,
- { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_FINDER_NAME_AND_CONTACT_DETAILS", "location": "ros_common.person_contact_details→full_name" , "actions": [  "newQuery", "addFkColumn:ros_ll.tag_details→tag_finder_id", "flushQuery" ]},
-  { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_WELL", "location": "ros_ll.tag_details→well", "actions": [  "addColumn", "flushQuery" ]} ]} ,
+ { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_FINDER_NAME_AND_CONTACT_DETAILS", "location": "ros_common.person_contact_details→full_name" , "actions": [  "newQuery", "addFkColumn:ros_ll.tag_details→tag_finder_id", "flushQuery" ]} ]} ,
  "E-SET-CATCHES-SPECIMEN-SSI": { "comment": "#[18] = E-SET-CATCHES-SPECIMEN-SSI | From row 6 - 16 columns", "pk": 4, "columns": [
  { "IgnoredColumn": "OBSERVED_TRIP_NUMBER", "comment": "Not used here"} ,
  { "IgnoredColumn": "SET_NUMBER", "comment": "Not used here"} ,

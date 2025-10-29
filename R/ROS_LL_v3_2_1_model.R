@@ -302,8 +302,7 @@ ROS_LL_v3_2_1_MODEL <-
       optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TYPE_CODE", column_location("ros_ll.tag_details→tag_type_code"), column_location("refs_biological.tag_types→code"), actions =  c(add_column())),
       optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_1", column_location("ros_ll.tag_details→tag_original_id"), actions =  c(add_column())),
       optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_2", column_location("ros_ll.tag_details→alternate_tag_original_id"), actions =  c(add_column())),
-      optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_FINDER_NAME_AND_CONTACT_DETAILS", column_location("ros_common.person_contact_details→full_name"), actions =  c(new_query(), add_fk_column(column_location("ros_ll.tag_details→tag_finder_id")), flush_query())),
-      optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_WELL", column_location("ros_ll.tag_details→well"), actions =  c(add_column(), flush_query())))),
+      optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_FINDER_NAME_AND_CONTACT_DETAILS", column_location("ros_common.person_contact_details→full_name"), actions =  c(new_query(), add_fk_column(column_location("ros_ll.tag_details→tag_finder_id")), flush_query())))),
     sheet("E-SET-CATCHES-SPECIMEN-SSI", "#[18] = E-SET-CATCHES-SPECIMEN-SSI | From row 6 - 16 columns", 4, c(
       ignored_column("OBSERVED_TRIP_NUMBER", "Not used here"),
       ignored_column("SET_NUMBER", "Not used here"),
@@ -344,12 +343,22 @@ ROS_LL_v3_2_1_MODEL <-
       ignored_column("PRODUCT_TRANSSHIPPED_PROCESSING_TYPE_CODE", "Removed in version 3.3.0"),
       ignored_column("PRODUCT_TRANSSHIPPED_QUANTITY_VALUE", "Removed in version 3.3.0"),
       ignored_column("PRODUCT_TRANSSHIPPED_QUANTITY_KG_T", "Removed in version 3.3.0")))))
-connection <- DB_IOTC_ROS()
-ROS_LL_v3_2_1_MODEL$init(connection)
-y <- ROS_LL_v3_2_1_MODEL$code_list_caches()
-z <- ROS_LL_v3_2_1_MODEL$data_table_ids()
-t <- c("GD", "GIL", "GILD")
-ya <-lapply(t, function(x) { list(y$caches()$refs_fishery_config.gears$contains_code(x), y$caches()$refs_fishery_config.gears$get_code(x))})
-names(ya) <- t
-z$get_id("ros_common.general_vessel_and_trip_information")
-z$new_id("ros_common.general_vessel_and_trip_information")
+
+#' Load xls content using ROS_LL_v3_2_1_MODEL
+#'
+#' @param file The xls file to import
+#' @return the loaded xls as a list of data.table (one per none empty sheet)
+#' @export
+load_xls_ROS_LL_v3_2_1 <- function(file) {
+  load_xls(file, ROS_LL_v3_2_1_MODEL)
+}
+
+#' Create import context using ROS_LL_v3_2_1_MODEL
+#'
+#' @param file path to xsl file to load
+#' @param connection jdbc connectoion to db
+#' @return the import context (See ImportContext class)
+#' @export
+import_context_ROS_LL_v3_2_1 <- function(file, connection) {
+  import_context(ROS_LL_v3_2_1_MODEL, file, connection)
+}
