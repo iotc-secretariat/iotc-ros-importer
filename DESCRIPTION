@@ -14,10 +14,12 @@ Depends:
     RPostgres,
     iotc.core.db.data (>= 0.2.1),
     iotc.core.utils.misc (>= 0.2.1),
-    iotc.core.gis.cwp.IO.standalone (>= 0.2.1),
-    iotc.data.reference.codelists,
+    iotc.core.db.connections (>= 0.2.3),
     data.table (>= 1.14.9),
     digest,
     openxlsx,
     stringi,
-    stringr
+    stringr,
+    digest,
+    R6,
+    jsonlite
