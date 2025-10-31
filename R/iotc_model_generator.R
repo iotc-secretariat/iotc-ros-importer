@@ -1,4 +1,4 @@
-library("jsonlite")
+library(jsonlite)
 
 #' ROS LL v3.2.1 constant
 #' @export
@@ -16,21 +16,81 @@ ROS_GN_v3_2_1 <- "ROS_GN_v3_2_1"
 #' @export
 ROS_PL_v3_2_1 <- "ROS_PL_v3_2_1"
 
+
+split_meta_cell_location <- function(value) {
+  unlist(strsplit(value, "\\:"))
+}
+
 load_model <- function(path) {
   content <- fromJSON(path)
   real_content <- content[[1]]
   sheet_names <- names(real_content)
   result <- list()
+  meta_sheet <- NULL
   for (i in sheet_names) {
-    sheet <- load_sheet(i, real_content)
-    result[i] <- list(sheet)
+    if (grepl("META", i)) {
+      meta_sheet <- load_meta_sheet(i, real_content)
+    } else {
+      sheet <- load_sheet(i, real_content)
+      result[i] <- list(sheet)
+    }
   }
+  list("meta" = meta_sheet, "sheets" = result)
+}
+
+load_meta_sheet <- function(name, content) {
+  sheet_content <- content[[name]]
+  sheet_comment <- sheet_content$comment
+  sheet_cells <- sheet_content$cells
+  types <- names(sheet_cells)
+  cell_types <- c()
+  result_cells <- list()
+  index <- 1
+  for (i in types) {
+    if (grepl("Meta", i)) {
+      cell_types[index] <- i
+      index <- index + 1
+    }
+  }
+  index <- 1
+  locations <- sheet_cells$location
+  expecteds <- sheet_cells$expected
+  formats <- sheet_cells$format
+  for (j in seq(1, nrow(sheet_cells))) {
+    for (i in cell_types) {
+      tmp <- sheet_cells[[i]]
+      y <- tmp[[j]]
+      location <- locations[j]
+      expected <- expecteds[j]
+      format <- formats[j]
+      with_expected <- !is.na(expected)
+      with_format <- !is.na(format)
+      if (!is.na(tmp[[j]])) {
+        if (grepl("MandatoryMetaCell", i)) {
+          l <- split_meta_cell_location(location)
+          e <- ""
+          if (with_expected) {
+            e <- sprintf(', expected = "%s"', expected)
+          }
+          if (with_format) {
+            e <- sprintf(', format = "%s"', format)
+          }
+          t <- sprintf('mandatory_meta_cell("%s", %s, %s%s)', y, l[1], l[2],e)
+          result_cells <- append(result_cells, t)
+        } else if (grepl("OptionalMetaCell", i)) {
+          l <- split_meta_cell_location(location)
+          t <- sprintf('optional_meta_cell("%s", %s, %s%S)', y, l[1], l[2],e)
+          result_cells <- append(result_cells, t)
+        }
+      }
+    }
+  }
+  result <- list(comment = sheet_comment, cells = result_cells)
+  cat("\n")
   result
 }
 
 load_sheet <- function(name, content) {
-  # cat(name)
-  # cat("\n")
   sheet_content <- content[[name]]
   sheet_comment <- sheet_content$comment
   sheet_pk <- sheet_content$pk
@@ -209,14 +269,30 @@ load_actions <- function(actions) {
   result
 }
 
-write_model <- function(name, content, target_file_path) {
+write_model <- function(name, global_content, target_file_path) {
+  meta_sheet_content <- global_content$meta
+  content <- global_content$sheets
   sheet_names <- names(content)
   cat(paste0("#' The import file model for the ", name, "\n"), file = target_file_path)
   cat("#' @export\n", file = target_file_path, append = TRUE)
   variable_name <- paste0(name, "_MODEL")
   cat(paste0(variable_name, " <-\n"), file = target_file_path, append = TRUE)
-  cat(sprintf('  import_file("%s", c(\n', name), file = target_file_path, append = TRUE)
+  cat(sprintf('  import_file("%s", \n', name), file = target_file_path, append = TRUE)
+  sheet_columns <- meta_sheet_content[["cells"]]
+  s <- length(sheet_columns)
+  cat('    meta_sheet("META", c(\n', file = target_file_path, append = TRUE)
   i <- 1
+  for (j in seq(1, s)) {
+    t <- ""
+    if (j < s) {
+      t <- ","
+    } else {
+      t <- paste0(t, ")), c(")
+    }
+    t <- paste0(t, "\n")
+    cat(sprintf('      %s%s', sheet_columns[[j]], t), file = target_file_path, append = TRUE)
+  }
+  # cat(' c(\n', file = target_file_path, append = TRUE)
   n <- length(sheet_names)
   for (sheet_name in sheet_names) {
     sheet_content <- content[[sheet_name]]
@@ -258,8 +334,8 @@ load_xls_%s <- function(file) {
 #' @param connection jdbc connectoion to db
 #' @return the import context (See ImportContext class)
 #' @export
-import_context_%s <- function(file, connection) {
-  import_context(%s, file, connection)
+import_context_%s <- function(file, connection, extra_data_tables) {
+  import_context(%s, file, connection, extra_data_tables)
 }
 "
   cat(sprintf(tmp, variable_name, name, variable_name, variable_name, name, variable_name), file = target_file_path, append = TRUE)

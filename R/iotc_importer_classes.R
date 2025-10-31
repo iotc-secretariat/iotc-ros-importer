@@ -5,6 +5,7 @@ library(RPostgres)
 library(data.table)
 library(stringi)
 library(stringr)
+library(R.oo)
 # library(iotc.base.common.data)
 
 DEBUG <- FALSE
@@ -63,7 +64,7 @@ ColumnLocation <- R6Class(
       private$.column
     },
     gav = function() {
-      sprintf("%s→%s", self$table(), self$column())
+      sprintf("%s→%s", self$table()$gav(), self$column())
     },
     print = function() {
       cat(self$gav())
@@ -319,6 +320,147 @@ MeasurementUnitColumn <- R6Class(
   )
 )
 
+MetaCell <- R6Class(
+  "MetaCell",
+  public = list(
+    initialize = function(name, mandatory, column, row, expected = NULL, format = NULL) {
+      if (DEBUG) {
+        cat("MetaCell:", name, " - mandatory:", mandatory, " at ", column, ":", row, "\n")
+      }
+      stopifnot(!is.na(name), is.character(name), nchar(name) > 0)
+      stopifnot(!is.na(mandatory))
+      stopifnot(!is.na(column), is.numeric(column))
+      stopifnot(!is.na(row), is.numeric(row))
+      private$.name <- name
+      private$.mandatory <- mandatory
+      private$.column <- column
+      private$.row <- row
+      private$.expected <- expected
+      private$.format <- format
+    },
+    name = function() {
+      private$.name
+    },
+    mandatory = function() {
+      private$.mandatory
+    },
+    column = function() {
+      private$.column
+    },
+    row = function() {
+      private$.row
+    },
+    init_value = function(meta_sheet) {
+      private$.value <- meta_sheet[[self$row()]][[self$column()]]
+    },
+    check_value = function() {
+      is_na <- is.na(self$value())
+      if (self$mandatory() && is_na) {
+        throw("Meta: ", self$name(), " is mandatory and no value found in META sheet")
+        invisible(self)
+      }
+      if (!is_na) {
+        # Not null value
+        if (!is.null(self$expected())) {
+          # With expected value, let's check it
+          if (self$expected() != self$value()) {
+            throw("Meta: ", self$name(), " should have value ", self$expected(), " but is ", self$value())
+            invisible(self)
+          }
+        }
+        if (!is.null(self$format())) {
+          # With format, let's check it
+          if (!grepl(self$format(), self$value())) {
+            throw("Meta: ", self$name(), " should have format ", self$format(), " but is ", self$value())
+            invisible(self)
+          }
+        }
+      }
+      cat("Meta: ", self$name(), " value ", self$value(), " is correct", "\n", sep = "")
+    },
+    value = function() {
+      private$.value
+    },
+    expected = function() {
+      private$.expected
+    },
+    format = function() {
+      private$.format
+    },
+    print = function(prefix = "") {
+      cat(prefix, "Meta: ", self$name(), " - mandatory:", self$mandatory(), " at ", self$column(), ":", self$row(), " - value:", self$value(), "\n", sep = "")
+      invisible(self)
+    }
+  ),
+  private = list(
+    # name of the meta
+    .name = NULL,
+    # is meta mandatory?
+    .mandatory = NULL,
+    # column number
+    .column = NULL,
+    # row number
+    .row = NULL,
+    # value from the import file
+    .value = NULL,
+    # optional expected value
+    .expected = NULL,
+    # optional format of the value (as a regular expression)
+    .format = NULL
+  )
+)
+
+AbstractMetaSheet <- R6Class(
+  "AbstractMetaSheet",
+  public = list(
+    initialize = function(name, cells) {
+      if (DEBUG) {
+        cat("AbstractMetaSheet:", name, "\n")
+      }
+      stopifnot(!is.na(name), is.character(name), nchar(name) > 0)
+      stopifnot(!is.na(cells), is.vector(cells), length(cells) > 0)
+      private$.name <- name
+      private$.cells <- cells
+      names(private$.cells) <- self$cells_names()
+    },
+    name = function() {
+      private$.name
+    },
+    cells = function() {
+      private$.cells
+    },
+    cells_names = function() {
+      lapply(self$cells(),
+             function(x) {
+               x$name()
+             })
+    },
+    init_values = function(meta_sheet) {
+      for (c in self$cells()) {
+        c$init_value(meta_sheet)
+      }
+    },
+    check_values = function() {
+      for (c in self$cells()) {
+        c$check_value()
+      }
+    },
+    print = function(prefix = "") {
+      cat(prefix, "AbstractMetaSheet: ", self$name(), " with ", length(self$cells()), " cell(s)\n", sep = "")
+      for (c in self$cells()) {
+        c$print(paste(prefix, " "))
+      }
+      invisible(self)
+    }
+  ),
+  private = list(
+    # sheet name
+    .name = NULL,
+    # meta cells
+    .cells = NULL
+  )
+)
+
 Sheet <- R6Class(
   "Sheet",
   public = list(
@@ -386,15 +528,20 @@ Sheet <- R6Class(
 ImportFile <- R6Class(
   "ImportFile",
   public = list(
-    initialize = function(name, sheets) {
+    initialize = function(name, meta_sheet, sheets) {
       stopifnot(!is.na(name), is.character(name), nchar(name) > 0)
+      stopifnot(!is.null(meta_sheet))
       stopifnot(!is.na(sheets), is.vector(sheets), length(sheets) > 0)
       private$.name <- name
+      private$.meta_sheet <- meta_sheet
       private$.sheets <- sheets
       names(private$.sheets) <- self$sheet_names()
     },
     name = function() {
       private$.name
+    },
+    meta_sheet = function() {
+      private$.meta_sheet
     },
     sheets = function() {
       private$.sheets
@@ -416,6 +563,8 @@ ImportFile <- R6Class(
   private = list(
     # sheet name
     .name = NULL,
+    # meta sheet
+    .meta_sheet = NULL,
     # columns of the sheet
     .sheets = NULL
   )
@@ -756,7 +905,7 @@ CodeListCaches <- R6Class(
 ImportContext <- R6Class(
   "ImportContext",
   public = list(
-    initialize = function(model, file, connection) {
+    initialize = function(model, file, connection, extra_data_tables) {
       stopifnot(!is.null(model))
       stopifnot(!is.null(connection))
       stopifnot(!is.null(file))
@@ -772,6 +921,7 @@ ImportContext <- R6Class(
       names(.code_list_caches) <- code_list_tables
       private$.code_list_caches <- code_list_caches(.code_list_caches)
       data_tables <- private$.collect_data_tables()
+      data_tables <- append(data_tables, extra_data_tables)
       .data_table_ids <- lapply(data_tables, function(x) {
         t <- table_location(x)
         query <- paste0("SELECT t.last_value FROM pg_catalog.pg_sequences t WHERE t.schemaname = '", t$schema(), "' AND sequencename ='", t$table(), "_id_seq'")
@@ -797,6 +947,10 @@ ImportContext <- R6Class(
     },
     sheet_names = function() {
       private$.model$sheet_names()
+    },
+    check_code_list_in_data = function() {
+      code_list_caches <- self$code_list_caches()
+
     }
   ),
   private = list(
@@ -821,6 +975,13 @@ ImportContext <- R6Class(
   )
 )
 
+mandatory_meta_cell <- function(name, column, row, expected = NULL, format = NULL) {
+  MetaCell$new(name, mandatory = TRUE, column, row, expected, format)
+}
+
+optional_meta_cell <- function(name, column, row, expected = NULL, format = NULL) {
+  MetaCell$new(name, mandatory = FALSE, column, row, expected, format)
+}
 
 table_location <- function(gav) {
   TableLocation$new(gav)
@@ -902,18 +1063,21 @@ add_external_fk_column <- function(table_location, column_location) {
   AddExternalForeignKeyColumn$new(table_location, column_location)
 }
 
+meta_sheet <- function(name, cells) {
+  AbstractMetaSheet$new(name, cells)
+}
+
 sheet <- function(name, comment, pk, columns) {
   Sheet$new(name, comment, pk, columns)
 }
 
-import_file <- function(name, sheets) {
-  ImportFile$new(name, sheets)
+import_file <- function(name, meta_sheet, sheets) {
+  ImportFile$new(name, meta_sheet, sheets)
 }
 
-import_context <- function(model, file, connection) {
-  ImportContext$new(model, file, connection)
+import_context <- function(model, file, connection, extra_data_tables) {
+  ImportContext$new(model, file, connection, extra_data_tables)
 }
-
 
 code_list_cache <- function(table_location, values) {
   CodeListCache$new(table_location, values)
@@ -991,6 +1155,16 @@ is_add_external_fk_column <- function(object) {
 load_xls <- function(import_model, file) {
   sheet_names <- import_model$sheet_names()
   sheet_models <- import_model$sheets()
+  # The result (list of data.table, one per sheet, if sheet is empty, then it won't be available in result)
+  result <- list()
+
+  # Load xsl meta sheet
+  yata_frame <- openxlsx::read.xlsx(xlsxFile = file,
+                                    colNames = FALSE,
+                                    skipEmptyCols = FALSE,
+                                    detectDates = TRUE,
+                                    sheet = "META")
+  result[["META"]] <- as.data.table(yata_frame)
   # Load xsl frames, one per sheet
   yata_frame <- lapply(sheet_names,
                        openxlsx::read.xlsx,
@@ -998,8 +1172,6 @@ load_xls <- function(import_model, file) {
                        colNames = FALSE,
                        skipEmptyCols = FALSE,
                        detectDates = TRUE)
-  # The result (list of data.table, one per sheet, if sheet is empty, then it won't be available in result)
-  result <- list()
   sheets_size <- length(sheet_models)
   for (i in seq(1:sheets_size)) {
     sheet_model <- sheet_models[[i]]

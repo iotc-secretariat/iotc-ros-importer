@@ -1,7 +1,16 @@
 #' The import file model for the ROS_LL_v3_2_1
 #' @export
 ROS_LL_v3_2_1_MODEL <-
-  import_file("ROS_LL_v3_2_1", c(
+  import_file("ROS_LL_v3_2_1", 
+    meta_sheet("META", c(
+      mandatory_meta_cell("form_version", 3, 5, expected = "1.0.0"),
+      mandatory_meta_cell("data_model_version", 4, 5, expected = "3.2.1"),
+      mandatory_meta_cell("liaison_officer_full_name", 9, 5),
+      mandatory_meta_cell("liaison_officer_email", 10, 5),
+      mandatory_meta_cell("organisation_name", 8, 5),
+      mandatory_meta_cell("finalisation_date", 11, 5, format = "[0-9]{4}-[0-9]{2}-[0-9]{2}$"),
+      mandatory_meta_cell("submission_date", 12, 5, format = "[0-9]{4}-[0-9]{2}-[0-9]{2}$"),
+      mandatory_meta_cell("comments", 14, 3))), c(
     sheet("O-INFO", "#[ 2] = O-INFO | From row 6 - 25 columns", 1, c(
       mandatory_simple_column("OBSERVED_TRIP_NUMBER", column_location("ros_common.general_vessel_and_trip_information→trip_original_id"), actions =  c(new_query(), add_column())),
       mandatory_simple_column("OBSERVER_IDENTIFICATION_OBSERVER_IOTC_NUMBER", column_location("ros_common.observer_identification→iotc_number"), actions =  c(new_query(), add_column(), add_fk_column(column_location("ros_common.general_vessel_and_trip_information→observer_identification_id")))),
@@ -281,11 +290,11 @@ ROS_LL_v3_2_1_MODEL <-
       optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_DEPREDATION_DETAILS_DEPREDATION_SOURCE_CODE", column_location("ros_common.depredation_details→depredation_source_code"), column_location("refs_biological.scars→code"), "Fixme : why not using refs_biological.depredation_sources", actions =  c(new_query(), add_fk_column(column_location("ros_common.specimens→depredation_detail_id")), add_column())),
       optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_DEPREDATION_DETAILS_OBSERVED_PREDATOR_CODE", column_location("ros_common.depredation_details→predator_observed_code"), column_location("refs_biological.species→code"), actions =  c(add_column(), flush_query())),
       mandatory_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_SAMPLING_METHOD_CODE", column_location("ros_common.biometric_information→bio_collection_sampling_method_code"), column_location("refs_biological.sampling_methods_for_sampling_collections→code"), actions =  c(add_column())),
-      mandatory_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_TYPE_CODE", column_location("ros_common.measured_lengths→type_of_measurement_code"), column_location("refs_biological.types_of_measurement→code"), actions =  c(new_measurement_query(), add_fk_column(column_location("ros_common.biometric_information→measured_length_id")), add_column())),
+      mandatory_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_TYPE_CODE", column_location("ros_common.measured_lengths→code"), column_location("refs_biological.measurements→code"), actions =  c(new_measurement_query(), add_fk_column(column_location("ros_common.biometric_information→measured_length_id")), add_column())),
       mandatory_measurement_column("SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_VALUE_CM", column_location("ros_common.biometric_information→measured_length_id"), "ros_common.measured_lengths", "CM", actions =  c(add_column())),
       mandatory_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_MEASURING_TOOL_CODE", column_location("ros_common.measured_lengths→length_measuring_tool_code"), column_location("refs_biological.measurement_tools→code"), actions =  c(add_column())),
       optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_IS_STRAIGHT", column_location("ros_common.measured_lengths→straight"), actions =  c(add_column(), flush_measurement_query())),
-      optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_TYPE_CODE", column_location("ros_common.measured_lengths→type_of_measurement_code"), column_location("refs_biological.types_of_measurement→code"), actions =  c(new_measurement_query(), add_fk_column(column_location("ros_common.biometric_information→alternative_measured_length_id")), add_column())),
+      optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_TYPE_CODE", column_location("ros_common.measured_lengths→code"), column_location("refs_biological.measurements→code"), actions =  c(new_measurement_query(), add_fk_column(column_location("ros_common.biometric_information→alternative_measured_length_id")), add_column())),
       optional_measurement_column("SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_VALUE_CM", column_location("ros_common.biometric_information→alternative_measured_length_id"), "ros_common.measured_lengths", "CM", actions =  c(add_column())),
       optional_fk_column("SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_MEASURING_TOOL_CODE", column_location("ros_common.measured_lengths→length_measuring_tool_code"), column_location("refs_biological.measurement_tools→code"), actions =  c(add_column())),
       optional_simple_column("SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_IS_STRAIGHT", column_location("ros_common.measured_lengths→straight"), actions =  c(add_column(), flush_measurement_query())),
@@ -359,6 +368,6 @@ load_xls_ROS_LL_v3_2_1 <- function(file) {
 #' @param connection jdbc connectoion to db
 #' @return the import context (See ImportContext class)
 #' @export
-import_context_ROS_LL_v3_2_1 <- function(file, connection) {
-  import_context(ROS_LL_v3_2_1_MODEL, file, connection)
+import_context_ROS_LL_v3_2_1 <- function(file, connection, extra_data_tables) {
+  import_context(ROS_LL_v3_2_1_MODEL, file, connection, extra_data_tables)
 }
