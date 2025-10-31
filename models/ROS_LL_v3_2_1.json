@@ -1,4 +1,13 @@
-{ "Ros 3.2.1 - LL": { 
+{ "Ros 3.2.1 - LL": {
+  "META": { "comment": "#[ 1] = META", "cells": [
+ { "MandatoryMetaCell"  : "form_version", "location": "3:5", "expected": "1.0.0" },
+ { "MandatoryMetaCell"  : "data_model_version", "location": "4:5", "expected": "3.2.1" },
+ { "MandatoryMetaCell": "liaison_officer_full_name", "location": "9:5" } ,
+ { "MandatoryMetaCell": "liaison_officer_email", "location": "10:5" } ,
+ { "MandatoryMetaCell": "organisation_name", "location": "8:5" } ,
+ { "MandatoryMetaCell": "finalisation_date", "location": "11:5", "format": "[0-9]{4}-[0-9]{2}-[0-9]{2}$" } ,
+ { "MandatoryMetaCell": "submission_date", "location": "12:5", "format": "[0-9]{4}-[0-9]{2}-[0-9]{2}$" } ,
+ { "MandatoryMetaCell": "comments", "location": "14:3" } ] } ,
  "O-INFO": { "comment": "#[ 2] = O-INFO | From row 6 - 25 columns", "pk": 1, "columns": [
  { "MandatorySimpleColumn": "OBSERVED_TRIP_NUMBER", "location": "ros_common.general_vessel_and_trip_information→trip_original_id", "actions" : [ "newQuery", "addColumn" ]} ,
  { "MandatorySimpleColumn": "OBSERVER_IDENTIFICATION_OBSERVER_IOTC_NUMBER", "location": "ros_common.observer_identification→iotc_number", "actions" : [ "newQuery", "addColumn", "addFkColumn:ros_common.general_vessel_and_trip_information→observer_identification_id" ]} ,
@@ -106,7 +115,7 @@
  { "OptionalSimpleColumn": "VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_VHF_RADIOS", "location": "ros_common.vessel_electronics→vhf_radios", "actions": [  "addColumn" ]} ,
  { "OptionalSimpleColumn": "VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_HF_RADIOS", "location": "ros_common.vessel_electronics→hf_radios", "actions": [  "addColumn" ]} ,
  { "OptionalSimpleColumn": "VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_SATELLITE_COMM", "location": "ros_common.vessel_electronics→satellite_communication_systems", "actions": [  "addColumn" ]} ,
- { "IgnoredColumn": "VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_SST_GAUGE", "comment": "Removed in version 3.3.0"} ,  
+ { "IgnoredColumn": "VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_SST_GAUGE", "comment": "Removed in version 3.3.0"} ,
  { "IgnoredColumn": "VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_WEATHER_FAX", "comment": "Removed in version 3.3.0"} ,
  { "OptionalSimpleColumn": "VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_FIS", "location": "ros_common.vessel_electronics→fisheries_information_services", "actions":  [  "addColumn" ]} ,
  { "MandatoryForeignKeyColumn": "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_CATEGORY_1_CODE", "location": "ros_common.waste_managements→waste_category_code", "fk": "refs_fishery.waste_categories→code", "actions":  [  "addColumn" ]} ,
@@ -278,11 +287,11 @@
  { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_DEPREDATION_DETAILS_DEPREDATION_SOURCE_CODE", "location": "ros_common.depredation_details→depredation_source_code", "fk": "refs_biological.scars→code", "comment": "Fixme : why not using refs_biological.depredation_sources", "actions": [ "newQuery", "addFkColumn:ros_common.specimens→depredation_detail_id", "addColumn" ]} ,
  { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_DEPREDATION_DETAILS_OBSERVED_PREDATOR_CODE", "location": "ros_common.depredation_details→predator_observed_code", "fk": "refs_biological.species→code", "actions": [  "addColumn", "flushQuery" ]} ,
  { "MandatoryForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_SAMPLING_METHOD_CODE", "location": "ros_common.biometric_information→bio_collection_sampling_method_code", "fk": "refs_biological.sampling_methods_for_sampling_collections→code", "actions": [  "addColumn" ]} ,
- { "MandatoryForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_TYPE_CODE", "location": "ros_common.measured_lengths→type_of_measurement_code", "fk": "refs_biological.types_of_measurement→code", "actions": [ "newMeasurementQuery", "addFkColumn:ros_common.biometric_information→measured_length_id", "addColumn" ]} ,
+ { "MandatoryForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_TYPE_CODE", "location": "ros_common.measured_lengths→code", "fk": "refs_biological.measurements→code", "actions": [ "newMeasurementQuery", "addFkColumn:ros_common.biometric_information→measured_length_id", "addColumn" ]} ,
  { "MandatoryMeasurementValueColumn": "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_VALUE_CM", "location": "ros_common.biometric_information→measured_length_id", "measurement_table": "ros_common.measured_lengths", "unit": "CM", "actions": [  "addColumn" ]} ,
  { "MandatoryForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_MEASURING_TOOL_CODE", "location": "ros_common.measured_lengths→length_measuring_tool_code", "fk": "refs_biological.measurement_tools→code", "actions": [  "addColumn" ]} ,
  { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_IS_STRAIGHT", "location": "ros_common.measured_lengths→straight", "actions": [  "addColumn", "flushMeasurementQuery" ]} ,
- { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_TYPE_CODE", "location": "ros_common.measured_lengths→type_of_measurement_code", "fk": "refs_biological.types_of_measurement→code", "actions": [ "newMeasurementQuery", "addFkColumn:ros_common.biometric_information→alternative_measured_length_id", "addColumn" ]} ,
+ { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_TYPE_CODE", "location": "ros_common.measured_lengths→code", "fk": "refs_biological.measurements→code", "actions": [ "newMeasurementQuery", "addFkColumn:ros_common.biometric_information→alternative_measured_length_id", "addColumn" ]} ,
  { "OptionalMeasurementValueColumn": "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_VALUE_CM", "location": "ros_common.biometric_information→alternative_measured_length_id", "measurement_table": "ros_common.measured_lengths", "unit": "CM", "actions": [  "addColumn" ]} ,
  { "OptionalForeignKeyColumn": "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_MEASURING_TOOL_CODE", "location": "ros_common.measured_lengths→length_measuring_tool_code", "fk": "refs_biological.measurement_tools→code", "actions": [  "addColumn" ]} ,
  { "OptionalSimpleColumn": "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_IS_STRAIGHT", "location": "ros_common.measured_lengths→straight", "actions": [  "addColumn", "flushMeasurementQuery" ]} ,
