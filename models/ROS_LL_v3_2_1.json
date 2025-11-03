@@ -7,7 +7,7 @@
  { "MandatoryMetaCell": "organisation_name", "location": "8:5" } ,
  { "MandatoryMetaCell": "finalisation_date", "location": "11:5", "format": "[0-9]{4}-[0-9]{2}-[0-9]{2}$" } ,
  { "MandatoryMetaCell": "submission_date", "location": "12:5", "format": "[0-9]{4}-[0-9]{2}-[0-9]{2}$" } ,
- { "MandatoryMetaCell": "comments", "location": "14:3" } ] } ,
+ { "OptionalMetaCell": "comments", "location": "14:3" } ] } ,
  "O-INFO": { "comment": "#[ 2] = O-INFO | From row 6 - 25 columns", "pk": 1, "columns": [
  { "MandatorySimpleColumn": "OBSERVED_TRIP_NUMBER", "location": "ros_common.general_vessel_and_trip_information→trip_original_id", "actions" : [ "newQuery", "addColumn" ]} ,
  { "MandatorySimpleColumn": "OBSERVER_IDENTIFICATION_OBSERVER_IOTC_NUMBER", "location": "ros_common.observer_identification→iotc_number", "actions" : [ "newQuery", "addColumn", "addFkColumn:ros_common.general_vessel_and_trip_information→observer_identification_id" ]} ,
@@ -81,8 +81,8 @@
  { "OptionalSimpleColumn": "TRIP_DETAILS_VESSEL_RETURN_TIMESTAMP", "location": "ros_common.vessel_trip_details→date_time_vessel_returned_to_port", "actions":  [  "addColumn", "flushQuery" ]} ] } ,
  "V-ATTRIBUTES": { "comment": "#[ 5] = V-ATTRIBUTES | From row 6 - 50 columns", "pk": 1, "columns": [
  { "IgnoredColumn": "OBSERVED_TRIP_NUMBER", "comment": "Not used here"} ,
- { "MandatoryMeasurementValueColumn": "VESSEL_ATTRIBUTES_TONNAGE_VALUE", "location": "ros_common.vessel_attributes→tonnage_id", "measurement_table": "ros_common.tonnages", "actions": [ "newQuery", "addExternalFkColumn:ros_common.vessel_attributes|ros_common.general_vessel_and_trip_information→vessel_attributes_id", "newMeasurementQuery", "addColumn" ]} ,
- { "MandatoryMeasurementUnitColumn": "VESSEL_ATTRIBUTES_TONNAGE_GT_GRT", "units": ["GT" ,"GRT"], "actions": [  "addColumn", "flushMeasurementQuery" ]} ,
+ { "OptionalMeasurementValueColumn": "VESSEL_ATTRIBUTES_TONNAGE_VALUE", "location": "ros_common.vessel_attributes→tonnage_id", "measurement_table": "ros_common.tonnages", "actions": [ "newQuery", "addExternalFkColumn:ros_common.vessel_attributes|ros_common.general_vessel_and_trip_information→vessel_attributes_id", "newMeasurementQuery", "addColumn" ]} ,
+ { "OptionalMeasurementUnitColumn": "VESSEL_ATTRIBUTES_TONNAGE_GT_GRT", "units": ["GT" ,"GRT"], "actions": [  "addColumn", "flushMeasurementQuery" ]} ,
  { "MandatoryMeasurementValueColumn": "VESSEL_ATTRIBUTES_LENGTH_OVERALL_VALUE", "location": "ros_common.vessel_attributes→loa_id", "measurement_table": "ros_common.lengths", "actions": [ "newMeasurementQuery", "addFkColumn:ros_common.vessel_attributes→loa_id", "addColumn" ]} ,
  { "MandatoryMeasurementUnitColumn": "VESSEL_ATTRIBUTES_LENGTH_OVERALL_M_FT", "units": ["M" ,"FT"], "actions": [  "flushMeasurementQuery" ]} ,
  { "MandatoryForeignKeyColumn": "VESSEL_ATTRIBUTES_HULL_MATERIAL_CODE", "location": "ros_common.vessel_attributes→hull_material_code", "fk": "refs_fishery.hull_material_types→code", "actions": [  "addColumn", "flushQuery" ]} ,
