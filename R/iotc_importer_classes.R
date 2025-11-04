@@ -6,6 +6,7 @@ library(data.table)
 library(stringi)
 library(stringr)
 library(R.oo)
+library(lubridate)
 # library(iotc.base.common.data)
 
 DEBUG <- FALSE
@@ -187,7 +188,7 @@ IgnoredColumn <- R6Class(
       if (DEBUG) {
         cat("> IgnoredColumn:", name, "\n")
       }
-      super$initialize(name, TRUE, comment)
+      super$initialize(name, FALSE, comment)
     },
     print = function(prefix = "") {
       super$.print(prefix, "IgnoredColumn")
@@ -308,6 +309,9 @@ MeasurementUnitColumn <- R6Class(
     units = function() {
       private$.units
     },
+    accept_unit = function(unit) {
+      unit %in% self$units()
+    },
     print = function(prefix = "") {
       super$.print(prefix, "MeasurementUnitColumn")
       cat(" - units: (", as.character(self$units()), ")\n", sper = "")
@@ -350,33 +354,35 @@ MetaCell <- R6Class(
     row = function() {
       private$.row
     },
-    init_value = function(meta_sheet) {
-      private$.value <- meta_sheet[[self$row()]][[self$column()]]
+    init_value = function(meta_sheet, i_context) {
+      tryCatch(private$.value <- meta_sheet[[self$row()]][[self$column()]], error = function(e) {
+        i_context$add_errors(list(paste0("Could not init meta value ", self$name(), ", error: ", e)))
+      })
     },
-    check_value = function() {
-      is_na <- is.na(self$value())
+    check_value = function(import_context) {
+      result <- list()
+      is_na <- is.na(self$value()) || is.null(self$value())
       if (self$mandatory() && is_na) {
-        throw("Meta: ", self$name(), " is mandatory and no value found in META sheet")
-        invisible(self)
+        result <- append(result, paste("Meta:", self$name(), "is mandatory and no value found in META sheet"))
       }
       if (!is_na) {
         # Not null value
         if (!is.null(self$expected())) {
           # With expected value, let's check it
           if (self$expected() != self$value()) {
-            throw("Meta: ", self$name(), " should have value ", self$expected(), " but is ", self$value())
-            invisible(self)
+            result <- append(result, paste0("Meta:", self$name(), " expected  value is `", self$expected(), "` but current value is `", self$value(), "`"))
           }
-        }
-        if (!is.null(self$format())) {
+        } else if (!is.null(self$format())) {
           # With format, let's check it
           if (!grepl(self$format(), self$value())) {
-            throw("Meta: ", self$name(), " should have format ", self$format(), " but is ", self$value())
-            invisible(self)
+            result <- append(result, paste0("Meta:", self$name(), "should respect format `", self$format(), "` but current value is `", self$value(), "`"))
           }
         }
       }
-      cat("Meta: ", self$name(), " value ", self$value(), " is correct", "\n", sep = "")
+      if (length(result) == 0) {
+        import_context$log_info(paste0("Meta:", self$name(), " value `", self$value(), "` is correct."))
+      }
+      result
     },
     value = function() {
       private$.value
@@ -435,15 +441,20 @@ AbstractMetaSheet <- R6Class(
                x$name()
              })
     },
-    init_values = function(meta_sheet) {
+    init_values = function(meta_sheet, i_context) {
       for (c in self$cells()) {
-        c$init_value(meta_sheet)
+        c$init_value(meta_sheet, i_context)
       }
     },
-    check_values = function() {
+    check_values = function(import_context) {
+      result <- list()
       for (c in self$cells()) {
-        c$check_value()
+        r <- c$check_value(import_context)
+        if (length(r) > 0) {
+          result <- append(result, r)
+        }
       }
+      result
     },
     print = function(prefix = "") {
       cat(prefix, "AbstractMetaSheet: ", self$name(), " with ", length(self$cells()), " cell(s)\n", sep = "")
@@ -791,7 +802,7 @@ CodeListCache <- R6Class(
       private$.codes <- as.list(values[, code])
       private$.with_code_orig <- "code_orig" %in% names(values)
       if (private$.with_code_orig) {
-        private$.code_orig_mapping <- as.list(values[!is.null(code_orig), .(code_orig, code)])
+        private$.code_orig_mapping <- as.list(values[!is.null(code_orig), .(code_orig, code)][, code_orig := trim(code_orig)])
       }
     },
     table_location = function() {
@@ -905,11 +916,13 @@ CodeListCaches <- R6Class(
 ImportContext <- R6Class(
   "ImportContext",
   public = list(
-    initialize = function(model, file, connection, extra_data_tables) {
+    initialize = function(model, file, connection, extra_data_tables, timestamp) {
       stopifnot(!is.null(model))
       stopifnot(!is.null(connection))
       stopifnot(!is.null(file))
       private$.model <- model
+      private$.log_file <- paste0(file, "-", timestamp, ".log")
+      self$log_info(paste0("Loading input data file: ", file))
       private$.xls_data <- load_xls(model, file)
       code_list_tables <- private$.collect_code_list_tables()
       .code_list_caches <- lapply(code_list_tables, function(x) {
@@ -936,6 +949,9 @@ ImportContext <- R6Class(
     model = function() {
       private$.model
     },
+    log_file = function() {
+      private$.log_file
+    },
     xls_data = function() {
       private$.xls_data
     },
@@ -948,20 +964,231 @@ ImportContext <- R6Class(
     sheet_names = function() {
       private$.model$sheet_names()
     },
-    check_code_list_in_data = function() {
-      code_list_caches <- self$code_list_caches()
+    check_errors_count = function() {
+      private$.check_errors_count
+    },
+    add_errors = function(errors) {
+      private$.check_errors_count <- private$.check_errors_count + length(errors)
+      for (i in errors) {
+        self$log_error(i)
+      }
+    },
+    check_before_import = function(check_meta_submission = TRUE,
+                                   check_meta_general = TRUE,
+                                   check_code_lists = TRUE,
+                                   check_mandatory = TRUE,
+                                   check_measurements_units = TRUE) {
+      if (check_meta_submission) {
+        result <- self$check_meta_submission()
+        if (length(result) > 0) {
+          self$add_errors(result)
+        }
+      }
+      if (check_meta_general) {
+        result <- self$check_meta_general()
+        if (length(result) > 0) {
+          self$add_errors(result)
+        }
+      }
+      if (check_code_lists) {
+        result <- self$check_code_lists()
+        if (length(result) > 0) {
+          self$add_errors(result)
+        }
+      }
+      if (check_mandatory) {
+        result <- self$check_mandatory()
+        if (length(result) > 0) {
+          self$add_errors(result)
+        }
+      }
+      if (check_measurements_units) {
+        result <- self$check_measurements_units()
+        if (length(result) > 0) {
+          self$add_errors(result)
+        }
+      }
+      errors_count <- self$check_errors_count()
+      if (errors_count > 0) {
+        message <- paste0("Please fix all the ", errors_count, " error(s) listed above.")
+        self$log_warning(message)
+        throw(message)
+      }
+    },
+    log_info = function(message) {
+      cat(sprintf("[%s] [info] %s\n", now(), message), file = self$log_file(), append = TRUE)
+    },
+    log_warning = function(message) {
+      cat(sprintf("[%s] [warning] %s\n", now(), message), file = self$log_file(), append = TRUE)
+    },
+    log_error = function(message) {
+      cat(sprintf("[%s] [error] %s\n", now(), message), file = self$log_file(), append = TRUE)
+    },
+    check_meta_submission = function() {
+      result <- list()
+      model <- self$model()
+      metas <- model$meta_sheet()
+      # check meta informations
+      self$log_info("--- Checking Meta Submission Information...")
+      r <- metas$check_values(self)
+      if (length(r) > 0) {
+        result <- append(result, r)
+      }
+      # get the submiter id
+      liaison_officer_email <- metas$cells()$liaison_officer_email$value()
+      # liaison_officer_email <- "aco20320@par.odn.ne.jp"
 
+      self$log_info(paste0("--- Checking liaison_officer_email", liaison_officer_email, "..."))
+      sql <- paste("SELECT t.id FROM ros_common.iotc_person_contact_details t WHERE email='", liaison_officer_email, "'", sep = "")
+      id <- as.integer(dbGetQuery(connection, sql))
+      if (is.na(id) || id < 1) {
+        result <- append(result, paste0("Could not find liaison_officer from his email (", liaison_officer_email, ") in database (table ros_common.iotc_person_contact_details)"))
+      }
+      result
+    },
+    check_meta_general = function() {
+      result <- list()
+      model <- self$model()
+      metas <- model$meta_sheet()
+      # check meta general informations
+      self$log_info("--- Checking Meta General Information...(TODO)")
+      result
+    },
+    check_code_lists = function() {
+      result <- list()
+      model <- self$model()
+      metas <- model$meta_sheet()
+      # check code lists references
+      self$log_info("--- Checking Code lists references...")
+      code_list_caches <- self$code_list_caches()
+      all_missing_codes <- c()
+      xls_data <- self$xls_data()
+      for (model_sheet in model$sheets()) {
+        sheet_name <- model_sheet$name()
+        for (column in model_sheet$columns()) {
+          if (is_fk_column(column)) {
+            column_name <- column$name()
+            data <- xls_data[[model_sheet$name()]]
+            if (!column_name %in% names(data)) {
+              break
+            }
+            data <- data |> subset(select = column_name)
+            code_list_table_gav <- column$foreign_column_location()$table()$gav()
+            code_list_cache <- code_list_caches$caches()[[code_list_table_gav]]
+            cat("--- Checking Code list references on sheet:", sheet_name, "for column", column_name, "on code list table", code_list_table_gav, "...\n")
+            row_number <- 5
+            height <- dim(data)[1]
+            for (i in seq_len(height)) {
+              value <- data[i]
+              if (!is.na(value)) {
+                value <- as.character(value)
+                if (!code_list_cache$contains_code(value)) {
+                  # if (DEBUG) {
+                  result <- append(result, paste0("On ", sheet_name, ".", column_name, "[", (row_number + i), "] value `", value, "` is not found in the code list `", code_list_table_gav, "`"))
+                  # }
+                  missing_codes <- all_missing_codes[[code_list_table_gav]]
+                  if (is.null(missing_codes)) {
+                    missing_codes <- list()
+                  }
+                  if (!value %in% missing_codes) {
+                    missing_codes <- append(missing_codes, value)
+                    all_missing_codes[code_list_table_gav] <- list(missing_codes)
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      if (length(all_missing_codes) > 0) {
+        message <- "Missing codes:"
+        for (i in names(all_missing_codes)) {
+          message <- paste(message, "\n", i, all_missing_codes[i])
+        }
+        print(message)
+        result <- append(result, message)
+      }
+      result
+    },
+    check_mandatory = function() {
+      result <- list()
+      model <- self$model()
+      metas <- model$meta_sheet()
+      xls_data <- self$xls_data()
+      # check mandatory data
+      log_info("--- Checking mandatory...")
+      for (model_sheet in model$sheets()) {
+        sheet_name <- model_sheet$name()
+        for (column in model_sheet$columns()) {
+          if (column$mandatory()) {
+            column_name <- column$name()
+            cat("--- Checking mandatory property on sheet:", sheet_name, "for column", column_name, "...\n")
+            data <- xls_data[[model_sheet$name()]]
+            if (!column_name %in% names(data)) {
+              break
+            }
+            data <- data |> subset(select = column_name)
+            row_number <- 5
+            height <- dim(data)[1]
+            for (i in seq_len(height)) {
+              value <- data[i]
+              if (is.na(value)) {
+                result <- append(result, paste0("On ", sheet_name, ".", column_name, "[", (row_number + i), "] value is missing."))
+              }
+            }
+          }
+        }
+      }
+      result
+    },
+    check_measurements_units = function() {
+      result <- list()
+      model <- self$model()
+      metas <- model$meta_sheet()
+      xls_data <- self$xls_data()
+      # check measurements units consistency
+      log_info("--- Checking measurements unit consistency...")
+      for (model_sheet in model$sheets()) {
+        sheet_name <- model_sheet$name()
+        for (column in model_sheet$columns()) {
+          if (is_measurement_unit_column(column)) {
+            column_name <- column$name()
+            authorized_units <- column$units()
+            cat("--- Checking measurements unit consistency on sheet:", sheet_name, "for column", column_name, "amoung", authorized_units, "...\n")
+            data <- xls_data[[model_sheet$name()]]
+            if (!column_name %in% names(data)) {
+              break
+            }
+            data <- data |> subset(select = column_name)
+            row_number <- 5
+            height <- dim(data)[1]
+            for (i in seq_len(height)) {
+              value <- data[i]
+              if (!is.na(value)) {
+                if (!column$accept_unit(value)) {
+                  result <- append(result, paste0("On ", sheet_name, ".", column_name, "[", (row_number + i), "] value `", value, "` is not among authrized units."))
+                }
+              }
+            }
+          }
+        }
+      }
+      result
     }
   ),
   private = list(
     # import model
     .model = NULL,
+    # log file
+    .log_file = NULL,
     # xls data to import
     .xls_data = NULL,
     # data tables ids
     .data_table_ids = NULL,
     # code list caches
     .code_list_caches = NULL,
+    # count of check errors
+    .check_errors_count = 0,
     .collect_data_tables = function() {
       unique(unlist(lapply(private$.model$sheets(), function(s) {
         s$collect_data_tables()
@@ -1075,8 +1302,8 @@ import_file <- function(name, meta_sheet, sheets) {
   ImportFile$new(name, meta_sheet, sheets)
 }
 
-import_context <- function(model, file, connection, extra_data_tables) {
-  ImportContext$new(model, file, connection, extra_data_tables)
+import_context <- function(model, file, connection, extra_data_tables, timestamp) {
+  ImportContext$new(model, file, connection, extra_data_tables, timestamp)
 }
 
 code_list_cache <- function(table_location, values) {
@@ -1189,7 +1416,6 @@ load_xls <- function(import_model, file) {
   }
   result
 }
-
 
 #' Performs and SQL query through a provided JDBC connection and return its results as a \code{data.table}
 #'

@@ -105,25 +105,3 @@ file <- "./inputs/EU-FRANCE/ROS_LL_data_reporting_EU.FRA.REU_2023.xlsx"
 # Do import
 import_ROS_LL_v3_2_1(file, connection)
 ```
-
-## First checks on LL-FRA 2022
-
-* [ ] Meta dates are not in good format
-* [ ] All ports are not ok, and in the code list there is some bad ' boxing
-* [ ] On E-SET-CATCHES.CATCH_DETAILS_SPECIES_CODE[1752] value `CBG` is not found in the code list 'refs_biological.species' (Arothron hispidus, fao code: `CBG`)
-* [ ] On E-SET-CATCHES.CATCH_DETAILS_SPECIES_CODE[6675] value `CUP` is not found in the code list 'refs_biological.species' (Cubiceps nei, fao code: `CUP`)
-* [ ] On E-SET-CATCHES-SPECIMEN.SPECIMEN_DETAILS_NON_TARGET_SPECIES_ADDITIONAL_DETAILS_CONDITION_AT_CAPTURE_CODE[6] value `DE` is not found in the code list `refs_biological.incidental_captures_conditions`, should be `D`
-* [ ] On E-SET-CATCHES-SPECIMEN.SPECIMEN_DETAILS_NON_TARGET_SPECIES_ADDITIONAL_DETAILS_CONDITION_AT_RELEASE_CODE[1197] value `UN` is not found in the code list `refs_biological.incidental_captures_conditions`, should be `U`
-* [ ] On E-SET-CATCHES-SPECIMEN.SPECIMEN_DETAILS_ALL_SPECIES_DEPREDATION_DETAILS_DEPREDATION_SOURCE_CODE[703] value `UN` is not found in the code list `refs_biological.scars`, should be `UNK`
-* [ ] On E-SET-CATCHES-SPECIMEN.SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_TYPE_CODE[1512] value `TW` is not found in the code list `refs_biological.measurements`
-
-## First checks on LL-FRA 2023
-
-* [ ] All ports are not ok, and in the code list there is some bad ' boxing
-* [ ] Species `OHH` not found (Arothron hispidus, fao code: `OHH`)
-* [ ] Species `CBG` not found (Arothron hispidus, fao code: `CBG`)
-* [ ] Species `GLO` not found (Globicephala spp, fao code: `GLO`)
-* [ ] On E-SET-CATCHES-SPECIMEN.SPECIMEN_DETAILS_NON_TARGET_SPECIES_ADDITIONAL_DETAILS_CONDITION_AT_CAPTURE_CODE value `DE` is not in the code list `refs_biological.incidental_captures_conditions`, should be `D`
-* [ ] On E-SET-CATCHES-SPECIMEN.SPECIMEN_DETAILS_NON_TARGET_SPECIES_ADDITIONAL_DETAILS_CONDITION_AT_CAPTURE_CODE value `UN` is not in the code list `refs_biological.incidental_captures_conditions`, should be `U`
-* [ ] On E-SET-CATCHES-SPECIMEN.SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_TYPE_CODE[1848] value `TW` is not found in the code list `refs_biological.measurements`
-* [ ] On E-SET-CATCHES-SPECIMEN.SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_TYPE_CODE[2023] value `U` is not found in the code list `refs_biological.measurements` (should be `UN`)

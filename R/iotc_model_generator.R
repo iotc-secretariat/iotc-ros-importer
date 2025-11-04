@@ -79,7 +79,7 @@ load_meta_sheet <- function(name, content) {
           result_cells <- append(result_cells, t)
         } else if (grepl("OptionalMetaCell", i)) {
           l <- split_meta_cell_location(location)
-          t <- sprintf('optional_meta_cell("%s", %s, %s%S)', y, l[1], l[2],e)
+          t <- sprintf('optional_meta_cell("%s", %s, %s%s)', y, l[1], l[2],e)
           result_cells <- append(result_cells, t)
         }
       }
@@ -332,10 +332,11 @@ load_xls_%s <- function(file) {
 #'
 #' @param file path to xsl file to load
 #' @param connection jdbc connectoion to db
+#' @param timestamp current timestamp used for log_file name
 #' @return the import context (See ImportContext class)
 #' @export
-import_context_%s <- function(file, connection, extra_data_tables) {
-  import_context(%s, file, connection, extra_data_tables)
+import_context_%s <- function(file, connection, extra_data_tables, timestamp) {
+  import_context(%s, file, connection, extra_data_tables, timestamp)
 }
 "
   cat(sprintf(tmp, variable_name, name, variable_name, variable_name, name, variable_name), file = target_file_path, append = TRUE)
