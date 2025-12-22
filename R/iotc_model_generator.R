@@ -53,6 +53,7 @@ load_meta_sheet <- function(name, content) {
     }
   }
   index <- 1
+  cells <- sheet_cells$cell
   locations <- sheet_cells$location
   expecteds <- sheet_cells$expected
   formats <- sheet_cells$format
@@ -60,14 +61,16 @@ load_meta_sheet <- function(name, content) {
     for (i in cell_types) {
       tmp <- sheet_cells[[i]]
       y <- tmp[[j]]
+      cell <- cells[j]
       location <- locations[j]
       expected <- expecteds[j]
       format <- formats[j]
       with_expected <- !is.na(expected)
       with_format <- !is.na(format)
+      with_location <- !is.na(location)
       if (!is.na(tmp[[j]])) {
         if (grepl("MandatoryMetaCell", i)) {
-          l <- split_meta_cell_location(location)
+          l <- split_meta_cell_location(cell)
           e <- ""
           if (with_expected) {
             e <- sprintf(', expected = "%s"', expected)
@@ -75,11 +78,24 @@ load_meta_sheet <- function(name, content) {
           if (with_format) {
             e <- sprintf(', format = "%s"', format)
           }
-          t <- sprintf('mandatory_meta_cell("%s", %s, %s%s)', y, l[1], l[2],e)
+          if (with_location) {
+            e <- sprintf(', column_location = column_location("%s")', location)
+          }
+          t <- sprintf('mandatory_meta_cell("%s", %s, %s%s)', y, l[1], l[2], e)
           result_cells <- append(result_cells, t)
         } else if (grepl("OptionalMetaCell", i)) {
-          l <- split_meta_cell_location(location)
-          t <- sprintf('optional_meta_cell("%s", %s, %s%s)', y, l[1], l[2],e)
+          l <- split_meta_cell_location(cell)
+          e <- ""
+          if (with_expected) {
+            e <- sprintf(', expected = "%s"', expected)
+          }
+          if (with_format) {
+            e <- sprintf(', format = "%s"', format)
+          }
+          if (with_location) {
+            e <- sprintf(', column_location = column_location("%s")', location)
+          }
+          t <- sprintf('optional_meta_cell("%s", %s, %s%s)', y, l[1], l[2], e)
           result_cells <- append(result_cells, t)
         }
       }
@@ -106,6 +122,10 @@ load_sheet <- function(name, content) {
     }
   }
   index <- 1
+  with_checks <- "checks" %in% types
+  if (with_checks) {
+    checkss <- sheet_comluns[["checks"]]
+  }
   with_actions <- "actions" %in% types
   if (with_actions) {
     actionss <- sheet_comluns[["actions"]]
@@ -137,10 +157,17 @@ load_sheet <- function(name, content) {
         if (with_location) {
           location <- locations[j]
         }
+        check <- ""
+        if (with_checks) {
+          checks <- load_checks(checkss[[j]])
+          if (str_length(checks) > 0) {
+            check <- sprintf(", checks = %s", checks)
+          }
+        }
         action <- ""
         if (with_actions) {
           actions <- load_actions(actionss[[j]])
-          if (!is.na(actions)) {
+          if (str_length(actions) > 0) {
             action <- sprintf(", actions = %s", actions)
           }
         }
@@ -171,34 +198,34 @@ load_sheet <- function(name, content) {
           t <- sprintf('ignored_column("%s"%s)', y, comment)
           result_columns <- append(result_columns, t)
         } else if (grepl("MandatorySimpleColumn", i)) {
-          t <- sprintf('mandatory_simple_column("%s", column_location("%s")%s%s)', y, location, comment, action)
+          t <- sprintf('mandatory_simple_column("%s", column_location("%s")%s%s%s)', y, location, comment, check, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("OptionalSimpleColumn", i)) {
-          t <- sprintf('optional_simple_column("%s", column_location("%s")%s%s)', y, location, comment, action)
+          t <- sprintf('optional_simple_column("%s", column_location("%s")%s%s%s)', y, location, comment, check, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("MandatoryForeignKeyColumn", i)) {
-          t <- sprintf('mandatory_fk_column("%s", column_location("%s"), column_location("%s")%s%s)', y, location, fk, comment, action)
+          t <- sprintf('mandatory_fk_column("%s", column_location("%s"), column_location("%s")%s%s%s)', y, location, fk, comment, check, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("OptionalForeignKeyColumn", i)) {
-          t <- sprintf('optional_fk_column("%s", column_location("%s"), column_location("%s")%s%s)', y, location, fk, comment, action)
+          t <- sprintf('optional_fk_column("%s", column_location("%s"), column_location("%s")%s%s%s)', y, location, fk, comment, check, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("MandatoryAssociationForeignKeyColumn", i)) {
-          t <- sprintf('mandatory_association_fk_column("%s", column_location("%s"), column_location("%s")%s%s)', y, location, fk, comment, action)
+          t <- sprintf('mandatory_association_fk_column("%s", column_location("%s"), column_location("%s")%s%s%s)', y, location, fk, comment, check, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("OptionalAssociationForeignKeyColumn", i)) {
-          t <- sprintf('optional_association_fk_column("%s", column_location("%s"), column_location("%s")%s%s)', y, location, fk, comment, action)
+          t <- sprintf('optional_association_fk_column("%s", column_location("%s"), column_location("%s")%s%s%s)', y, location, fk, comment, check, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("MandatoryMeasurementValueColumn", i)) {
-          t <- sprintf('mandatory_measurement_column("%s", column_location("%s"), "%s"%s%s%s)', y, location, measurement_tables[j], unit, comment, action)
+          t <- sprintf('mandatory_measurement_column("%s", column_location("%s"), "%s"%s%s%s%s)', y, location, measurement_tables[j], unit, comment, check, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("OptionalMeasurementValueColumn", i)) {
-          t <- sprintf('optional_measurement_column("%s", column_location("%s"), "%s"%s%s%s)', y, location, measurement_tables[j], unit, comment, action)
+          t <- sprintf('optional_measurement_column("%s", column_location("%s"), "%s"%s%s%s%s)', y, location, measurement_tables[j], unit, comment, check, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("MandatoryMeasurementUnitColumn", i)) {
-          t <- sprintf('mandatory_measurement_unit_column("%s", %s%s)', y, unitss[j], action)
+          t <- sprintf('mandatory_measurement_unit_column("%s", %s%s%s)', y, unitss[j], check, action)
           result_columns <- append(result_columns, t)
         } else if (grepl("OptionalMeasurementUnitColumn", i)) {
-          t <- sprintf('optional_measurement_unit_column("%s", %s%s)', y, unitss[j], action)
+          t <- sprintf('optional_measurement_unit_column("%s", %s%s%s)', y, unitss[j], check, action)
           result_columns <- append(result_columns, t)
         }
       }
@@ -208,6 +235,13 @@ load_sheet <- function(name, content) {
   cat("\n")
   result
 }
+
+
+CHECKS <- c("exists" = function(parameters) {
+  "check_exists()"
+}, "should_exists" = function(parameters) {
+  "check_should_exists()"
+})
 
 ACTIONS <- c("newQuery" = function(parameters) {
   result <- "new_query("
@@ -225,6 +259,7 @@ ACTIONS <- c("newQuery" = function(parameters) {
              "flushMeasurementQuery" = function(parameters) { "flush_measurement_query()" },
              "flushQuery" = function(parameters) { "flush_query()" },
              "addColumn" = function(parameters) { "add_column()" },
+             "getId" = function(parameters) { "get_id()" },
              "addFkColumn" = function(parameters) {
                sprintf("add_fk_column(column_location(\"%s\"))", parameters[[1]])
              },
@@ -234,9 +269,39 @@ ACTIONS <- c("newQuery" = function(parameters) {
              }
 )
 
+load_checks <- function(checks) {
+  i <- 1
+  result <- ""
+  max <- length(checks)
+  for (check in checks) {
+    if (grepl("\\:", check)) {
+      check_parts <- unlist(strsplit(check, ":"))
+      check_type <- check_parts[[1]]
+      check_arguments <- check_parts[[2]]
+    } else {
+      check_type <- check
+      check_arguments <- NULL
+    }
+    if (!check_type %in% names(CHECKS)) {
+      cat("ERROR: can't find check type: ", check_type)
+    }
+    generator <- CHECKS[[check_type]]
+    generator_result <- generator(check_arguments)
+    result <- paste0(result, generator_result)
+    if (i < max) {
+      result <- paste0(result, ", ")
+    }
+    i <- i + 1
+  }
+  if (str_length(result) == 0) {
+    return("")
+  }
+  paste0(" c(", result, ")")
+}
+
 load_actions <- function(actions) {
   i <- 1
-  result <- " c("
+  result <- ""
   max <- length(actions)
   # cat("\n")
   # cat(actions)
@@ -263,10 +328,10 @@ load_actions <- function(actions) {
     }
     i <- i + 1
   }
-  result <- paste0(result, ")")
-  # cat(" → ")
-  # cat(result)
-  result
+  if (str_length(result) == 0) {
+    return("")
+  }
+  paste0(" c(", result, ")")
 }
 
 write_model <- function(name, global_content, target_file_path) {
@@ -335,8 +400,8 @@ load_xls_%s <- function(file) {
 #' @param timestamp current timestamp used for log_file name
 #' @return the import context (See ImportContext class)
 #' @export
-import_context_%s <- function(file, connection, extra_data_tables, timestamp) {
-  import_context(%s, file, connection, extra_data_tables, timestamp)
+import_context_%s <- function(file, connection, extra_data_tables, data_tables_caches, timestamp) {
+  import_context(%s, file, connection, extra_data_tables, data_tables_caches, timestamp)
 }
 "
   cat(sprintf(tmp, variable_name, name, variable_name, variable_name, name, variable_name), file = target_file_path, append = TRUE)
