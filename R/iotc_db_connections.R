@@ -9,8 +9,7 @@ CREDENTIALS_CACHE <- new.env(hash = TRUE)
 
 #'The constants holding the name of the IOTC_Ros database
 #'@export
-IOTC_ROS <- "IOTC_Ros_3_3_0_2025_08_28"
-
+IOTC_ROS <- "IOTC_Ros_3_3_0_2025_12_22"
 #'The constants holding the name of the IOTC_ReferenceData database
 #'@export
 IOTC_REFERENCE_DATA <- "IOTC_ReferenceData"
