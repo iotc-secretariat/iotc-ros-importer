@@ -1,0 +1,387 @@
+{
+  "general": {
+    "sheet_names": [
+      "META",
+      "O-INFO",
+      "V-INFO",
+      "V-TRIP",
+      "V-ATTRIBUTES",
+      "G-GENERAL",
+      "G-CONFIG-BRANCHLINES",
+      "E-SET",
+      "E-SET-LIGHTS",
+      "E-SET-BRANCHLINES",
+      "E-SET-HOOKS",
+      "E-SET-BAITS",
+      "E-SET-MITIGATION-MEASURES",
+      "E-SET-HAULING",
+      "E-SET-HAULING-BITEOFFS",
+      "E-SET-CATCHES",
+      "E-SET-CATCHES-SPECIMEN",
+      "E-SET-CATCHES-SPECIMEN-SSI"
+    ],
+    "sheet_columns_count": {
+      "META": 6,
+      "O-INFO": 25,
+      "V-INFO": 32,
+      "V-TRIP": 11,
+      "V-ATTRIBUTES": 50,
+      "G-GENERAL": 33,
+      "G-CONFIG-BRANCHLINES": 8,
+      "E-SET": 24,
+      "E-SET-LIGHTS": 5,
+      "E-SET-BRANCHLINES": 4,
+      "E-SET-HOOKS": 5,
+      "E-SET-BAITS": 6,
+      "E-SET-MITIGATION-MEASURES": 14,
+      "E-SET-HAULING": 20,
+      "E-SET-HAULING-BITEOFFS": 4,
+      "E-SET-CATCHES": 12,
+      "E-SET-CATCHES-SPECIMEN": 32,
+      "E-SET-CATCHES-SPECIMEN-SSI": 16
+    }
+  },
+  "sheets": {
+    "META": {
+      "meta_mandatory": [
+        "form_version",
+        "data_model_version",
+        "reporting_country_code",
+        "liaison_officer_full_name",
+        "liaison_officer_email",
+        "organisation_name",
+        "finalisation_date",
+        "submission_date"
+      ],
+      "meta_format": {
+        "finalisation_date": "[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+        "submission_date": "[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+        "form_version": "1\\.0\\.0",
+        "data_model_version": "3\\.2\\.1|3\\.3\\.0"
+      },
+      "meta_exists_in_database": {
+        "liaison_officer_full_name": "ros_common.contact→full_name",
+        "liaison_officer_email": "ros_common.contact→email"
+      },
+       "meta_exists_in_code_list": {
+        "reporting_country_code": "refs_admin.countries"
+      }
+    },
+    "O-INFO": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "OBSERVER_IDENTIFICATION_OBSERVER_IOTC_NUMBER",
+        "OBSERVED_TRIP_SUMMARY_NUMBER_OF_SETS_CONDUCTED",
+        "OBSERVED_TRIP_SUMMARY_NUMBER_OF_SETS_OBSERVED",
+        "OBSERVED_TRIP_SUMMARY_NUMBER_OF_DAYS_SEARCHING",
+        "OBSERVED_TRIP_SUMMARY_NUMBER_OF_DAYS_ACTIVELY_FISHING",
+        "OBSERVED_TRIP_SUMMARY_NUMBER_OF_DAYS_LOST"
+      ],
+      "column_exists_in_database": {
+        "OBSERVER_IDENTIFICATION_OBSERVER_IOTC_NUMBER": "ros_common.observer→iotc_observer_identifier"
+      },
+      "column_exists_in_code_list": {
+        "OBSERVER_TRIP_DETAILS_EMBARKATION_IN_PORT_COUNTRY_CODE": "refs_admin.countries",
+        "OBSERVER_TRIP_DETAILS_EMBARKATION_IN_PORT_PORT_CODE": "refs_admin.ports",
+        "OBSERVER_TRIP_DETAILS_DISEMBARKATION_IN_PORT_COUNTRY_CODE": "refs_admin.countries",
+        "OBSERVER_TRIP_DETAILS_DISEMBARKATION_IN_PORT_PORT_CODE": "refs_admin.ports",
+        "OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_1_CODE": "refs_fishery.reasons_days_lost",
+        "OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_2_CODE": "refs_fishery.reasons_days_lost",
+        "OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_3_CODE": "refs_fishery.reasons_days_lost",
+        "OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_4_CODE": "refs_fishery.reasons_days_lost"
+      },
+      "column_should_exists_in_database": {
+        "OBSERVER_IDENTIFICATION_FULL_NAME": "ros_common.contact→full_name"
+      }
+    },
+    "V-INFO": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "VESSEL_INFORMATION_IDENTIFICATION_IOTC_NUMBER"
+      ],
+      "column_exists_in_database": {
+        "VESSEL_INFORMATION_IDENTIFICATION_IOTC_NUMBER": "ros_common.vessel→iotc_vessel_identifier",
+        "VESSEL_INFORMATION_IDENTIFICATION_REGISTRATION_NUMBER": "ros_common.vessel→registration_identifier",
+        "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_FISHING_MASTER_FULL_NAME": "ros_common.contact→full_name",
+        "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_SKIPPER_CAPTAIN_FULL_NAME": "ros_common.contact→full_name"
+      },
+      "column_exists_in_code_list": {
+        "VESSEL_INFORMATION_IDENTIFICATION_FLAG_OR_CHARTERING_CODE": "refs_admin.countries",
+        "VESSEL_INFORMATION_IDENTIFICATION_REGISTRATION_COUNTRY_CODE": "refs_admin.countries",
+        "VESSEL_INFORMATION_IDENTIFICATION_REGISTRATION_PORT_CODE": "refs_admin.ports",
+        "VESSEL_INFORMATION_IDENTIFICATION_LICENSED_TARGET_SPECIES_SPECIES_1_CODE": "refs_biology.species",
+        "VESSEL_INFORMATION_IDENTIFICATION_LICENSED_TARGET_SPECIES_SPECIES_2_CODE": "refs_biology.species",
+        "VESSEL_INFORMATION_IDENTIFICATION_LICENSED_TARGET_SPECIES_SPECIES_3_CODE": "refs_biology.species",
+        "VESSEL_INFORMATION_IDENTIFICATION_LICENSED_TARGET_SPECIES_SPECIES_4_CODE": "refs_biology.species",
+        "VESSEL_INFORMATION_IDENTIFICATION_MAIN_FISHING_GEAR_CODE": "refs_fishery_config.gears"
+      },
+      "column_should_exists_in_database": {
+        "VESSEL_INFORMATION_IDENTIFICATION_NAME": "ros_common.vessel→vessel_name",
+        "VESSEL_INFORMATION_IDENTIFICATION_IMO_NUMBER": "ros_common.vessel→imo_identifier",
+        "VESSEL_INFORMATION_IDENTIFICATION_IRCS": "ros_common.vessel→ircs_identifier"
+      },
+      "column_should_exists_in_code_list": {
+        "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_FISHING_MASTER_NATIONALITY_CODE": "refs_admin.countries",
+        "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_SKIPPER_CAPTAIN_NATIONALITY_CODE": "refs_admin.countries"
+      }
+    },
+    "V-TRIP": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER"
+      ],
+      "column_exists_in_code_list": {
+        "TRIP_DETAILS_VESSEL_DEPARTURE_PORT_PORT_CODE": "refs_admin.ports",
+        "TRIP_DETAILS_VESSEL_RETURN_PORT_PORT_CODE": "refs_admin.ports"
+      }
+    },
+    "V-ATTRIBUTES": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER"
+      ],
+      "column_exists_in_code_list": {
+        "VESSEL_ATTRIBUTES_HULL_MATERIAL_CODE": "refs_fishery.hull_material_types",
+        "VESSEL_ATTRIBUTES_FISH_PRESERVATION_METHODS_METHOD_1_CODE": "refs_fishery.fish_preservation_methods",
+        "VESSEL_ATTRIBUTES_FISH_PRESERVATION_METHODS_METHOD_2_CODE": "refs_fishery.fish_preservation_methods",
+        "VESSEL_ATTRIBUTES_FISH_PRESERVATION_METHODS_METHOD_3_CODE": "refs_fishery.fish_preservation_methods",
+        "VESSEL_ATTRIBUTES_FISH_PRESERVATION_METHODS_METHOD_4_CODE": "refs_fishery.fish_preservation_methods",
+        "VESSEL_ATTRIBUTES_FISH_STORAGE_TYPES_TYPE_1_CODE": "refs_fishery.fish_storage_types",
+        "VESSEL_ATTRIBUTES_FISH_STORAGE_TYPES_TYPE_2_CODE": "refs_fishery.fish_storage_types",
+        "VESSEL_ATTRIBUTES_FISH_STORAGE_TYPES_TYPE_3_CODE": "refs_fishery.fish_storage_types",
+        "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_CATEGORY_1_CODE": "refs_fishery.waste_categories",
+        "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_STORAGE_DISPOSAL_METHOD_1_CODE": "refs_fishery.waste_disposal_methods",
+        "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_2_CATEGORY_1_CODE": "refs_fishery.waste_categories",
+        "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_2_STORAGE_DISPOSAL_METHOD_1_CODE": "refs_fishery.waste_disposal_methods",
+        "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_3_CATEGORY_1_CODE": "refs_fishery.waste_categories",
+        "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_3_STORAGE_DISPOSAL_METHOD_1_CODE": "refs_fishery.waste_disposal_methods",
+        "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_4_CATEGORY_1_CODE": "refs_fishery.waste_categories",
+        "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_4_STORAGE_DISPOSAL_METHOD_1_CODE": "refs_fishery.waste_disposal_methods"
+      },
+      "column_values": {
+        "VESSEL_ATTRIBUTES_TONNAGE_GT_GRT": "GT|GRT",
+        "VESSEL_ATTRIBUTES_LENGTH_OVERALL_M_FT": "M|FT",
+        "VESSEL_ATTRIBUTES_MAIN_ENGINE_1_KW_HP_BHP": "KW|HP|BHP",
+        "VESSEL_ATTRIBUTES_MAIN_ENGINE_2_KW_HP_BHP": "KW|HP|BHP",
+        "VESSEL_ATTRIBUTES_FISH_STORAGE_CAPACITY_T_M3": "T|M3",
+        "VESSEL_ATTRIBUTES_AUTONOMY_RANGE_DAYS_NM": "DAYS|NM"
+      }
+    },
+    "G-GENERAL": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_SETTER",
+        "SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_HAULER",
+        "SPECIAL_EQUIPMENT_OR_MACHINERY_BAIT_CASTING_MACHINE"
+      ],
+      "column_exists_in_code_list": {
+        "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_1_CODE": "refs_fishery.branchline_storages",
+        "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_2_CODE": "refs_fishery.branchline_storages",
+        "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_3_CODE": "refs_fishery.branchline_storages",
+        "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_4_CODE": "refs_fishery.branchline_storages",
+        "MITIGATION_DEVICES_DEVICE_1_CODE": "refs_fishery.mitigation_devices",
+        "MITIGATION_DEVICES_DEVICE_2_CODE": "refs_fishery.mitigation_devices",
+        "MITIGATION_DEVICES_DEVICE_3_CODE": "refs_fishery.mitigation_devices",
+        "MITIGATION_DEVICES_DEVICE_4_CODE": "refs_fishery.mitigation_devices",
+        "MITIGATION_DEVICES_DEVICE_5_CODE": "refs_fishery.mitigation_devices",
+        "TORI_LINE_DETAILS_STREAMER_TYPE_CODE": "refs_fishery.streamer_types"
+      },
+      "column_values": {
+        "TORI_LINE_DETAILS_TORI_LINE_LENGTH_M_FT": "M|FT",
+        "TORI_LINE_DETAILS_STREAMER_LINE_LENGTH_MAX_CM_M_FT": "CM|M|FT",
+        "TORI_LINE_DETAILS_STREAMER_LINE_LENGTH_MIN_CM_M_FT": "CM|M|FT",
+        "TORI_LINE_DETAILS_DISTANCE_BETWEEN_STREAMERS_CM_M_FT": "CM|M|FT",
+        "TORI_LINE_DETAILS_TORI_LINE_ATTACHED_HEIGHT_CM_M_FT": "CM|M|FT"
+      }
+    },
+    "G-CONFIG-BRANCHLINES": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "BRANCHLINE_CONFIGURATIONS_CONFIGURATION_NUMBER",
+        "BRANCHLINE_CONFIGURATIONS_SECTION_NUMBER"
+      ],
+      "column_exists_in_code_list": {
+        "BRANCHLINE_CONFIGURATIONS_MATERIAL_TYPE_CODE": "refs_fishery.line_material_types"
+      },
+      "column_values": {
+        "BRANCHLINE_CONFIGURATIONS_LENGTH_CM_M": "CM|M",
+        "BRANCHLINE_CONFIGURATIONS_DIAMETER_MM_CM": "MM|CM"
+      }
+    },
+    "E-SET": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER",
+        "SETTING_OPERATIONS_START_SETTING_DATE_TIME_UTC",
+        "SETTING_OPERATIONS_START_SETTING_LATITUDE",
+        "SETTING_OPERATIONS_START_SETTING_LONGITUDE",
+        "SETTING_OPERATIONS_END_SETTING_DATE_TIME_UTC",
+        "SETTING_OPERATIONS_END_SETTING_LATITUDE",
+        "SETTING_OPERATIONS_END_SETTING_LONGITUDE",
+        "SETTING_OPERATIONS_NUM_TOTAL_HOOKS_SET",
+        "SETTING_OPERATIONS_NUM_HOOKS_BETWEEN_FLOATS",
+        "SETTING_OPERATIONS_SHARK_LINES_SET",
+        "SETTING_OPERATIONS_TARGET_SPECIES_SPECIES_1_CODE"
+      ],
+      "column_exists_in_code_list": {
+        "SETTING_OPERATIONS_TARGET_SPECIES_SPECIES_1_CODE": "refs_biology.species",
+        "SETTING_OPERATIONS_TARGET_SPECIES_SPECIES_2_CODE": "refs_biology.species",
+        "SETTING_OPERATIONS_TARGET_SPECIES_SPECIES_3_CODE": "refs_biology.species",
+        "SETTING_OPERATIONS_TARGET_SPECIES_SPECIES_4_CODE": "refs_biology.species"
+      },
+      "column_values": {
+        "SETTING_OPERATIONS_MAINLINE_LENGTH_KM_NM": "KM|NM"
+      }
+    },
+    "E-SET-LIGHTS": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER"
+      ],
+      "column_exists_in_code_list": {
+        "SETTING_OPERATIONS_ATTACHED_LIGHTS_TYPE_CODE": "refs_fishery.light_types",
+        "SETTING_OPERATIONS_ATTACHED_LIGHTS_COLOR_CODE": "refs_fishery.light_colours"
+      }
+    },
+    "E-SET-BRANCHLINES": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER"
+      ]
+    },
+    "E-SET-HOOKS": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER",
+        "SETTING_OPERATIONS_HOOKS_DETAILS_TYPE_CODE"
+      ],
+      "column_exists_in_code_list": {
+        "SETTING_OPERATIONS_HOOKS_DETAILS_TYPE_CODE": "refs_fishery.hook_types"
+      }
+    },
+    "E-SET-BAITS": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER",
+        "SETTING_OPERATIONS_BAITS_DETAILS_BAIT_CONDITION_CODE",
+        "SETTING_OPERATIONS_BAITS_DETAILS_BAIT_SPECIES_CODE",
+        "SETTING_OPERATIONS_BAITS_DETAILS_BAIT_PERCENTAGE"
+      ],
+      "column_exists_in_code_list": {
+        "SETTING_OPERATIONS_BAITS_DETAILS_BAIT_CONDITION_CODE": "refs_biology.bait_conditions",
+        "SETTING_OPERATIONS_BAITS_DETAILS_BAIT_SPECIES_CODE": "refs_biology.species"
+      }
+    },
+    "E-SET-MITIGATION-MEASURES": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER",
+        "SETTING_OPERATIONS_MITIGATION_MEASURES_NUM_TORI_LINES_DEPLOYED",
+        "SETTING_OPERATIONS_MITIGATION_MEASURES_MIN_DECK_LIGHTING_USED",
+        "SETTING_OPERATIONS_MITIGATION_MEASURES_HOOKS_SET_BETWEEN_DUSK_DAWN",
+        "SETTING_OPERATIONS_MITIGATION_MEASURES_AVG_BRANCHLINE_WEIGHT_G",
+        "SETTING_OPERATIONS_MITIGATION_MEASURES_PERC_BRANCHLINE_WEIGHTED",
+        "SETTING_OPERATIONS_MITIGATION_MEASURES_UNDERWATER_SETTING"
+      ],
+      "column_exists_in_code_list": {
+        "SETTING_OPERATIONS_MITIGATION_MEASURES_OTHER_MITIGATION_MEASURES_USED_MEASURE_1_CODE": "refs_fishery.mitigation_devices",
+        "SETTING_OPERATIONS_MITIGATION_MEASURES_OTHER_MITIGATION_MEASURES_USED_MEASURE_2_CODE": "refs_fishery.mitigation_devices",
+        "SETTING_OPERATIONS_MITIGATION_MEASURES_OTHER_MITIGATION_MEASURES_USED_MEASURE_3_CODE": "refs_fishery.mitigation_devices",
+        "SETTING_OPERATIONS_MITIGATION_MEASURES_OTHER_MITIGATION_MEASURES_USED_MEASURE_4_CODE": "refs_fishery.mitigation_devices"
+      }
+    },
+    "E-SET-HAULING": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER",
+        "HAULING_OPERATIONS_START_HAULING_DATE_TIME_UTC",
+        "HAULING_OPERATIONS_START_HAULING_LATITUDE",
+        "HAULING_OPERATIONS_START_HAULING_LONGITUDE",
+        "HAULING_OPERATIONS_END_HAULING_DATE_TIME_UTC",
+        "HAULING_OPERATIONS_END_HAULING_LATITUDE",
+        "HAULING_OPERATIONS_END_HAULING_LONGITUDE",
+        "HAULING_OPERATIONS_BIRD_SCARING_DEVICE_AT_HAULER",
+        "HAULING_OPERATIONS_BIRD_SCARING_DEVICE_AT_HAULER",
+        "HAULING_OPERATIONS_NUM_HOOKS_RETRIEVED_DURING_OBSERVATION",
+        "HAULING_OPERATIONS_SAMPLING_PROTOCOL_CODE"
+      ],
+      "column_exists_in_code_list": {
+        "HAULING_OPERATIONS_SAMPLING_PROTOCOL_CODE": "refs_biology.sampling_protocols"
+      }
+    },
+    "E-SET-HAULING-BITEOFFS": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER"
+      ]
+    },
+    "E-SET-CATCHES": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER",
+        "CATCH_NUMBER",
+        "CATCH_DETAILS_SPECIES_CODE",
+        "CATCH_DETAILS_FATE_TYPE",
+        "CATCH_DETAILS_FATE_CODE",
+        "CATCH_DETAILS_SAMPLING_METHOD_CODE",
+        "CATCH_DETAILS_NUM_FISH"
+      ],
+      "column_exists_in_code_list": {
+        "CATCH_DETAILS_SPECIES_CODE": "refs_biology.species",
+        "CATCH_DETAILS_FATE_TYPE": "refs_biology.types_of_fate",
+        "CATCH_DETAILS_FATE_CODE": "refs_biology.fates",
+        "CATCH_DETAILS_SAMPLING_METHOD_CODE": "refs_biology.sampling_methods_for_catch_estimation",
+        "CATCH_DETAILS_WEIGHT_PROCESSING_TYPE_CODE": "refs_fishery.fish_processing_types",
+        "CATCH_DETAILS_WEIGHT_ESTIMATION_METHOD_CODE": "refs_biology.sampling_methods_for_catch_estimation"
+      },
+      "column_values": {
+        "CATCH_DETAILS_WEIGHT_KG_T": "KG|T"
+      }
+    },
+    "E-SET-CATCHES-SPECIMEN": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER",
+        "CATCH_NUMBER",
+        "SPECIMEN_NUMBER",
+        "SPECIMEN_DETAILS_ALL_SPECIES_SAMPLING_PERIOD_CODE",
+        "SPECIMEN_DETAILS_ALL_SPECIES_SAMPLING_METHOD_CODE",
+        "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_TYPE_CODE",
+        "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_VALUE_CM",
+        "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_MEASURING_TOOL_CODE"
+      ],
+      "column_exists_in_code_list": {
+        "SPECIMEN_DETAILS_ALL_SPECIES_SAMPLING_PERIOD_CODE": "refs_biology.sampling_periods",
+        "SPECIMEN_DETAILS_NON_TARGET_SPECIES_ADDITIONAL_DETAILS_CONDITION_AT_CAPTURE_CODE": "refs_biology.incidental_captures_conditions",
+        "SPECIMEN_DETAILS_NON_TARGET_SPECIES_ADDITIONAL_DETAILS_CONDITION_AT_RELEASE_CODE": "refs_biology.incidental_captures_conditions",
+        "SPECIMEN_DETAILS_ALL_SPECIES_DEPREDATION_DETAILS_DEPREDATION_SOURCE_CODE": "refs_biology.scars",
+        "SPECIMEN_DETAILS_ALL_SPECIES_DEPREDATION_DETAILS_OBSERVED_PREDATOR_CODE": "refs_biology.species",
+        "SPECIMEN_DETAILS_ALL_SPECIES_SAMPLING_METHOD_CODE": "refs_biology.sampling_methods_for_sampling_collections",
+        "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_TYPE_CODE": "refs_biology.measurements",
+        "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_1_MEASURING_TOOL_CODE": "refs_biology.measurement_tools",
+        "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_2_TYPE_CODE": "refs_biology.measurements",
+        "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_3_MEASURING_TOOL_CODE": "refs_biology.measurement_tools",
+        "SPECIMEN_DETAILS_ALL_SPECIES_WEIGHT_PROCESSING_TYPE_CODE": "refs_fishery.fish_processing_types",
+        "SPECIMEN_DETAILS_ALL_SPECIES_WEIGHT_ESTIMATION_METHOD_CODE": "refs_biology.measurement_tools",
+        "SPECIMEN_DETAILS_ALL_SPECIES_SEX": "refs_biology.sex",
+        "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TYPE_CODE": "refs_biology.tag_types"
+      }
+    },
+    "E-SET-CATCHES-SPECIMEN-SSI": {
+      "column_mandatory": [
+        "OBSERVED_TRIP_NUMBER",
+        "SET_NUMBER",
+        "CATCH_NUMBER",
+        "SPECIMEN_NUMBER",
+        "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_GEAR_INTERACTION_CODE"
+      ],
+      "column_exists_in_code_list": {
+        "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_GEAR_INTERACTION_CODE": "refs_biology.gear_interactions",
+        "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_HOOK_TYPE_CODE": "refs_fishery.hook_types",
+        "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_BAIT_CONDITION_CODE": "refs_biology.bait_conditions",
+        "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_BAIT_TYPE_CODE": "refs_biology.bait_types",
+        "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_LEADER_MATERIAL_CODE": "refs_fishery.line_material_types",
+        "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_DE_HOOKER_DEVICE_CODE": "refs_fishery.dehooker_types",
+        "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_HANDLING_METHOD_CODE": "refs_biology.handling_methods"
+      }
+    }
+  }
+}
