@@ -41,67 +41,43 @@ Then set your credentials, says first define the server, then database credentia
 
 ```{r}
 # Load the R file
-source("./R/iotc_db_connections.R")
+source("./R/db_connections.R")
 # Set the server
 set_default_db_server(SERVER_CACHE, "localhost")
 # Set credentials for IOTC_ROS databse
 set_credentials_for_db(CREDENTIALS_CACHE, IOTC_ROS, "ros-admin", "a")
 # Set credentials for IOTC_Reference_Data databse (this is optional)
 set_credentials_for_db(CREDENTIALS_CACHE, IOTC_REFERENCE_DATA, "ros-admin", "a")
+source("./R/db_utils.R")
+source("./R/db_classes.R")
+source("./R/input_checks.R")
+source("./R/output_mapping.R")
+source("./R/input_mapping.R")
 ```
 
-## Importer classes (required)
-
-We have to load the [iotc_importer_classes.R](R/iotc_importer_classes.R) file which contains all classes (we use the R6 package) needed to define a model and do the import.
+## Load models (required)
 
 ```{r}
-# Load the R file
-source("R/iotc_importer_classes.R")
+domain <- "LL"
+model_version <- "3.3.0"
+directory <- "./models"
+input_mapping_model <- input_mapping$new(domain, model_version, directory)
+# input_mapping_model$print()
+output_mapping_model <- ouput_mapping$new(domain, model_version, directory)
+# output_mapping_model$print()
+
+input_checks_model <- input_checks$new(domain, model_version, directory, input_checks_list)
 ```
 
-## Model generator (optional)
+## Check inputs (required)
 
-If the model has changed you have to regenerate the `R` corresponding file.
-
-The [iotc_model_generator.R](R/iotc_model_generator.R) file defines a constant of each model available and a main method named `generate_model` to generate the `R` file.
-
-The first thing to do is to load the file.
 ```{r}
-# Load the R file
-source("R/iotc_model_generator.R", verbose= FALSE)
-```
-To regenerate a model just use the `generate_model` method with the corresponding model constant.
-
-The generated `R` file is named after the model constant: using the model's constant `ROS_LL_v3_2_1`, the generated `R` file is named [ROS_LL_v3_2_1_model.R](R/ROS_LL_v3_2_1_model.R).
-
-In our example, we regenerate the model of LL in version 3.2.1.
-```{r}
-# Regenerate the R file from the model of LL domain in version 3.2.1
-generate_model(ROS_LL_v3_2_1)
-```
-
-In our example, the generated `R` file contains three things:
-
-1. The R model of importer class named `ROS_LL_v3_2_1_model`.
-2. A method to load a xlsx data file named `load_xls_ROS_LL_v3_2_1`.
-3. A method to prepare the import context named `import_context_ROS_LL_v3_2_1`.
-
-This stuff is internal and you should not use them directly.
-
-## Use an importer (required)
-
-Associated to each generated `R` model file, there is a `R` file to perform the import.
-
-In our example, it is named [ROS_LL_v3_2_1_importer.R](R/ROS_LL_v3_2_1_importer.R)
-```{r}
-# Load the model
-source("R/ROS_LL_v3_2_1_model.R")
-# Load the importer
-source("R/ROS_LL_v3_2_1_importer.R")
-# Open a connection to ROS database
-connection <- DB_IOTC_ROS()
-# Choose a file to import
-file <- "./inputs/EU-FRANCE/ROS_LL_data_reporting_EU.FRA.REU_2023.xlsx"
-# Do import
-import_ROS_LL_v3_2_1(file, connection)
+import_context_test <- import_context$new(
+  input_mapping_model,
+  input_checks_model,
+  "../iotc-ros-input-data/data/LL/2022/EU-FRANCE/ROS_LL_data_reporting_EU.FRA.REU_2022.xlsx",
+  connection <- DB_IOTC_ROS(),
+  timestamp = str_replace_all(Sys.time(), "[ :.]", "_")
+)
+import_context_test$check()
 ```
