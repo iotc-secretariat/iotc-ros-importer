@@ -50,34 +50,34 @@ set_credentials_for_db(CREDENTIALS_CACHE, IOTC_ROS, "ros-admin", "a")
 set_credentials_for_db(CREDENTIALS_CACHE, IOTC_REFERENCE_DATA, "ros-admin", "a")
 source("./R/db_utils.R")
 source("./R/db_classes.R")
-source("./R/input_checks.R")
-source("./R/output_mapping.R")
-source("./R/input_mapping.R")
+source("./R/checks.R")
+source("./R/mappings.R")
+source("./R/input_file.R")
+source("./R/import_context.R")
+source("./R/import_utils.R")
 ```
 
 ## Load models (required)
 
 ```{r}
-domain <- "LL"
-model_version <- "3.3.0"
-directory <- "./models"
-input_mapping_model <- input_mapping$new(domain, model_version, directory)
-# input_mapping_model$print()
-output_mapping_model <- ouput_mapping$new(domain, model_version, directory)
-# output_mapping_model$print()
 
-input_checks_model <- input_checks$new(domain, model_version, directory, input_checks_list)
+ros_import_models <- load_models("LL", "3.3.0", "./models")
+
 ```
 
-## Check inputs (required)
+## Check one input (optional)
 
 ```{r}
-import_context_test <- import_context$new(
-  input_mapping_model,
-  input_checks_model,
-  "../iotc-ros-input-data/data/LL/2022/EU-FRANCE/ROS_LL_data_reporting_EU.FRA.REU_2022.xlsx",
-  connection <- DB_IOTC_ROS(),
-  timestamp = str_replace_all(Sys.time(), "[ :.]", "_")
-)
-import_context_test$check()
+check_one(DB_IOTC_ROS, ros_import_models, "../iotc-ros-input-data/data/LL/2022/EU-FRANCE/ROS_LL_data_reporting_EU.FRA.REU_2022.xlsx")
+```
+
+## Check alls input (optional)
+
+```{r}
+
+check_all(DB_IOTC_ROS,
+          ros_import_models,
+          "../iotc-ros-input-data/data/LL",
+"test")
+
 ```
