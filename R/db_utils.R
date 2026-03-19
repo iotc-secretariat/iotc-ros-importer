@@ -1,7 +1,7 @@
 library(DBI)
 library(RPostgres)
 library(data.table)
-# library(stringr)
+library(stringr)
 
 split_table_location <- function(value) {
   unlist(strsplit(value, "\\."))

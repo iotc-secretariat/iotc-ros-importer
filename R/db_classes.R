@@ -3,6 +3,8 @@ library(RPostgres)
 library(data.table)
 library(stringr)
 library(R6)
+library(lubridate)
+library(R.oo)
 
 table_location <- R6Class(
   "TableLocation",
