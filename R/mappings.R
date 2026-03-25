@@ -21,7 +21,7 @@ input_mapping <- R6Class(
       stopifnot(!is.na(version), is.character(version), nchar(version) > 0)
       stopifnot(!is.null(directory))
       private$.name <- paste(domain, version, sep = "-")
-      file <- paste(directory, domain, version, "input-mapping.json", sep = "/")
+      file <- file.path(directory, domain, version, "input-mapping.json")
       json = json = jsonlite::read_json(file)
       private$.meta_sheet <- json$META
       private$.sheets <- json$sheets
@@ -43,24 +43,6 @@ input_mapping <- R6Class(
     },
     sheet_columns = function(sheet_name) {
       private$.sheets[[sheet_name]]
-    },
-    print = function() {
-      cat("InputMapping: ", self$name(), " with ", length(self$sheets()), " sheet(s)\n", sep = "")
-      cat("META:\n", sep = "")
-      for (c in self$meta_cell_names()) {
-        cat(c, " → ", private$.meta_sheet[[c]], "\n", sep = "")
-      }
-      cat("Sheets:\n", sep = "")
-      for (sheet_name in self$sheet_names()) {
-        sheet <- self$sheet_columns(sheet_name)
-        cat(sheet_name, " - ", length(sheet), " column(s)", "\n", sep = "")
-        i <- 1
-        for (cell in sheet) {
-          cat("  ", i, " → ", cell, "\n", sep = "")
-          i <- i + 1
-        }
-      }
-      invisible(self)
     }
   ),
   private = list(
@@ -81,7 +63,7 @@ ouput_mapping <- R6Class(
       stopifnot(!is.na(version), is.character(version), nchar(version) > 0)
       stopifnot(!is.null(directory))
       private$.name <- paste(domain, version, sep = "-")
-      file <- paste(directory, domain, version, "output-mapping.json", sep = "/")
+      file <- file.path(directory, domain, version, "output-mapping.json")
       json = json = jsonlite::read_json(file)
       private$.meta_sheet <- json$META
       private$.sheets <- json$sheets
@@ -103,22 +85,6 @@ ouput_mapping <- R6Class(
     },
     sheet_columns = function(sheet_name) {
       private$.sheets[[sheet_name]]
-    },
-    print = function() {
-      cat("OuputMapping: ", self$name(), " with ", length(self$sheets()), " sheet(s)\n", sep = "")
-      cat("META:\n", sep = "")
-      for (c in self$meta_cell_names()) {
-        cat(c, " → ", private$.meta_sheet[[c]], "\n", sep = "")
-      }
-      cat("Sheets:\n", sep = "")
-      for (sheet_name in self$sheet_names()) {
-        sheet <- self$sheet_columns(sheet_name)
-        cat(sheet_name, " - ", length(sheet), " column(s)", "\n", sep = "")
-        for (cell in names(sheet)) {
-          cat("  ", cell, " → ", sheet[[cell]], "\n", sep = "")
-        }
-      }
-      invisible(self)
     }
   ),
   private = list(
@@ -137,23 +103,18 @@ input_checks <- R6Class(
     initialize = function(domain,
                           version,
                           directory) {
-      # checks = input_checks_list) {
       stopifnot(!is.na(domain), is.character(domain), nchar(domain) > 0)
       stopifnot(!is.na(version), is.character(version), nchar(version) > 0)
       stopifnot(!is.null(directory))
       private$.name <- paste(domain, version, sep = "-")
-      file <- paste(directory, domain, version, "checks-mapping.json", sep = "/")
+      file <- file.path(directory, domain, version, "checks-mapping.json")
       private$.content <- jsonlite::read_json(file)
-      # private$.checks <- checks
     },
     name = function() {
       private$.name
     },
     content = function() {
       private$.content
-    },
-    general = function() {
-      private$.content$general
     },
     sheets = function() {
       private$.content$sheets
@@ -190,16 +151,16 @@ input_checks <- R6Class(
       }
       unique(result)
     },
-    check_general = function(input_file, import_context) {
-      general <- self$general()
+    check_structure = function(input_file, import_context) {
+      structure <- private$.content$structure
       result <- list()
-      for (check_name in names(general)) {
+      for (check_name in names(structure)) {
         # print(check_name)
         check_result <- do.call(check_name,
                                 list(input_checks = self,
                                      import_context = import_context,
                                      input_file = input_file,
-                                     check_content = general[[check_name]]))
+                                     check_content = structure[[check_name]]))
         if (length(check_result$logs) > 0) {
           result[[check_name]] <- check_result$data
           if (grepl(".*should.*", check_name)) {
