@@ -105,8 +105,8 @@ check_all <- function(connection_supplier,
       max_duration <- c_duration
     }
     total_duration_str <- format_duration(total_duration)
-    cat(sprintf("Checks done on %s files(s) (duration: %s)\n",
-                input_total_count, total_duration_str))
+    cat(sprintf("Checks done on %s/%s files(s) (duration: %s)\n",
+                input_count, input_total_count, total_duration_str))
 
     report_content[[input]] <- list(
       duration = sprintf("%.2f %s", c_duration, units(c_duration)),
