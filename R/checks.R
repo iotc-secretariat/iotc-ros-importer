@@ -8,7 +8,8 @@ check_sheet_names <- function(input_checks,
   for (expected_sheet_name in check_content) {
     if (!expected_sheet_name %in% actual_sheet_names) {
       result_data <- append(result_data, expected_sheet_name)
-      logs <- append(logs, paste0("Could not find sheet named `", expected_sheet_name, "`"))
+      logs <- append(logs, paste0("Could not find sheet named `",
+                                  expected_sheet_name, "`"))
     }
   }
   list(data = result_data, logs = logs)
@@ -26,7 +27,7 @@ check_sheet_columns_count <- function(input_checks,
     if (is.null(data)) {
       next
     }
-    actual_columns_count <- dim(data)[2]
+    actual_columns_count <- get_column_count(data)
     if (expected_columns_count != actual_columns_count) {
       result_data[[sheet_name]] <- list(
         expected_columns_count = expected_columns_count,
@@ -43,6 +44,35 @@ check_sheet_columns_count <- function(input_checks,
   list(data = result_data, logs = logs)
 }
 
+check_sheet_rows_count <- function(input_checks,
+                                   import_context,
+                                   input_file,
+                                   check_content) {
+  result_data <- c()
+  logs <- list()
+  for (sheet_name in names(check_content)) {
+    expected_rows_count <- check_content[[sheet_name]]
+    data <- input_file$data()[[sheet_name]]
+    if (is.null(data)) {
+      next
+    }
+    actual_rows_count <- get_row_count(data)
+    if (expected_rows_count != actual_rows_count) {
+      result_data[[sheet_name]] <- list(
+        expected_rows_count = expected_rows_count,
+        actual_rows_count = actual_rows_count
+      )
+      logs <- append(logs, paste0("Sheet named `",
+                                  sheet_name,
+                                  "` expects ",
+                                  expected_rows_count,
+                                  " row(s) but have ",
+                                  actual_rows_count))
+    }
+  }
+  list(data = result_data, logs = logs)
+}
+
 check_meta_mandatory <- function(input_checks,
                                  import_context,
                                  input_file,
@@ -52,7 +82,7 @@ check_meta_mandatory <- function(input_checks,
   result_data <- c()
   logs <- list()
   for (meta in check_content) {
-    value <- input_file$extract_meta(meta, input_file_content)
+    value <- input_file$get_meta(meta)
     if (is.null(value) || is.na(value)) {
       position <- input_file$extract_meta_position(meta)
       coordinate <- unlist(strsplit(position, ":"))
@@ -76,7 +106,7 @@ check_meta_format <- function(input_checks,
   result_data <- c()
   logs <- list()
   for (meta in names(check_content)) {
-    value <- input_file$extract_meta(meta, input_file_content)
+    value <- input_file$get_meta(meta)
     if (is.null(value) || is.na(value)) {
       next
     }
@@ -109,7 +139,7 @@ check_meta_exists_in_code_list <- function(input_checks,
   logs <- list()
   caches <- import_context$code_list_caches()
   for (meta in names(check_content)) {
-    value <- input_file$extract_meta(meta, input_file_content)
+    value <- input_file$get_meta(meta)
     if (is.null(value) || is.na(value)) {
       next
     }
@@ -144,7 +174,7 @@ check_meta_exists_in_database <- function(input_checks,
   logs <- list()
   caches <- import_context$data_table_caches()
   for (meta in names(check_content)) {
-    value <- input_file$extract_meta(meta, input_file_content)
+    value <- input_file$get_meta(meta)
     if (is.null(value) || is.na(value)) {
       next
     }
@@ -192,19 +222,18 @@ check_column_mandatory <- function(input_checks,
         } else {
           rows <- append(rows, row_index)
         }
-        missing_values[[value]] <- rows
+        missing_values[[check_column]] <- rows
         coordinate <- paste0("On sheet named `", sheet_name, "` cell [", row_index, ":", column_index, "]", "(", check_column, "):")
         logs <- append(logs, paste0(coordinate, " Could not find mandatory column"))
       }
     }
     if (length(missing_values) > 0) {
       result_data[[check_column]] = list(column = column_index,
-                                         rows = unlist(missing_values))
+                                         rows = missing_values[[check_column]])
     }
   }
   list(data = result_data, logs = logs)
 }
-
 
 check_column_mandatory_if_other_columns_are_filled <- function(input_checks,
                                                                import_context,
@@ -246,7 +275,6 @@ check_column_mandatory_if_other_columns_are_filled <- function(input_checks,
           }
           rows <- append(rows, missing_dependencies)
           missing_values[[row_index_str]] <- rows
-          # missing_values <- append(missing_values, list (row = row_index, required_dependencies = missing_dependencies))
           coordinate <- paste0("On sheet named `", sheet_name, "` cell [", row_index, ":", column_index, "]", "(", check_column, "):")
           logs <- append(logs, paste0(coordinate, " The column is mandatory from his required columns: ", missing_dependencies))
         }
