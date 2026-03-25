@@ -23,6 +23,10 @@ get_column_count <- function(table) {
   dim(table)[2]
 }
 
+simple_quote <- function(text) {
+  ifelse(is.na(text), "NULL", paste0("'", text, "'"))
+}
+
 #' Performs and SQL query through a provided JDBC connection and return its results as a \code{data.table}
 #'
 #' @param connection An JDBC connection to a RDBMS server
@@ -65,4 +69,12 @@ prepare_query <- function(sql, column_location, other_params = NULL) {
     }
   }
   sql
+}
+
+get_sequence_value <- function(schema_name, table_name, connection) {
+  query <- paste0("SELECT t.last_value FROM pg_catalog.pg_sequences t WHERE t.schemaname = '", schema_name, "' AND sequencename ='", table_name, "_id_seq'")
+  result_set <- dbSendQuery(connection, query)
+  id <- as.integer(dbFetch(result_set)[["last_value"]])
+  dbClearResult(result_set)
+  id
 }
