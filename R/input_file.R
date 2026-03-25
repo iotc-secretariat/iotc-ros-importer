@@ -24,6 +24,9 @@ input_file <- R6Class(
     sheet_names = function() {
       names(self$data())
     },
+    get_meta = function(meta_name) {
+      private$metas[[meta_name]]
+    },
     extract_meta_position = function(meta_name) {
       mapping <- self$mapping()$meta_sheet()
       mapping[[meta_name]]
@@ -68,10 +71,32 @@ input_file <- R6Class(
         } else {
           sheet_content <- sheet_content[6:nrow(sheet_content)]
         }
-        names(sheet_content) <- column_names
         result[[sheet_name]] <- sheet_content
       }
       private$.data <- result
+    },
+    load_column_names = function() {
+      mapping <- private$.mapping
+      sheet_names <- mapping$sheet_names()
+      result <- private$.data
+      sheets_size <- length(sheet_names)
+      for (i in seq(1:sheets_size)) {
+        sheet_name <- sheet_names[[i]]
+        sheet_columns <- mapping$sheet_columns(sheet_name)
+        column_names <- unlist(sheet_columns)
+        names(result[[sheet_name]]) <- column_names
+      }
+      private$.data <- result
+    },
+    load_meta_values = function() {
+      meta_names <- private$.mapping$meta_cell_names()
+      input_file_content <- private$.data$META
+      result_data <- c()
+      logs <- list()
+      for (meta in meta_names) {
+        result_data[[meta]] <- self$extract_meta(meta, input_file_content)
+      }
+      private$.metas <- result_data
     }
   ),
   private = list(
@@ -80,7 +105,9 @@ input_file <- R6Class(
     # input file
     .file = NULL,
     # loaded data
-    .data = NULL
+    .data = NULL,
+    # loaded meta values
+    .metas = NULL
   )
 )
 
