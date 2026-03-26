@@ -25,7 +25,7 @@ input_file <- R6Class(
       names(self$data())
     },
     get_meta = function(meta_name) {
-      private$metas[[meta_name]]
+      private$.metas[[meta_name]]
     },
     extract_meta_position = function(meta_name) {
       mapping <- self$mapping()$meta_sheet()
@@ -36,7 +36,12 @@ input_file <- R6Class(
       split2 <- unlist(strsplit(position, ":"))
       row <- split2[[1]]
       column <- split2[[2]]
-      input_file_content[[as.integer(row), as.integer(column)]]
+      result <- NULL
+      tryCatch({
+        result <- input_file_content[[as.integer(row), as.integer(column)]] },
+        error = function(e){
+        })
+      result
     },
     load = function() {
       mapping <- private$.mapping
