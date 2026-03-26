@@ -1,5 +1,5 @@
 {
-  "general": {
+  "structure": {
     "check_sheet_names": [
       "META",
       "O-INFO",
@@ -63,7 +63,7 @@
         "liaison_officer_full_name": "ros_common.contact→full_name",
         "liaison_officer_email": "ros_common.contact→email"
       },
-       "check_meta_exists_in_code_list": {
+      "check_meta_exists_in_code_list": {
         "reporting_country_code": "refs_admin.countries"
       }
     },

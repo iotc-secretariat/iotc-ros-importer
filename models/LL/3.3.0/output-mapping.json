@@ -1,11 +1,11 @@
 {
   "META": {
     //"form_version": "ros_ll.observer_data→",
-    "data_model_version": "ros_ll.observer_data→ros_model_version",
-    "organisation_name": "ros_ll.observer_data→reporting_country_code",
-    "finalisation_date": "ros_ll.observer_data→finalization_time",
-    "submission_date": "ros_ll.observer_data→submission_time",
-    "comments": "ros_ll.observer_data→comment"
+    "data_model_version": "ros_common.observer_data→ros_model_version",
+    "organisation_name": "ros_common.observer_data→reporting_country_code",
+    "finalisation_date": "ros_common.observer_data→finalization_time",
+    "submission_date": "ros_common.observer_data→submission_time",
+    "comments": "ros_common.observer_data→comment"
   },
   "sheets": {
     "O-INFO": {
@@ -40,10 +40,10 @@
       "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_CREW_NUMBER": "ros_common.trip_vessel→number_of_crew"
     },
     "V-TRIP": {
-      "TRIP_DETAILS_VESSEL_DEPARTURE_PORT_PORT_CODE": "ros_common.trip_vessel→departure_port_code",
-      "TRIP_DETAILS_VESSEL_DEPARTURE_TIMESTAMP": "ros_common.trip_vessel→date_time_vessel_sailed",
-      "TRIP_DETAILS_VESSEL_RETURN_PORT_PORT_CODE": "ros_common.trip_vessel→return_port_code",
-      "TRIP_DETAILS_VESSEL_RETURN_TIMESTAMP": "ros_common.trip_vessel→date_time_vessel_returned_to_port"
+      "TRIP_DETAILS_VESSEL_DEPARTURE_PORT_PORT_CODE": "ros_common.locations→port_code",
+      "TRIP_DETAILS_VESSEL_DEPARTURE_TIMESTAMP": "ros_common.trip_vessel→departure_timestamp",
+      "TRIP_DETAILS_VESSEL_RETURN_PORT_PORT_CODE": "ros_common.locations→port_code",
+      "TRIP_DETAILS_VESSEL_RETURN_TIMESTAMP": "ros_common.trip_vessel→return_timestamp"
     },
     "V-ATTRIBUTES": {
       "VESSEL_ATTRIBUTES_TONNAGE_VALUE": "ros_common.tonnages→value",
@@ -91,9 +91,9 @@
       "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_4_STORAGE_DISPOSAL_METHOD_4_CODE": "ros_common.waste_managements→waste_storage_or_disposal_method_code"
     },
     "G-GENERAL": {
-      "SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_SETTER": "ros_ll.special_equipment→line_setter",
-      "SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_HAULER": "ros_ll.special_equipment→line_hauler",
-      "SPECIAL_EQUIPMENT_OR_MACHINERY_BAIT_CASTING_MACHINE": "ros_ll.special_equipment→bait_casting_machine",
+      "SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_SETTER": "ros_ll.gear_specifications→line_setter",
+      "SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_HAULER": "ros_ll.gear_specifications→line_hauler",
+      "SPECIAL_EQUIPMENT_OR_MACHINERY_BAIT_CASTING_MACHINE": "ros_ll.gear_specifications→bait_casting_machine",
       "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_1_CODE": "branchline_configurations_storage→branchline_storage_code",
       "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_2_CODE": "branchline_configurations_storage→branchline_storage_code",
       "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_3_CODE": "branchline_configurations_storage→branchline_storage_code",
