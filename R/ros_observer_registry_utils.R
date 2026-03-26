@@ -69,23 +69,6 @@ load_observer_registry_file <- function(input_file) {
   result
 }
 
-update_observer_registry <- function(connection_supplier, input_file, output_file) {
-  db_tables <- load_observer_ros_tables(connection_supplier)
-  data <- load_observer_registry_file(input_file)
-  find_missing_contacts
-  result <- list()
-  result <- append(result, update_existing_observer(db_tables, data, output_file))
-  # result <- append(result, add_missing_observer(db_tables, data, output_file))
-  # apply on sql column to generate the output file
-  if (file.exists(output_file)) {
-    file.remove(output_file)
-  }
-  lapply(result, function(s) {
-    cat(paste0(s, ";\n"), file = output_file, append = TRUE)
-  })
-  invisible()
-}
-
 add_missing_contacts <- function(input_data, db_tables, output_file) {
   contact_table <- db_tables$contact_table
   missing_contact <- unique(input_data[!full_name %in% contact_table$full_name], by = c("full_name", "iotc_observer_identifier", "nationality_code"))
@@ -157,9 +140,47 @@ add_missing_legacy_observer_identifiers <- function(input_data, ros_db_tables, a
   result
 }
 
-# To test it
-# input_data <- load_observer_registry_file("../iotc-ros-input-data/IOTC_ROS_Observers_Registry-2026-03-25.xlsx")
-# ros_db_tables <- load_observer_ros_tables(DB_IOTC_ROS)
-# added_contacts_id_mapping <- add_missing_contacts(input_data, ros_db_tables, "add_observers.sql")
-# added_identifiers <- add_missing_legacy_observer_identifiers(input_data, ros_db_tables, added_contacts_id_mapping, "update_observer_legacy_mapping_from_registry.sql")
+generate_sql_update <- function(connectionSupplier, input_file, output_file_add_observers, output_file_update_observer_legacy_mapping_from_registry) {
+  input_data <- load_observer_registry_file(input_file)
+  ros_db_tables <- load_observer_ros_tables(connectionSupplier)
+  added_contacts_id_mapping <- add_missing_contacts(input_data, ros_db_tables, output_file_add_observers)
+  added_identifiers <- add_missing_legacy_observer_identifiers(input_data, ros_db_tables, added_contacts_id_mapping, output_file_update_observer_legacy_mapping_from_registry)
+  list(added_contacts_id_mapping, added_identifiers)
+}
 
+# To test it
+result <- generate_sql_update(
+  DB_IOTC_ROS,
+"../iotc-ros-input-data/IOTC_ROS_Observers_Registry-2026-03-25.xlsx",
+  "../iotc-ros-model/3.3.0/sql/add_observers.sql",
+  "../iotc-ros-model/3.3.0/sql/update_observer_legacy_mapping_from_registry.sql"
+)
+
+clean_full_name <- function(value) {
+  ifelse(is.null(value), value, str_to_upper(str_trim(iconv(value, to = "ASCII//TRANSLIT"))))
+}
+
+compute_full_name_hash <- function(full_name) {
+  lapply(str_split(clean_full_name(full_name), " "), function(x) { str_replace_all(toString(sort(x)), ", ", "") })
+}
+
+compute_full_name_hash("tony Chémit ")
+
+compute_full_names_hash <- function(contact_table) {
+  # result <- contact_table[, full_name_parts := unlist(lapply(str_split(full_name, " "), function(x) { str_replace_all(toString(sort(x)), ", ", "") }))]
+  result <- contact_table[, full_name_parts := unlist(lapply(full_name, compute_full_name_hash))]
+  setorder(result, id)
+  result
+}
+
+# input_data <- load_observer_registry_file("../iotc-ros-input-data/IOTC_ROS_Observers_Registry-2026-03-25.xlsx")
+ros_db_tables <- load_observer_ros_tables(DB_IOTC_ROS)
+# added_contacts_id_mapping <- add_missing_contacts(input_data, ros_db_tables, "../iotc-ros-model/3.3.0/sql/2026-03-20/08_12_add_observers.sql")
+# added_identifiers <- add_missing_legacy_observer_identifiers(input_data, ros_db_tables, added_contacts_id_mapping, "../iotc-ros-model/3.3.0/sql/2026-03-20/08_13_update_observer_legacy_mapping_from_registry.sql")
+
+contact_table <- compute_full_names_hash(ros_db_tables$contact_table)
+a_doublon_full_names <- contact_table[, .(id, full_name, .N), .(full_name_parts)][N > 1]
+a_observers <- ros_db_tables$observer_table[contact_id %in% a_doublon_full_names$id]
+a_full_observers <- a_doublon_full_names[a_observers, on = .(id = contact_id)]
+a_full_contact <- a_doublon_full_names[!id %in% a_observers$contact_id]
+# ye <- cbind(doublon_full_names, ya)
