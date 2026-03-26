@@ -216,14 +216,16 @@ data_table_cache <- R6Class(
       private$.values
     },
     find = function(column, value) {
-      extra_mapping <- private$.extra_column_mapping[column]
+      extra_mapping <- private$.extra_column_mapping[[column]]
       if (!is.null(extra_mapping)) {
-        extra_mapping <- extra_mapping[[1]]
-        mapped_value <- extra_mapping[old == value,]
-        if (get_row_count(mapped_value) == 1) {
-          return(self$values()[self$values()[[column]] == mapped_value$new])
+        mapped_value <- extra_mapping(self, column, value)
+        if (!is.null(mapped_value)) {
+          return(mapped_value)
         }
       }
+      self$find0(column, value)
+    },
+    find0 = function(column, value) {
       self$values()[self$values()[[column]] == value]
     },
     ids = function() {
@@ -232,8 +234,8 @@ data_table_cache <- R6Class(
     contains_id = function(id) {
       code %in% self$ids()
     },
-    set_extra_column_mapping = function(column, mapping) {
-      private$.extra_column_mapping[column] <- list(mapping)
+    set_extra_column_mapping = function(column, mapping_function) {
+      private$.extra_column_mapping[[column]] <- mapping_function
     },
     print = function(prefix = "") {
       cat(prefix, " data-table-cache ( ", self$table_location()$gav(), " ) - ids: ( ", length(self$ids()), ")", sep = "")
