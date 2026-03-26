@@ -2,6 +2,21 @@ library(R6)
 library(jsonlite)
 library(stringr)
 
+
+clean_full_name <- function(value) {
+  ifelse(is.null(value), value, str_to_upper(str_trim(iconv(value, to = "ASCII//TRANSLIT"))))
+}
+
+compute_full_name_hash <- function(full_name) {
+  lapply(str_split(clean_full_name(full_name), " "), function(x) { str_replace_all(toString(sort(x)), ", ", "") })
+}
+
+compute_full_names_hash <- function(contact_table) {
+  result <- contact_table[, full_name_parts := unlist(lapply(full_name, compute_full_name_hash))]
+  setorder(result, id)
+  result
+}
+
 import_context <- R6Class(
   "ImportContext",
   public = list(
@@ -30,16 +45,31 @@ import_context <- R6Class(
       if (file.exists(private$.log_file)) {
         file.remove(private$.log_file)
       }
-      # if (file.exists(private$.report_file)) {
-      #   file.remove(private$.report_file)
-      # }
-      data_table_caches_names <- models$checks_model$required_data_tables()
+      data_table_caches_names <- models$checks_model$required_data_tables(
+        c("ros_common.contact", "ros_common.observer_identifier_mapping"))
       .data_table_caches <- lapply(data_table_caches_names, function(x) {
         t <- table_location$new(x)
         values <- load_table(t$schema(), t$table(), columns = NULL, connection)
         data_table_cache$new(t, values)
       })
       names(.data_table_caches) <- data_table_caches_names
+      # add custom extra mapping
+      observer_identifier_mapping_table <- .data_table_caches$ros_common.observer_identifier_mapping
+      .data_table_caches$
+        ros_common.observer$
+        set_extra_column_mapping("iotc_observer_identifier", function(cache, column, value) {
+        observer_identifier_mapping_table$find("legacy_iotc_observer_identifier", value)
+      })
+      contact_table <- .data_table_caches$ros_common.contact
+      compute_full_names_hash(contact_table$values())
+      contact_table$set_extra_column_mapping("full_name", function(cache, column, value) {
+        # transform value to be upper case and with no accent
+        if (is.null(value)) {
+          return(NULL)
+        }
+        value2 <- compute_full_name_hash(value)
+        cache$find0("full_name_parts", value2)
+      })
       private$.data_table_caches <- data_table_caches$new(.data_table_caches)
       private$.input_file <- input_file$new(models$input_mapping_model, file)
       code_list_tables <- models$checks_model$required_code_lists()
@@ -61,6 +91,31 @@ import_context <- R6Class(
       })
       names(.data_table_ids) <- data_table_caches_names
       private$.data_table_ids <- data_id_cache$new(.data_table_ids)
+    },
+    check = function() {
+      self$log_info("--- Loading input file...")
+      private$.input_file$load()
+      self$log_info("--- Checking file structure...")
+      private$.report_content = c()
+      result <- private$.check_structure(private$.checks_model, private$.input_file)
+      if (length(result) > 0) {
+        private$.report_content$structure <- result
+      } else {
+        self$log_info("--- Loading columns names...")
+        private$.input_file$load_column_names()
+        self$log_info("--- Loading metas...")
+        private$.input_file$load_meta_values()
+        self$log_info("--- Checking sheets...")
+        result <- private$.check_data(private$.checks_model, private$.input_file)
+        if (length(result) > 0) {
+          summary <- private$.compute_summary(private$.checks_model, result)
+          if (length(summary) > 0) {
+            private$.report_content$summary <- summary
+          }
+          private$.report_content$data <- result
+        }
+      }
+      write_json(private$.report_content, private$.report_file, pretty = TRUE, auto_unbox = TRUE)
     },
     input_file = function() {
       private$.input_file
@@ -107,21 +162,8 @@ import_context <- R6Class(
         self$log_warning(i)
       }
     },
-    check = function() {
-      self$log_info("--- Loading input file...")
-      private$.input_file$load()
-      self$log_info("--- Checking General...")
-      private$.report_content = c()
-      result <- private$.checks_model$check_general(private$.input_file, self)
-      if (length(result) > 0) {
-        private$.report_content$general <- result
-      }
-      self$log_info("--- Checking sheets...")
-      result <- private$.checks_model$check_sheets(private$.input_file, self)
-      if (length(result) > 0) {
-        private$.report_content$sheets <- result
-      }
-      write_json(private$.report_content, private$.report_file, pretty = TRUE, auto_unbox = TRUE)
+    report_content = function() {
+      private$.report_content
     },
     log_info = function(message) {
       cat(sprintf("[%s] [info] %s\n", str_extract(Sys.time(), "([^\\.]+)?"), message), file = self$log_file(), append = TRUE)
@@ -166,7 +208,159 @@ import_context <- R6Class(
     # count of check warnings
     .check_warnings_count = 0,
     # duration of check method
-    .check_duration = NULL
+    .check_duration = NULL,
+    .check_structure = function(check_model, input_file) {
+      check_model <- private$.checks_model
+      structure <- check_model$content()$structure
+      result <- list()
+      for (check_name in names(structure)) {
+        # print(check_name)
+        check_result <- do.call(check_name,
+                                list(input_checks = check_model,
+                                     import_context = self,
+                                     input_file = input_file,
+                                     check_content = structure[[check_name]]))
+        if (length(check_result$logs) > 0) {
+          result[[check_name]] <- check_result$data
+          if (grepl(".*should.*", check_name)) {
+            self$add_warnings(check_result$logs)
+          } else {
+            self$add_errors(check_result$logs)
+          }
+        }
+      }
+      result
+    },
+    .check_data = function(check_model, input_file) {
+      sheets <- check_model$sheets()
+      data <- input_file$data()
+      result <- list()
+      for (sheet_name in names(sheets)) {
+        # print(sheet_name)
+        sheet_result <- list()
+        sheet <- sheets[[sheet_name]]
+        for (check_name in names(sheet)) {
+          # print(check_name)
+          check_result <- do.call(check_name,
+                                  list(check_model,
+                                       self,
+                                       input_file,
+                                       sheet[[check_name]],
+                                       sheet_name,
+                                       data[[sheet_name]]))
+          if (length(check_result$logs) > 0) {
+            sheet_result[[check_name]] <- check_result$data
+            if (grepl(".*should.*", check_name)) {
+              self$add_warnings(check_result$logs)
+            } else {
+              self$add_errors(check_result$logs)
+            }
+          }
+        }
+        if (length(sheet_result) > 0) {
+          result[[sheet_name]] <- sheet_result
+        }
+      }
+      result
+    },
+    .compute_summary = function(check_model, results) {
+      sheets <- check_model$sheets()
+      result <- list(
+        missing_code_list = list(),
+        missing_data = list()
+      )
+      for (sheet_name in names(sheets)) {
+        result_sheet <- results[[sheet_name]]
+        if (is.null(result_sheet)) {
+          next
+        }
+        # print(sheet_name)
+        sheet_result <- list()
+        sheet <- sheets[[sheet_name]]
+        for (check_name in names(sheet)) {
+          if (check_name == "check_meta_exists_in_database") {
+            # print(check_name)
+            check_result <- result_sheet[[check_name]]
+            if (is.null(check_result)) {
+              next
+            }
+            for (check_column_name in names(check_result)) {
+              check_column_result <- check_result[[check_column_name]]
+              data_table <- check_column_result$data_table
+              old_result <- result$missing_data[[data_table]]
+              if (is.null(old_result)) {
+                old_result <- list()
+              }
+              result$missing_data[[data_table]] <- unique(append(old_result, check_column_result$actual_value))
+            }
+            next
+          }
+          if (check_name == "check_meta_exists_in_code_list") {
+            # print(check_name)
+            check_result <- result_sheet[[check_name]]
+            if (is.null(check_result)) {
+              next
+            }
+            for (check_column_name in names(check_result)) {
+              check_column_result <- check_result[[check_column_name]]
+              data_table <- check_column_result$code_list
+              old_result <- result$missing_code_list[[data_table]]
+              if (is.null(old_result)) {
+                old_result <- list()
+              }
+              result$missing_code_list[[data_table]] <- unique(append(old_result, check_column_result$actual_value))
+            }
+            next
+          }
+          if (check_name == "check_column_exists_in_database") {
+            # print(check_name)
+            check_result <- result_sheet[[check_name]]
+            if (is.null(check_result)) {
+              next
+            }
+            for (check_column_name in names(check_result)) {
+              check_column_result <- check_result[[check_column_name]]
+              if (is.null(check_column_result)) {
+                next
+              }
+              data_table <- check_column_result$data_table
+              old_result <- result$missing_data[[data_table]]
+              if (is.null(old_result)) {
+                old_result <- list()
+              }
+              result$missing_data[[data_table]] <- unique(append(old_result, names(check_column_result$missing_values_on_rows)))
+            }
+            next
+          }
+          if (check_name == "check_column_exists_in_code_list") {
+            # print(check_name)
+            check_result <- result_sheet[[check_name]]
+            if (is.null(check_result)) {
+              next
+            }
+            for (check_column_name in names(check_result)) {
+              check_column_result <- check_result[[check_column_name]]
+              if (is.null(check_column_result)) {
+                next
+              }
+              data_table <- check_column_result$code_list
+              old_result <- result$missing_code_list[[data_table]]
+              if (is.null(old_result)) {
+                old_result <- list()
+              }
+              result$missing_code_list[[data_table]] <- unique(append(old_result, names(check_column_result$missing_values_on_rows)))
+            }
+          }
+        }
+      }
+      if (length(result$missing_code_list) == 0) {
+        result$missing_code_list <- NULL
+      }
+      if (length(result$missing_data) == 0) {
+        result$missing_data <- NULL
+      }
+      result
+    }
   )
 )
 

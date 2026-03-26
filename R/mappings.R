@@ -135,8 +135,9 @@ input_checks <- R6Class(
       }
       unique(result)
     },
-    required_data_tables = function() {
+    required_data_tables = function(extra_table_locations) {
       result <- list()
+      result <- append(result, extra_table_locations)
       sheets <- self$sheets()
       for (sheet_name in names(sheets)) {
         sheet <- sheets[[sheet_name]]
@@ -168,38 +169,6 @@ input_checks <- R6Class(
           } else {
             import_context$add_errors(check_result$logs)
           }
-        }
-      }
-      result
-    },
-    check_sheets = function(input_file, import_context) {
-      sheets <- self$sheets()
-      data <- input_file$data()
-      result <- list()
-      for (sheet_name in names(sheets)) {
-        # print(sheet_name)
-        sheet_result <- list()
-        sheet <- sheets[[sheet_name]]
-        for (check_name in names(sheet)) {
-          # print(check_name)
-          check_result <- do.call(check_name,
-                                  list(self,
-                                       import_context,
-                                       input_file,
-                                       sheet[[check_name]],
-                                       sheet_name,
-                                       data[[sheet_name]]))
-          if (length(check_result$logs) > 0) {
-            sheet_result[[check_name]] <- check_result$data
-            if (grepl(".*should.*", check_name)) {
-              import_context$add_warnings(check_result$logs)
-            } else {
-              import_context$add_errors(check_result$logs)
-            }
-          }
-        }
-        if (length(sheet_result) > 0) {
-          result[[sheet_name]] <- sheet_result
         }
       }
       result
