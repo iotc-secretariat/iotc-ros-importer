@@ -4,7 +4,10 @@ library(stringr)
 
 
 clean_full_name <- function(value) {
-  ifelse(is.null(value), value, str_to_upper(str_trim(iconv(value, to = "ASCII//TRANSLIT"))))
+  if (is.null(value)) {
+    return(value)
+  }
+  str_replace_all(str_replace_all(normalize_full_name(value), "-", ""), "\\.", "")
 }
 
 compute_full_name_hash <- function(full_name) {
@@ -45,22 +48,30 @@ import_context <- R6Class(
       if (file.exists(private$.log_file)) {
         file.remove(private$.log_file)
       }
+      extra_mapping_model <- models$extra_mapping_model
       data_table_caches_names <- models$checks_model$required_data_tables(
-        c("ros_common.contact", "ros_common.observer_identifier_mapping"))
+        c("ros_meta.contact", "ros_meta.observer_identifier_mapping", "ros_meta.focal_point"))
       .data_table_caches <- lapply(data_table_caches_names, function(x) {
         t <- table_location$new(x)
         values <- load_table(t$schema(), t$table(), columns = NULL, connection)
-        data_table_cache$new(t, values)
+        cache <- data_table_cache$new(t, values)
+        mapping <- extra_mapping_model[[x]]
+        if (!is.null(mapping)) {
+          for (i in names(mapping)) {
+            cache$set_extra_simple_column_mapping(i, mapping[[i]])
+          }
+        }
+        cache
       })
       names(.data_table_caches) <- data_table_caches_names
       # add custom extra mapping
-      observer_identifier_mapping_table <- .data_table_caches$ros_common.observer_identifier_mapping
+      observer_identifier_mapping_table <- .data_table_caches$ros_meta.observer_identifier_mapping
       .data_table_caches$
-        ros_common.observer$
+        ros_meta.observer$
         set_extra_column_mapping("iotc_observer_identifier", function(cache, column, value) {
         observer_identifier_mapping_table$find("legacy_iotc_observer_identifier", value)
       })
-      contact_table <- .data_table_caches$ros_common.contact
+      contact_table <- .data_table_caches$ros_meta.contact
       compute_full_names_hash(contact_table$values())
       contact_table$set_extra_column_mapping("full_name", function(cache, column, value) {
         # transform value to be upper case and with no accent
@@ -77,7 +88,14 @@ import_context <- R6Class(
         t <- table_location$new(x)
         values <- load_table(t$schema(), t$table(), columns = NULL, connection)
         setorder(values, code)
-        code_list_cache$new(x, values)
+        cache <- code_list_cache$new(x, values)
+        mapping <- extra_mapping_model[[x]]
+        if (!is.null(mapping)) {
+          for (i in names(mapping)) {
+            cache$set_extra_simple_column_mapping(i, mapping[[i]])
+          }
+        }
+        cache
       })
       names(.code_list_caches) <- code_list_tables
       private$.code_list_caches <- code_list_caches$new(.code_list_caches)
