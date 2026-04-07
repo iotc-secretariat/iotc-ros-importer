@@ -3,13 +3,14 @@ library(jsonlite)
 library(data.table)
 
 load_models <- function(domain, model_version, model_directory) {
-  c(
+  list(
     input_mapping_model =
       input_mapping$new(domain, model_version, model_directory),
     output_mapping_model =
       ouput_mapping$new(domain, model_version, model_directory),
     checks_model =
-      input_checks$new(domain, model_version, model_directory)
+      input_checks$new(domain, model_version, model_directory),
+    extra_mapping_model = load_extra_mapping(domain, model_version, model_directory)
   )
 }
 
@@ -96,6 +97,26 @@ ouput_mapping <- R6Class(
     .sheets = NULL
   )
 )
+
+load_extra_mapping <- function(domain,
+                               version,
+                               directory) {
+  stopifnot(!is.na(domain), is.character(domain), nchar(domain) > 0)
+  stopifnot(!is.na(version), is.character(version), nchar(version) > 0)
+  stopifnot(!is.null(directory))
+  file <- file.path(directory, domain, version, "extra-mapping.json")
+  result <- list()
+  if (file.exists(file)) {
+    tmp <- jsonlite::read_json(file)
+    for (i in tmp) {
+      for (n in names(i)) {
+        print(n)
+        result[[n]] <- i[[n]]
+      }
+    }
+  }
+  result
+}
 
 input_checks <- R6Class(
   "InputChecks",
