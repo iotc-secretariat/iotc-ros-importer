@@ -142,12 +142,30 @@ code_list_cache <- R6Class(
       code
     },
     contains_code = function(code) {
+      simple_mapping <- private$.extra_simple_column_mapping[["code"]]
+      if (!is.null(simple_mapping)) {
+        simple_value <- simple_mapping[[code]]
+        if (!is.null(simple_value)) {
+          return(self$contains_code0(simple_value))
+        }
+      }
       if (self$with_code_orig()) {
         if (code %in% self$code_orig_mapping()$code_orig) {
           return(TRUE)
         }
       }
       code %in% self$codes()
+    },
+    contains_code0 = function(code) {
+      if (self$with_code_orig()) {
+        if (code %in% self$code_orig_mapping()$code_orig) {
+          return(TRUE)
+        }
+      }
+      code %in% self$codes()
+    },
+    set_extra_simple_column_mapping = function(column, mappings) {
+      private$.extra_simple_column_mapping[[column]] <- mappings
     },
     print = function(prefix = "") {
       cat(prefix, " code-list ( ", self$table_location()$gav(), " ) - codes: ( ", length(self$codes()), " ) with code orig (", self$with_code_orig(), ")", sep = "")
@@ -167,7 +185,9 @@ code_list_cache <- R6Class(
     # if code_orig is available
     .with_code_orig = NULL,
     # optional mapping of code_orig to code
-    .code_orig_mapping = NULL
+    .code_orig_mapping = NULL,
+    # extra simple colum mamping we can use (this is fill by the extra-mapping.json file)
+    .extra_simple_column_mapping = c()
   )
 )
 code_list_caches <- R6Class(
@@ -216,6 +236,13 @@ data_table_cache <- R6Class(
       private$.values
     },
     find = function(column, value) {
+      simple_mapping <- private$.extra_simple_column_mapping[[column]]
+      if (!is.null(simple_mapping)) {
+        simple_value <- simple_mapping[[value]]
+        if (!is.null(simple_value)) {
+          return(self$find(column, simple_value))
+        }
+      }
       extra_mapping <- private$.extra_column_mapping[[column]]
       if (!is.null(extra_mapping)) {
         mapped_value <- extra_mapping(self, column, value)
@@ -237,6 +264,9 @@ data_table_cache <- R6Class(
     set_extra_column_mapping = function(column, mapping_function) {
       private$.extra_column_mapping[[column]] <- mapping_function
     },
+    set_extra_simple_column_mapping = function(column, mappings) {
+      private$.extra_simple_column_mapping[[column]] <- mappings
+    },
     print = function(prefix = "") {
       cat(prefix, " data-table-cache ( ", self$table_location()$gav(), " ) - ids: ( ", length(self$ids()), ")", sep = "")
       invisible(self)
@@ -250,7 +280,9 @@ data_table_cache <- R6Class(
     # ids available for this data table
     .ids = NULL,
     # extra colum mamping we can use
-    .extra_column_mapping = c()
+    .extra_column_mapping = c(),
+    # extra simple colum mamping we can use (this is fill by the extra-mapping.json file)
+    .extra_simple_column_mapping = c()
   )
 )
 
