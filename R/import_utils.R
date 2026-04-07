@@ -25,6 +25,55 @@ format_timestamp <- function(timestamp) {
   str_replace_all(timestamp, "[ :.]", "_")
 }
 
+merge_files <- function(models, input_files, template_file, output_file) {
+
+
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 09, startCol = 04, x = meta$focal_point_name)
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 10, startCol = 04, x = meta$focal_point_email)
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 09, startCol = 07, x = meta$organization_name)
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 10, startCol = 07, x = meta$organization_email)
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 12, startCol = 04, x = meta$finalization_date)
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 13, startCol = 04, x = meta$submission_date)
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 18, startCol = 04, x = meta$reporting_year)
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 19, startCol = 04, x = meta$reporting_entity)
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 20, startCol = 04, x = meta$reporting_flag)
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 21, startCol = 04, x = meta$data_source)
+  # openxlsx::writeData(wb = wb, sheet = "META", startRow = 26, startCol = 03, x = meta$comments)
+  files_count <- length(input_files)
+  files_index <- 0
+  all_data <- list()
+
+  input_mapping_model <- models$input_mapping_model
+  for (i in input_files) {
+    files_index <- files_index + 1
+    print(sprintf("Loading file (%s/%s): %s", files_index, files_count, i))
+    file <- input_file$new(input_mapping_model, i)
+    file$load()
+    file$load_column_names()
+    data <- file$data()
+    for (sheet_name in names(data)) {
+      if ("META" == sheet_name) {
+        next
+      }
+      old_value <- all_data[[sheet_name]]
+      if (is.null(old_value)) {
+        all_data[[sheet_name]] <- data[[sheet_name]]
+      } else {
+        all_data[[sheet_name]] <- rbind(old_value, data[[sheet_name]])
+      }
+    }
+  }
+  wb <- openxlsx::loadWorkbook(template_file)
+  for (sheet_name in input_mapping_model$sheet_names()) {
+    if ("META" == sheet_name) {
+      next
+    }
+    openxlsx::writeData(wb = wb, sheet = sheet_name, startRow = 06, startCol = 01, x = all_data[[sheet_name]], colNames = FALSE)
+  }
+  openxlsx::saveWorkbook(wb, output_file, overwrite = TRUE)
+  gc()
+}
+
 check_one <- function(connection_supplier,
                       models,
                       root_directory,
