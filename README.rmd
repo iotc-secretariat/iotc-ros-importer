@@ -40,6 +40,7 @@ You have to load the [iotc_db_connections.R](./R/iotc_db_connections.R) file.
 Then set your credentials, says first define the server, then database credentials.
 
 ```{r}
+source("../iotc-registries/ros/utils.R")
 # Load the R file
 source("./R/db_connections.R")
 # Set the server
