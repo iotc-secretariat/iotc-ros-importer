@@ -1,0 +1,23 @@
+[
+  {
+    "ros_meta.contact": {
+      "full_name": {
+        "Chia-Chun WU": "WU JIA CHUN"
+      }
+    }
+  },
+  {
+    "refs_fishery.streamer_types": {
+      "code": {
+        "-": "NULL"
+      }
+    }
+  },
+  {
+    "refs_admin.countries": {
+      "code": {
+        "TW": "TWN"
+      }
+    }
+  }
+]
