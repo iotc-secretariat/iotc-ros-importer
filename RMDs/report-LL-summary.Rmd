@@ -1,0 +1,80 @@
+---
+output: html_fragment
+---
+
+
+```{r }
+out_dt_summary(check_data_summary, "META")
+```
+```{r echo = FALSE }
+out_dt_summary(check_data_summary, "O-INFO")
+```
+```{r }
+out_dt_summary(check_data_summary, "V-INFO")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "V-TRIP")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "V-ATTRIBUTES")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "G-GENERAL")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "G-CONFIG-BRANCHLINES")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET-LIGHTS")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET-BRANCHLINES")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET-HOOKS")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET-BAITS")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET-MITIGATION-MEASURES")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET-HAULING")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET-HAULING-BITEOFFS")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET-CATCHES")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET-CATCHES-SPECIMEN")
+```
+
+```{r }
+out_dt_summary(check_data_summary, "E-SET-CATCHES-SPECIMEN-SSI")
+```
+
+```{r results = "asis"}
+if (length(check_data_summary) == 0) {
+  cat("No message :)")
+}
+```

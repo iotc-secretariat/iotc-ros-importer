@@ -1,0 +1,30 @@
+---
+title: Ros PS reports summary
+subtitle: "`r paste0('Last updated: ', format(Sys.time(), format = '%d %B %Y - %H:%M'))`" #%F %r %Z
+author: "Author: [IOTC Secretariat](mailto:IOTC-Secretariat@fao.org)"
+output:
+  html_document:
+    mathjax: null
+    css: "../templates/html_template.css"
+---
+
+
+```{r, setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+```
+# Summary {.tabset}
+```{r}
+options(DT.options = list(pageLength = PAGE_LENGTH))
+check_data_summary <- result
+```
+```{r summary, child='report-PS-summary.Rmd'}
+```
+
+# Details
+
+```{r, results = "asis"}
+for (x in files) {
+  cat(sprintf(" * [%s](%s){target=\"_blank\"}", get_file_relative_path(x) , file.path(dirname(x), "report.html")), sep="\n")
+}
+```
+

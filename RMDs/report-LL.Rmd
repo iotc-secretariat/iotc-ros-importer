@@ -4,9 +4,8 @@ subtitle: "`r paste0('Last updated: ', format(Sys.time(), format = '%d %B %Y - %
 author: "Author: [IOTC Secretariat](mailto:IOTC-Secretariat@fao.org)"
 output:
   html_document:
+    mathjax: null
     css: "../templates/html_template.css"
-    includes:
-      in_header: "../templates/google-analytics.html"
     number_sections: FALSE
     toc: yes
     toc_float:
@@ -14,151 +13,91 @@ output:
     smooth_scroll: FALSE
 ---
 
-```{r collapse = FALSE}
-options(DT.options = list(pageLength = -1))
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(fig.width = 8, echo = FALSE, message = FALSE)
 ```
 
 # Summary {.tabset}
 
-```{r collapse = FALSE}
-out_dt_summary(check_data, "META")
+```{r }
+options(DT.options = list(pageLength = -1))
 ```
-```{r collapse = FALSE }
-out_dt_summary(check_data,"O-INFO")
-```
-```{r collapse = FALSE}
-out_dt_summary(check_data,"V-INFO")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"V-TRIP")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"V-ATTRIBUTES")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"G-GENERAL")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"G-CONFIG-BRANCHLINES")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET-LIGHTS")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET-BRANCHLINES")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET-HOOKS")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET-BAITS")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET-MITIGATION-MEASURES")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET-HAULING")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET-HAULING-BITEOFFS")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET-CATCHES")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET-CATCHES-SPECIMEN")
-```
-
-```{r collapse = FALSE}
-out_dt_summary(check_data,"E-SET-CATCHES-SPECIMEN-SSI")
-```
-
-```{r collapse = FALSE}
-options(DT.options = list(pageLength = PAGE_LENGTH))
+```{r summary, child='report-LL-summary.Rmd'}
 ```
 
 # Details {.tabset}
 
-```{r collapse = FALSE }
+```{r }
+options(DT.options = list(pageLength = PAGE_LENGTH))
+```
+```{r echo = FALSE }
 out_dt_detail(check_data,"O-INFO")
 ```
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"V-INFO")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"V-TRIP")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"V-ATTRIBUTES")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"G-GENERAL")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"G-CONFIG-BRANCHLINES")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET-LIGHTS")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET-BRANCHLINES")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET-HOOKS")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET-BAITS")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET-MITIGATION-MEASURES")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET-HAULING")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET-HAULING-BITEOFFS")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET-CATCHES")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET-CATCHES-SPECIMEN")
 ```
 
-```{r collapse = FALSE}
+```{r }
 out_dt_detail(check_data,"E-SET-CATCHES-SPECIMEN-SSI")
+```
+```{r results = "asis"}
+if (length(check_data) == 0) {
+  cat("No message :)")
+}
 ```

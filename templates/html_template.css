@@ -90,6 +90,17 @@ div.tocify {
   text-align: center;
 }
 
+.dataTables_wrapper .dataTables_length {
+  margin:5px;
+  padding:5px;
+  float:right;
+}
+
+.dataTables_wrapper .dataTables_filter {
+  margin: 5px;
+  padding: 5px;
+  float: right;
+}
 
 pre, code {
   font-family: "Fira Code", "Consolas", "Courier New", monospace;
