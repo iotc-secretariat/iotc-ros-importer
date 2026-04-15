@@ -1,0 +1,28 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_NUMBER",
+    "SET_NUMBER",
+    "CATCH_NUMBER",
+    "CATCH_DETAILS_SPECIES_CODE",
+    "CATCH_DETAILS_FATE_TYPE",
+    "CATCH_DETAILS_FATE_CODE",
+    "CATCH_DETAILS_SAMPLING_METHOD_CODE",
+    "CATCH_DETAILS_NUM_FISH"
+  ],
+  "check_column_mandatory_if_other_columns_are_filled": {
+    "CATCH_DETAILS_WEIGHT_KG_T": [
+      "CATCH_DETAILS_WEIGHT_VALUE"
+    ]
+  },
+  "check_column_exists_in_code_list": {
+    "CATCH_DETAILS_SPECIES_CODE": "refs_biology.species",
+    "CATCH_DETAILS_FATE_TYPE": "refs_biology.types_of_fate",
+    "CATCH_DETAILS_FATE_CODE": "refs_biology.fates",
+    "CATCH_DETAILS_SAMPLING_METHOD_CODE": "refs_biology.sampling_methods_for_catch_estimation",
+    "CATCH_DETAILS_WEIGHT_PROCESSING_TYPE_CODE": "refs_fishery.fish_processing_types",
+    "CATCH_DETAILS_WEIGHT_ESTIMATION_METHOD_CODE": "refs_biology.sampling_methods_for_catch_estimation"
+  },
+  "check_column_values": {
+    "CATCH_DETAILS_WEIGHT_KG_T": "^KG$|^T$"
+  }
+}

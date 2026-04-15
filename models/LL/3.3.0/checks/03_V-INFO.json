@@ -1,0 +1,31 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_NUMBER",
+    "VESSEL_INFORMATION_IDENTIFICATION_IOTC_NUMBER"
+  ],
+  "check_column_exists_in_database": {
+    "VESSEL_INFORMATION_IDENTIFICATION_IOTC_NUMBER": "ros_common.vessel→iotc_vessel_identifier",
+    "VESSEL_INFORMATION_IDENTIFICATION_REGISTRATION_NUMBER": "ros_common.vessel→registration_identifier",
+    "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_FISHING_MASTER_FULL_NAME": "ros_meta.contact→full_name",
+    "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_SKIPPER_CAPTAIN_FULL_NAME": "ros_meta.contact→full_name"
+  },
+  "check_column_exists_in_code_list": {
+    "VESSEL_INFORMATION_IDENTIFICATION_FLAG_OR_CHARTERING_CODE": "refs_admin.countries",
+    "VESSEL_INFORMATION_IDENTIFICATION_REGISTRATION_COUNTRY_CODE": "refs_admin.countries",
+    "VESSEL_INFORMATION_IDENTIFICATION_REGISTRATION_PORT_CODE": "refs_admin.ports",
+    "VESSEL_INFORMATION_IDENTIFICATION_LICENSED_TARGET_SPECIES_SPECIES_1_CODE": "refs_biology.species",
+    "VESSEL_INFORMATION_IDENTIFICATION_LICENSED_TARGET_SPECIES_SPECIES_2_CODE": "refs_biology.species",
+    "VESSEL_INFORMATION_IDENTIFICATION_LICENSED_TARGET_SPECIES_SPECIES_3_CODE": "refs_biology.species",
+    "VESSEL_INFORMATION_IDENTIFICATION_LICENSED_TARGET_SPECIES_SPECIES_4_CODE": "refs_biology.species",
+    "VESSEL_INFORMATION_IDENTIFICATION_MAIN_FISHING_GEAR_CODE": "refs_fishery_config.gears"
+  },
+  "check_column_should_exists_in_database": {
+    "VESSEL_INFORMATION_IDENTIFICATION_NAME": "ros_common.vessel→vessel_name",
+    "VESSEL_INFORMATION_IDENTIFICATION_IMO_NUMBER": "ros_common.vessel→imo_identifier",
+    "VESSEL_INFORMATION_IDENTIFICATION_IRCS": "ros_common.vessel→ircs_identifier"
+  },
+  "check_column_should_exists_in_code_list": {
+    "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_FISHING_MASTER_NATIONALITY_CODE": "refs_admin.countries",
+    "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_SKIPPER_CAPTAIN_NATIONALITY_CODE": "refs_admin.countries"
+  }
+}

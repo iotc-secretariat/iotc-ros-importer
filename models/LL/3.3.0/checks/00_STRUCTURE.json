@@ -1,0 +1,42 @@
+{
+  "check_sheet_names": [
+    "META",
+    "O-INFO",
+    "V-INFO",
+    "V-TRIP",
+    "V-ATTRIBUTES",
+    "G-GENERAL",
+    "G-CONFIG-BRANCHLINES",
+    "E-SET",
+    "E-SET-LIGHTS",
+    "E-SET-BRANCHLINES",
+    "E-SET-HOOKS",
+    "E-SET-BAITS",
+    "E-SET-MITIGATION-MEASURES",
+    "E-SET-HAULING",
+    "E-SET-HAULING-BITEOFFS",
+    "E-SET-CATCHES",
+    "E-SET-CATCHES-SPECIMEN",
+    "E-SET-CATCHES-SPECIMEN-SSI"
+  ],
+  "check_sheet_columns_count": {
+    "META": 6,
+    "O-INFO": 25,
+    "V-INFO": 32,
+    "V-TRIP": 11,
+    "V-ATTRIBUTES": 50,
+    "G-GENERAL": 33,
+    "G-CONFIG-BRANCHLINES": 8,
+    "E-SET": 24,
+    "E-SET-LIGHTS": 5,
+    "E-SET-BRANCHLINES": 4,
+    "E-SET-HOOKS": 5,
+    "E-SET-BAITS": 6,
+    "E-SET-MITIGATION-MEASURES": 14,
+    "E-SET-HAULING": 20,
+    "E-SET-HAULING-BITEOFFS": 4,
+    "E-SET-CATCHES": 12,
+    "E-SET-CATCHES-SPECIMEN": 32,
+    "E-SET-CATCHES-SPECIMEN-SSI": 16
+  }
+}

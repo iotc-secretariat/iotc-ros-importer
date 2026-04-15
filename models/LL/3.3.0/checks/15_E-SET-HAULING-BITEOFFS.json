@@ -1,0 +1,6 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_NUMBER",
+    "SET_NUMBER"
+  ]
+}
