@@ -36,7 +36,7 @@ connect_to_ros <- function(host = Sys.getenv("IOTC_ROS_DB_HOST", "localhost"),
 #' Execute the given code \code{\link{code_to_execute}} which must be a function
 #' with one parameter (the connection provided by this function).
 #'
-#' The connection si released after the code is executed.
+#' The connection is released after the code is executed.
 #'
 #' @param connection_supplier function to get the connection (defaults to \code{\link{connect_to_ros}})
 #' @param code_to_execute the code to execute
@@ -371,6 +371,10 @@ data_table_cache <- R6Class(
       private$.values
     },
     find = function(column, value) {
+      result <-  self$find0(column, value)
+      if (nrow(result==1)) {
+        return(result)
+      }
       simple_mapping <- private$.extra_simple_column_mapping[[column]]
       if (!is.null(simple_mapping)) {
         simple_value <- simple_mapping[[value]]
@@ -381,11 +385,11 @@ data_table_cache <- R6Class(
       extra_mapping <- private$.extra_column_mapping[[column]]
       if (!is.null(extra_mapping)) {
         mapped_value <- extra_mapping(self, column, value)
-        if (nrow(mapped_value) == 1) {
+        if (!is.null(mapped_value) && nrow(mapped_value) == 1) {
           return(mapped_value)
         }
       }
-      self$find0(column, value)
+      NULL
     },
     find0 = function(column, value) {
       self$values()[self$values()[[column]] == value]
@@ -401,10 +405,6 @@ data_table_cache <- R6Class(
     },
     set_extra_simple_column_mapping = function(column, mappings) {
       private$.extra_simple_column_mapping[[column]] <- mappings
-    },
-    print = function(prefix = "") {
-      cat(prefix, " data-table-cache ( ", self$table_location()$gav(), " ) - ids: ( ", length(self$ids()), ")", sep = "")
-      invisible(self)
     }
   ),
   private = list(
@@ -490,13 +490,6 @@ code_list_cache <- R6Class(
     },
     set_extra_simple_column_mapping = function(column, mappings) {
       private$.extra_simple_column_mapping[[column]] <- mappings
-    },
-    print = function(prefix = "") {
-      cat(prefix, " code-list ( ", self$table_location()$gav(), " ) - codes: ( ", length(self$codes()), " ) with code orig (", self$with_code_orig(), ")", sep = "")
-      if (self$with_code_orig()) {
-        cat(" code-orig-list ( ", length(self$code_orig_mapping()), " )\n", sep = "")
-      }
-      invisible(self)
     }
   ),
   private = list(
@@ -514,6 +507,80 @@ code_list_cache <- R6Class(
     .extra_simple_column_mapping = c()
   )
 )
+
+load_ros_databse_code_lists <- function(models, directory, connection_provider = connect_to_ros) {
+  if (!file.exists(directory)) {
+    dir.create(directory, recursive = TRUE)
+  }
+  code_list_tables <- unique(unlist(lapply(models, function(x) { x$checks_model$required_code_lists() })))
+  use_connection(connection_provider, function(connection) {
+    result <- lapply(code_list_tables, function(code_list_name) {
+      gav <- table_location$new(code_list_name)
+      table <- load_table(gav$schema(), gav$table(), columns = NULL, connection)
+      file <- file.path(directory, paste0(code_list_name, ".csv"))
+      write_file(table, file)
+      table
+    })
+    names(result) <- code_list_tables
+    result
+  })
+}
+
+clean_full_name <- function(value) {
+  if (is.null(value)) {
+    return(value)
+  }
+  value <- normalize_full_name(value)
+  str_replace_all(value, "[\\'-\\.\\(\\)]", " ")
+}
+
+compute_full_name_hash <- function(full_name) {
+  lapply(str_split(clean_full_name(full_name), " "), function(x) { str_replace_all(toString(sort(x)), ", ", "") })
+}
+
+compute_full_names_hash <- function(contact_table) {
+  result <- contact_table[, full_name_parts := unlist(lapply(full_name, compute_full_name_hash))]
+  setorder(result, id)
+  result
+}
+compute_vessel_names_hash <- function(vessel_table) {
+  result <- vessel_table[, full_name_parts := unlist(lapply(vessel_name, compute_full_name_hash))]
+  setorder(result, id)
+  result
+}
+
+load_ros_databse_registries <- function(models, directory, connection_provider = connect_to_ros) {
+  if (!file.exists(directory)) {
+    dir.create(directory, recursive = TRUE)
+  }
+  data_tables <- unique(unlist(lapply(models, function(x) { x$checks_model$required_data_tables(c("ros_common.vessel", "ros_meta.contact", "ros_meta.observer_identifier_mapping", "ros_meta.focal_point")) })))
+  use_connection(connection_provider, function(connection) {
+    result <- lapply(data_tables, function(data_table) {
+      gav <- table_location$new(data_table)
+      table <- load_table(gav$schema(), gav$table(), columns = NULL, connection)
+      table
+    })
+    names(result) <- data_tables
+    # Add full_name_parts column on ros_meta.contact
+    contact_table <- result$ros_meta.contact
+    compute_full_names_hash(contact_table)
+    # Denormalize ros_meta.focal_point
+    result$ros_meta.focal_point <- contact_table[result$ros_meta.focal_point, on = .(id = contact_id)][, .(id, full_name, nationality_code, email, organisation_name, comment, full_name_parts)]
+    # Denormalize ros_meta.observer
+    result$ros_meta.observer <- contact_table[result$ros_meta.observer, on = .(id = contact_id)][, .(id, full_name, nationality_code, iotc_observer_identifier, national_observer_id, accreditation_year, accredited_by, deregistered_date, full_name_parts)]
+    # Denormalize ros_meta.ros_meta.observer_identifier_mapping
+    result$ros_meta.observer_identifier_mapping <- result$ros_meta.observer_identifier_mapping[result$ros_meta.observer, on = .(iotc_observer_identifier = iotc_observer_identifier)][!is.na(legacy_iotc_observer_identifier)][, .(legacy_iotc_observer_identifier, iotc_observer_identifier, id)]
+    # Add full_name_parts column on ros_common.vessel
+    vessel_table <- result$ros_common.vessel
+    compute_vessel_names_hash(vessel_table)
+    for (data_table in data_tables) {
+      file <- file.path(directory, paste0(data_table, ".csv"))
+      write_file(result[[data_table]], file)
+    }
+    result
+  })
+}
+
 
 ros_cache <- R6Class(
   "RosCache",
@@ -537,12 +604,13 @@ ros_cache <- R6Class(
       names(.data_table_caches) <- names(data_registries)
       # add custom extra mapping
       observer_identifier_mapping_table <- .data_table_caches$ros_meta.observer_identifier_mapping
-      .data_table_caches$
-        ros_meta.observer$
-        set_extra_column_mapping("iotc_observer_identifier", function(cache, column, value) {
+      observer_table <- .data_table_caches$ros_meta.observer
+      observer_table$set_extra_column_mapping("iotc_observer_identifier", function(cache, column, value) {
         observer_identifier_mapping_table$find("legacy_iotc_observer_identifier", value)
       })
       contact_table <- .data_table_caches$ros_meta.contact
+      focal_point_table <- .data_table_caches$ros_meta.focal_point
+      vessel_table <- .data_table_caches$ros_common.vessel
 
       find_full_name <- function(cache, column, value) {
         # transform value to be upper case and with no accent
@@ -554,12 +622,9 @@ ros_cache <- R6Class(
       }
 
       contact_table$set_extra_column_mapping("full_name", find_full_name)
-      .data_table_caches$
-        ros_meta.observer$
-        set_extra_column_mapping("full_name", find_full_name)
-      .data_table_caches$
-        ros_meta.focal_point$
-        set_extra_column_mapping("full_name", find_full_name)
+      observer_table$set_extra_column_mapping("full_name", find_full_name)
+      focal_point_table$set_extra_column_mapping("full_name", find_full_name)
+      vessel_table$set_extra_column_mapping("vessel_name", find_full_name)
       private$.data_registries <- .data_table_caches
 
       .code_list_caches <- lapply(names(code_lists), function(x) {
@@ -608,73 +673,10 @@ ros_cache <- R6Class(
   )
 )
 
-
-load_ros_databse_code_lists <- function(models, directory, connection_provider = connect_to_ros) {
-  if (!file.exists(directory)) {
-    dir.create(directory, recursive = TRUE)
-  }
-  code_list_tables <- unique(unlist(lapply(models, function(x) { x$checks_model$required_code_lists() })))
-  use_connection(connection_provider, function(connection) {
-    result <- lapply(code_list_tables, function(code_list_name) {
-      gav <- table_location$new(code_list_name)
-      table <- load_table(gav$schema(), gav$table(), columns = NULL, connection)
-      file <- file.path(directory, paste0(code_list_name, ".csv"))
-      write_file(table, file)
-      table
-    })
-    names(result) <- code_list_tables
-    result
-  })
-}
-
-clean_full_name <- function(value) {
-  if (is.null(value)) {
-    return(value)
-  }
-  str_replace_all(str_replace_all(normalize_full_name(value), "-", ""), "\\.", "")
-}
-
-compute_full_name_hash <- function(full_name) {
-  lapply(str_split(clean_full_name(full_name), " "), function(x) { str_replace_all(toString(sort(x)), ", ", "") })
-}
-
-compute_full_names_hash <- function(contact_table) {
-  result <- contact_table[, full_name_parts := unlist(lapply(full_name, compute_full_name_hash))]
-  setorder(result, id)
-  result
-}
-
-load_ros_databse_registries <- function(models, directory, connection_provider = connect_to_ros) {
-  if (!file.exists(directory)) {
-    dir.create(directory, recursive = TRUE)
-  }
-  data_tables <- unique(unlist(lapply(models, function(x) { x$checks_model$required_data_tables(c("ros_meta.contact", "ros_meta.observer_identifier_mapping", "ros_meta.focal_point")) })))
-  use_connection(connection_provider, function(connection) {
-    result <- lapply(data_tables, function(data_table) {
-      gav <- table_location$new(data_table)
-      table <- load_table(gav$schema(), gav$table(), columns = NULL, connection)
-      table
-    })
-    names(result) <- data_tables
-    # Add full_name_parts column on ros_meta.contact
-    contact_table <- result$ros_meta.contact
-    compute_full_names_hash(contact_table)
-    # Denormalize ros_meta.focal_point
-    result$ros_meta.focal_point <- contact_table[result$ros_meta.focal_point, on = .(id = contact_id)][, .(id, full_name, nationality_code, email, organisation_name, comment, full_name_parts)]
-    # Denormalize ros_meta.observer
-    result$ros_meta.observer <- contact_table[result$ros_meta.observer, on = .(id = contact_id)][, .(id, full_name, nationality_code, iotc_observer_identifier, national_observer_id, accreditation_year, accredited_by, deregistered_date, full_name_parts)]
-    # Denormalize ros_meta.ros_meta.observer_identifier_mapping
-    result$ros_meta.observer_identifier_mapping <- result$ros_meta.observer_identifier_mapping[result$ros_meta.observer, on = .(iotc_observer_identifier = iotc_observer_identifier)][!is.na(legacy_iotc_observer_identifier)][, .(legacy_iotc_observer_identifier, iotc_observer_identifier, id)]
-    for (data_table in data_tables) {
-      file <- file.path(directory, paste0(data_table, ".csv"))
-      write_file(result[[data_table]], file)
-    }
-    result
-  })
-}
-
 create_ros_cache <- function(models, directory) {
   code_lists <- load_ros_databse_code_lists(list(models), file.path(directory, "code_lists"))
   data_registries <- load_ros_databse_registries(list(models), file.path(directory, "registries"))
   ros_cache <- ros_cache$new(models, code_lists, data_registries)
 }
+
+create_ros_cache(LL_LATEST_MODEL,  "../iotc-ros-input-data/build/ros")

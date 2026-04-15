@@ -157,7 +157,7 @@ meta_checks <- c(
       column_name <- column_gav$column()
       cache <- ros_cache$data_registry(table_name)
       existing_row <- cache$find(column_name, value)
-      if (nrow(existing_row) != 1) {
+      if (is.null(existing_row) || nrow(existing_row) != 1) {
         result <- rbind(result, new_report_meta_message(
           meta,
           value,
@@ -244,7 +244,7 @@ data_checks <- c(
           next
         }
         existing_row <- cache$find(column_name, value)
-        if (nrow(existing_row) != 1) {
+        if (is.null(existing_row) || nrow(existing_row) != 1) {
           result <- rbind(result, new_report_data_message(
             column_index,
             row_index + sheet_starting_row,
