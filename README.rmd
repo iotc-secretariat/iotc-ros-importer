@@ -1,13 +1,21 @@
 ---
-title: "Howto use importer"
-output: html_notebook
+title: "Checks report for Ros import"
+author: "Author: [IOTC Secretariat](mailto:IOTC-Secretariat@fao.org)"
+output:
+  html_document:
+    css: "./templates/html_template.css"
+    includes:
+      in_header: "./templates/google-analytics.html"
+    number_sections: FALSE
+    toc: yes
+    toc_float:
+      collapsed: FALSE
+    smooth_scroll: FALSE
 ---
 
 # Concepts
 
-## Object model
-
-We use the `R6` package to define some classes (as if you were using Java).
+**TODO**
 
 ## Models
 
@@ -21,64 +29,71 @@ A model is a mapping for each column of the xlsx file to import and map it the c
 
 From this model we generate a `R` file to be able to do the import.
 
-## Importers
-
-For each domain and version of the model we have an importer.
-
-An importer is the entry point to import the data.
-
-# Workflow to use an importer
-
-We describe here the workflow to use an importer.
-
-## Connections to the database(s) (required)
-
-This first step is to define the connection to the database(s).
-
-You have to load the [iotc_db_connections.R](./R/iotc_db_connections.R) file.
-
-Then set your credentials, says first define the server, then database credentials.
+## Set up our database connection
+```{r}
+# Set up our database connection (if necessary)
+# address of the host
+# Sys.setenv(IOTC_ROS_DB_HOST="xxx")
+# db name
+# Sys.setenv(IOTC_ROS_DB_NAME=IOTC_ROS)
+# db port
+# Sys.setenv(IOTC_ROS_DB_PORT=5432)
+# db user name
+# Sys.setenv(IOTC_ROS_DB_USER="xxx")
+# db user password
+# Sys.setenv(IOTC_ROS_DB_PWD="a")
+Sys.setenv(IOTC_ROS_DB_USER = "ros-admin", IOTC_ROS_DB_PWD = "a")
+```
+## Load sources
 
 ```{r}
 source("../iotc-registries/ros/utils.R")
-# Load the R file
-source("./R/db_connections.R")
-# Set the server
-set_default_db_server(SERVER_CACHE, "localhost")
-# Set credentials for IOTC_ROS databse
-set_credentials_for_db(CREDENTIALS_CACHE, IOTC_ROS, "ros-admin", "a")
-# Set credentials for IOTC_Reference_Data databse (this is optional)
-set_credentials_for_db(CREDENTIALS_CACHE, IOTC_REFERENCE_DATA, "ros-admin", "a")
-source("./R/db_utils.R")
-source("./R/db_classes.R")
-source("./R/checks.R")
-source("./R/mappings.R")
-source("./R/input_file.R")
-source("./R/import_context.R")
-source("./R/import_utils.R")
+source("R/00_mappings.R")
+source("R/00_ros_database.R")
+source("./R/01_check_structure.R")
+source("R/02_check_data.R")
+source("R/03_generate_report.R")
 ```
-
-## Load models (required)
-
+## Load models
 ```{r}
 
-ros_import_models <- load_models("LL", "3.3.0", "./models")
-
+ros_ll_import_models <- load_models("LL", "3.3.0", "./models")
+ros_ps_import_models <- load_models("PS", "3.3.0", "./models")
 ```
 
-## Check one input (optional)
-
+## Check one ll input
 ```{r}
-check_one(DB_IOTC_ROS, ros_import_models, "../iotc-ros-input-data/data/LL/2022/EU-FRANCE/ROS_LL_data_reporting_EU.FRA.REU_2022.xlsx")
+check_ll_one_result <- check_one(connect_to_ros,
+                                 ros_ll_import_models,
+                                 "../iotc-ros-input-data/data/LL",
+                                 "../iotc-ros-input-data/report/LL",
+                                 "../iotc-ros-input-data/data/LL/2022/EU-FRANCE/ROS_LL_data_reporting_EU.FRA.REU_2022.xlsx",
+                                 "test")
 ```
 
-## Check alls input (optional)
-
+## Check all ll inputs
 ```{r}
-
-check_all(DB_IOTC_ROS,
-          ros_import_models,
-          "../iotc-ros-input-data/data/LL",
-"test")
+check_ll_all_result <- check_all(connect_to_ros,
+                                 ros_ll_import_models,
+                                 "../iotc-ros-input-data/data/LL",
+                                 "../iotc-ros-input-data/report/LL",
+                                 timestamp = "test")
+```
+## Check one ps input
+```{r}
+check_ps_one_result <- check_one(connect_to_ros,
+                                 ros_ps_import_models,
+                                 "../iotc-ros-input-data/data/PS",
+                                 "../iotc-ros-input-data/report/PS",
+                                 "../iotc-ros-input-data/data/PS/2023/EU-ITALY/ROS_PS_data_reporting_EU.ITA_2023.xlsx",
+                                 "test")
+```
+## Check all ps inputs
+```{r}
+check_ps_all_result <- check_all(connect_to_ros,
+                                 ros_ps_import_models,
+                                 "../iotc-ros-input-data/data/PS",
+                                 "../iotc-ros-input-data/report/PS",
+                                 timestamp = "test")
 
 ```
