@@ -28,6 +28,6 @@
     "OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_4_CODE": "refs_fishery.reasons_days_lost"
   },
   "check_column_should_exists_in_database": {
-    "OBSERVER_IDENTIFICATION_FULL_NAME": "ros_meta.contact→full_name"
+    "OBSERVER_IDENTIFICATION_FULL_NAME": "ros_meta.observer→full_name"
   }
 }

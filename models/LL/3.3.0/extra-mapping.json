@@ -7,13 +7,6 @@
     }
   },
   {
-    "refs_fishery.streamer_types": {
-      "code": {
-        "-": "NULL"
-      }
-    }
-  },
-  {
     "refs_admin.countries": {
       "code": {
         "TW": "TWN"
@@ -21,9 +14,10 @@
     }
   },
   {
-    "refs_admin.countries": {
-      "code": {
-        "TW": "TWN"
+    "ros_common.vessel": {
+      "vessel_name": {
+        "CLIPPERTON": "LE CLIPPERTON",
+        "MARIUS 3": "LE MARIUS 3"
       }
     }
   }
