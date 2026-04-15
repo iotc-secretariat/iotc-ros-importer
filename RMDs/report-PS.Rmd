@@ -1,0 +1,124 @@
+---
+title: 'Ros report for input file `r relative_input_file`'
+subtitle: "`r paste0('Last updated: ', format(Sys.time(), format = '%d %B %Y - %H:%M'))`" #%F %r %Z
+author: "Author: [IOTC Secretariat](mailto:IOTC-Secretariat@fao.org)"
+output:
+  html_document:
+    css: "../templates/html_template.css"
+    includes:
+      in_header: "../templates/google-analytics.html"
+    number_sections: FALSE
+    toc: yes
+    toc_float:
+      collapsed: FALSE
+    smooth_scroll: FALSE
+---
+
+```{r collapse = FALSE}
+options(DT.options = list(pageLength = -1))
+```
+
+# Summary {.tabset}
+
+```{r collapse = FALSE}
+out_dt_summary(check_data, "META")
+```
+```{r collapse = FALSE }
+out_dt_summary(check_data,"O-INFO")
+```
+```{r collapse = FALSE}
+out_dt_summary(check_data,"V-INFO")
+```
+
+```{r collapse = FALSE}
+out_dt_summary(check_data,"V-TRIP")
+```
+
+```{r collapse = FALSE}
+out_dt_summary(check_data,"V-ATTRIBUTES")
+```
+
+```{r collapse = FALSE}
+out_dt_summary(check_data,"G-GENERAL")
+```
+
+```{r collapse = FALSE}
+out_dt_summary(check_data,"G-CONFIG-BRANCHLINES")
+```
+
+```{r collapse = FALSE}
+out_dt_summary(check_data,"E-SET")
+```
+
+```{r collapse = FALSE}
+out_dt_summary(check_data,"E-SET-CETACEANS")
+```
+
+```{r collapse = FALSE}
+out_dt_summary(check_data,"E-SET-CATCHES")
+```
+
+```{r collapse = FALSE}
+out_dt_summary(check_data,"E-SET-CATCHES-SPECIMEN")
+```
+
+```{r collapse = FALSE}
+out_dt_summary(check_data,"E-SET-CATCHES-SPECIMEN-SSI")
+```
+
+```{r collapse = FALSE}
+out_dt_summary(check_data,"A-SURFACE")
+```
+
+```{r collapse = FALSE}
+options(DT.options = list(pageLength = PAGE_LENGTH))
+```
+
+# Details {.tabset}
+
+```{r collapse = FALSE }
+out_dt_detail(check_data,"O-INFO")
+```
+```{r collapse = FALSE}
+out_dt_detail(check_data,"V-INFO")
+```
+
+```{r collapse = FALSE}
+out_dt_detail(check_data,"V-TRIP")
+```
+
+```{r collapse = FALSE}
+out_dt_detail(check_data,"V-ATTRIBUTES")
+```
+
+```{r collapse = FALSE}
+out_dt_detail(check_data,"G-GENERAL")
+```
+
+```{r collapse = FALSE}
+out_dt_detail(check_data,"G-CONFIG-BRANCHLINES")
+```
+
+```{r collapse = FALSE}
+out_dt_detail(check_data,"E-SET")
+```
+
+```{r collapse = FALSE}
+out_dt_detail(check_data,"E-SET-CETACEANS")
+```
+
+```{r collapse = FALSE}
+out_dt_detail(check_data,"E-SET-CATCHES")
+```
+
+```{r collapse = FALSE}
+out_dt_detail(check_data,"E-SET-CATCHES-SPECIMEN")
+```
+
+```{r collapse = FALSE}
+out_dt_detail(check_data,"E-SET-CATCHES-SPECIMEN-SSI")
+```
+
+```{r collapse = FALSE}
+out_dt_detail(check_data,"A-SURFACE")
+```
