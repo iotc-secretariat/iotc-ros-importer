@@ -8,7 +8,7 @@ library(R6, warn.conflicts = FALSE)
 
 #'The constants holding the name of the latest IOTC_Ros database
 #'@export
-IOTC_ROS <- "IOTC_Ros_3_3_0_2026_03_20"
+IOTC_ROS <- "IOTC_Ros_3_3_0_2026_04_16"
 
 #' Connects to an instance of \code{Ros} on a given server machine
 #'
