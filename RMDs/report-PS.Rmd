@@ -15,12 +15,14 @@ output:
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(fig.width = 8, echo = FALSE)
 ```
-```{r }
-options(DT.options = list(pageLength = -1))
+
+```{r detail, child='report-abstract.Rmd'}
 ```
 
 # Summary {.tabset}
-
+```{r }
+options(DT.options = list(pageLength = -1))
+```
 ```{r summary, child='report-PS-summary.Rmd'}
 ```
 

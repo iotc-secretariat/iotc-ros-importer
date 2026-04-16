@@ -16,6 +16,8 @@ output:
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(fig.width = 8, echo = FALSE, message = FALSE)
 ```
+```{r detail, child='report-abstract.Rmd'}
+```
 
 # Summary {.tabset}
 
