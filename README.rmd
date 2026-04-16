@@ -46,8 +46,7 @@ Sys.setenv(IOTC_ROS_DB_USER = "ros-admin", IOTC_ROS_DB_PWD = "a")
 ```
 ## Load sources
 
-```{r}
-source("../iotc-registries/ros/utils.R")
+```{r, warning = FALSE}
 source("R/00_mappings.R")
 source("R/00_ros_database.R")
 source("./R/01_check_structure.R")

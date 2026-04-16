@@ -1,3 +1,4 @@
+library(iotc.ros.registries)
 library(DBI)
 library(RPostgres)
 library(data.table, warn.conflicts = FALSE)
@@ -526,25 +527,8 @@ load_ros_databse_code_lists <- function(models, directory, connection_provider =
   })
 }
 
-clean_full_name <- function(value) {
-  if (is.null(value)) {
-    return(value)
-  }
-  value <- normalize_full_name(value)
-  str_replace_all(value, "[\\'-\\.\\(\\)]", " ")
-}
-
-compute_full_name_hash <- function(full_name) {
-  lapply(str_split(clean_full_name(full_name), " "), function(x) { str_replace_all(toString(sort(x)), ", ", "") })
-}
-
-compute_full_names_hash <- function(contact_table) {
-  result <- contact_table[, full_name_parts := unlist(lapply(full_name, compute_full_name_hash))]
-  setorder(result, id)
-  result
-}
 compute_vessel_names_hash <- function(vessel_table) {
-  result <- vessel_table[, full_name_parts := unlist(lapply(vessel_name, compute_full_name_hash))]
+  result <- vessel_table[, full_name_hash := unlist(lapply(vessel_name, compute_full_name_hash))]
   setorder(result, id)
   result
 }
@@ -561,16 +545,16 @@ load_ros_databse_registries <- function(models, directory, connection_provider =
       table
     })
     names(result) <- data_tables
-    # Add full_name_parts column on ros_meta.contact
+    # Add full_name_hash column on ros_meta.contact
     contact_table <- result$ros_meta.contact
     compute_full_names_hash(contact_table)
     # Denormalize ros_meta.focal_point
-    result$ros_meta.focal_point <- contact_table[result$ros_meta.focal_point, on = .(id = contact_id)][, .(id, full_name, nationality_code, email, organisation_name, comment, full_name_parts)]
+    result$ros_meta.focal_point <- contact_table[result$ros_meta.focal_point, on = .(id = contact_id)][, .(id, full_name, nationality_code, email, organisation_name, comment, full_name_hash)]
     # Denormalize ros_meta.observer
-    result$ros_meta.observer <- contact_table[result$ros_meta.observer, on = .(id = contact_id)][, .(id, full_name, nationality_code, iotc_observer_identifier, national_observer_id, accreditation_year, accredited_by, deregistered_date, full_name_parts)]
+    result$ros_meta.observer <- contact_table[result$ros_meta.observer, on = .(id = contact_id)][, .(id, full_name, nationality_code, iotc_observer_identifier, national_observer_id, accreditation_year, accredited_by, deregistered_date, full_name_hash)]
     # Denormalize ros_meta.ros_meta.observer_identifier_mapping
     result$ros_meta.observer_identifier_mapping <- result$ros_meta.observer_identifier_mapping[result$ros_meta.observer, on = .(iotc_observer_identifier = iotc_observer_identifier)][!is.na(legacy_iotc_observer_identifier)][, .(legacy_iotc_observer_identifier, iotc_observer_identifier, id)]
-    # Add full_name_parts column on ros_common.vessel
+    # Add full_name_hash column on ros_common.vessel
     vessel_table <- result$ros_common.vessel
     compute_vessel_names_hash(vessel_table)
     for (data_table in data_tables) {
@@ -618,7 +602,7 @@ ros_cache <- R6Class(
           return(NULL)
         }
         value2 <- compute_full_name_hash(value)
-        cache$find0("full_name_parts", value2)
+        cache$find0("full_name_hash", value2)
       }
 
       contact_table$set_extra_column_mapping("full_name", find_full_name)
