@@ -24,7 +24,8 @@ check_data_summary <- result
 
 ```{r, results = "asis"}
 for (x in files) {
-  cat(sprintf(" * [%s](%s){target=\"_blank\"}", get_file_relative_path(x) , file.path(dirname(x), "report.html")), sep="\n")
+  report_file <- paste0(".",str_sub(dirname(x), str_length(root_directory)+1),"/report.html")
+  cat(sprintf(" * [%s](%s){target=\"_blank\"}", get_file_relative_path(x) , report_file), sep="\n")
 }
 ```
 

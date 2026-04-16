@@ -136,10 +136,10 @@ generate_reports <- function(root_directory, template, force = FALSE) {
     task_report$end_task(file)
   }
   task_report$end()
-  list(files = lapply(files, normalizePath), result = result)
+  list(root_directory = root_directory, files = files, result = result)
 }
 
-generate_all_report <- function(files, result, root_directory, template) {
+generate_all_report <- function(root_directory, files, result, template) {
   suppressMessages(render(template,
          output_format = "html_document",
          output_file = "all-reports.html",
@@ -159,6 +159,6 @@ generate_PS_report <- function(input_file) {
 # generate_all_report("../iotc-ros-input-data/build/LL/2022/EU-FRANCE/ROS_LL_data_reporting_EU_FRA_REU_2022_v2", "./RMDs/report-LL.Rmd", force = TRUE)
 
 # result_ll <- generate_reports("../iotc-ros-input-data/build/LL", "./RMDs/report-LL.Rmd", force = TRUE)
-# generate_all_report(result_ll$files, result_ll$result, "../iotc-ros-input-data/build/LL", "./RMDs/all_report-LL.Rmd")
+# generate_all_report(result_ll$root_directory, result_ll$files, result_ll$result,  "./RMDs/all_report-LL.Rmd")
 # result_ps <- generate_reports("../iotc-ros-input-data/build/PS", "./RMDs/report-PS.Rmd", force = TRUE)
-# generate_all_report(result_ps$files, result_ps$result, "../iotc-ros-input-data/build/PS", "./RMDs/all_report-PS.Rmd")
+# generate_all_report(result_ps$root_directory, result_ps$files, result_ps$result, "./RMDs/all_report-PS.Rmd")
