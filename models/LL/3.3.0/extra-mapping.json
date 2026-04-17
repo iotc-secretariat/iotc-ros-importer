@@ -2,7 +2,8 @@
   {
     "ros_meta.focal_point": {
       "full_name": {
-        "Chia-Chun WU": "WU JIA CHUN"
+        "Chia-Chun WU": "WU JIA CHUN",
+        "Chia Chun WU": "WU JIA CHUN"
       }
     }
   },
@@ -14,7 +15,28 @@
     }
   },
   {
-    "ros_common.vessel": {
+    "refs_admin.ports": {
+      "code": {
+        "RE REU": "REUREU",
+        "CN ZOS": "CHNZOS",
+        "MU PLU": "MUSPLU",
+        "NA WVB": "NULLMWVB",
+        "ZA DUR": "ZAFDUR",
+        "MG TOA": "MDGTOA",
+        /*??? "TWPIN": "",*/
+        "TWKHH": "TWNKHH",
+        "TWKEL": "TWNKEL",
+        "RE LPT": "REULPT",
+        "CN WEI": "CHNWEI",
+        "VGO": "ESPVGO",
+        "ES AGD": "ESPAGD",
+        "ES LCG": "ESPLCG",
+        "TZ ZNZ": "TZAZNZ"
+      }
+    }
+  },
+  {
+    "ros_meta.vessel": {
       "vessel_name": {
         "CLIPPERTON": "LE CLIPPERTON",
         "MARIUS 3": "LE MARIUS 3"
