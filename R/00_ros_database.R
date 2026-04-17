@@ -378,7 +378,8 @@ data_table_cache <- R6Class(
       }
       simple_mapping <- private$.extra_simple_column_mapping[[column]]
       if (!is.null(simple_mapping)) {
-        simple_value <- simple_mapping[[value]]
+        # Fixme we need to add proper type on incoming data
+        simple_value <- simple_mapping[[as.character(value)]]
         if (!is.null(simple_value)) {
           return(self$find(column, simple_value))
         }
