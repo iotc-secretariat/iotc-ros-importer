@@ -143,7 +143,7 @@ format_timestamp <- function(timestamp) {
   str_replace_all(timestamp, "[ :.]", "_")
 }
 
-generate_reports <- function(root_directory, template, force = FALSE) {
+generate_reports <- function(root_directory, template, generate_all_report = TRUE, force = FALSE) {
   files <- list.files(root_directory,
                       recursive = TRUE,
                       pattern = "(.)+\\.xlsx$",
@@ -182,17 +182,22 @@ generate_reports <- function(root_directory, template, force = FALSE) {
     task_report$end_task(file)
   }
   task_report$end()
-  list(root_directory = root_directory,
+  global_result <-list(root_directory = root_directory,
        files = files,
        result = result,
        total_error_count = total_error_count,
        total_warning_count = total_warning_count)
+  if (generate_all_report) {
+    generate_all_report(root_directory, files, result, total_error_count, total_warning_count, str_replace(template, "report-", "all_report-"))
+  } else {
+    global_result
+  }
 }
 
 generate_all_report <- function(root_directory, files, result, files_error_count, files_warning_count, template) {
   total_error_count <- as.integer(sum(as.vector(unlist(files_error_count))))
   total_warning_count <- as.integer(sum(as.vector(unlist(files_warning_count))))
-  gloabal_result <- list()
+  global_result <- list()
   for (i in names(result)) {
     part_summary <- result[[i]]
     if (i == "META") {
@@ -203,22 +208,21 @@ generate_all_report <- function(root_directory, files, result, files_error_count
       setorder(part2, meta_name)
     } else {
       part_summary <- part_summary[, .(column_name, column, value, category, message, count)]
-      # part2 <- part_summary[,.N, .( column_name, column, value, category, message, count)][N>0]
       part2 <- part_summary[, .(total_count = sum(count)), by = .(column_name, column, value, category, message)]
       names(part2) <- c("column_name", "column", "value", "category", "message", "count")
       setorder(part2, column)
     }
-    gloabal_result[[i]] <- part2
+    global_result[[i]] <- part2
   }
   suppressMessages(render(template,
                           output_format = "html_document",
                           output_file = "all-reports.html",
                           output_dir = root_directory))
-  gloabal_result
+  global_result
 }
 
 generate_LL_report <- function(input_file) {
-  generate_report(input_file, "./RMDs/report-LL.Rmd", "./RMDs/all_report.Rmd")
+  generate_report(input_file, "./RMDs/report-LL.Rmd")
 }
 
 generate_PS_report <- function(input_file) {
@@ -229,7 +233,10 @@ generate_PS_report <- function(input_file) {
 # result_ll <- generate_reports("../iotc-ros-input-data/build/LL/2022/EU-FRANCE", "./RMDs/report-LL.Rmd", force = TRUE)
 # generate_reports("../iotc-ros-input-data/build/LL/2022/EU-FRANCE/ROS_LL_data_reporting_EU_FRA_REU_2022_v2", "./RMDs/report-LL.Rmd", force = TRUE)
 
-# result_ll <- generate_reports("../iotc-ros-input-data/build/LL", "./RMDs/report-LL.Rmd", force = TRUE)
-# gloabal_result_ll <- generate_all_report(result_ll$root_directory, result_ll$files, result_ll$result, result_ll$total_error_count, result_ll$total_warning_count, "./RMDs/all_report-LL.Rmd")
-# result_ps <- generate_reports("../iotc-ros-input-data/build/PS", "./RMDs/report-PS.Rmd", force = TRUE)
-# gloabal_result_ps <- generate_all_report(result_ps$root_directory, result_ps$files, result_ps$result, result_ps$total_error_count, result_ps$total_warning_count, "./RMDs/all_report-PS.Rmd")
+# result_ll <- generate_reports("../iotc-ros-input-data/build/LL", "./RMDs/report-LL.Rmd", generate_all_report = FALSE, force = TRUE)
+# global_result_ll <- generate_all_report(result_ll$root_directory, result_ll$files, result_ll$result, result_ll$total_error_count, result_ll$total_warning_count, "./RMDs/all_report-LL.Rmd")
+# result_ps <- generate_reports("../iotc-ros-input-data/build/PS", "./RMDs/report-PS.Rmd", generate_all_report = FALSE, force = TRUE)
+# global_result_ps <- generate_all_report(result_ps$root_directory, result_ps$files, result_ps$result, result_ps$total_error_count, result_ps$total_warning_count, "./RMDs/all_report-PS.Rmd")
+
+# global_result_ll <- generate_reports("../iotc-ros-input-data/build/LL", "./RMDs/report-LL.Rmd", force = TRUE)
+# global_result_ps <- generate_reports("../iotc-ros-input-data/build/PS", "./RMDs/report-PS.Rmd", force = TRUE)

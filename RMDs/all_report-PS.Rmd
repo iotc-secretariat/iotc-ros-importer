@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 # Summary (global) {.tabset}
 ```{r}
 summary_title$set_length(50)
-check_data_summary <- gloabal_result
+check_data_summary <- global_result
 summary_title$set_suffix("-global")
 ```
 ```{r summary, child='report-PS-summary.Rmd'}
