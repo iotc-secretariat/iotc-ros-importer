@@ -15,6 +15,21 @@
     }
   },
   {
+    "refs_biology.incidental_captures_conditions": {
+      "code": {
+        "DE": "D",
+        "UN": "U"
+      }
+    }
+  },
+  {
+    "refs_biology.scars": {
+      "code": {
+        "UN": "UNK"
+      }
+    }
+  },
+  {
     "refs_admin.ports": {
       "code": {
         "RE REU": "REUREU",
@@ -37,6 +52,9 @@
   },
   {
     "ros_meta.vessel": {
+      "iotc_vessel_identifier": {
+        "IOTC00374": "IOTC000374"
+      },
       "vessel_name": {
         "CLIPPERTON": "LE CLIPPERTON",
         "MARIUS 3": "LE MARIUS 3"
