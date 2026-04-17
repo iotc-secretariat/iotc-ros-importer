@@ -4,8 +4,8 @@
     "VESSEL_INFORMATION_IDENTIFICATION_IOTC_NUMBER"
   ],
   "check_column_exists_in_database": {
-    "VESSEL_INFORMATION_IDENTIFICATION_IOTC_NUMBER": "ros_common.vessel→iotc_vessel_identifier",
-    "VESSEL_INFORMATION_IDENTIFICATION_REGISTRATION_NUMBER": "ros_common.vessel→registration_identifier",
+    "VESSEL_INFORMATION_IDENTIFICATION_IOTC_NUMBER": "ros_meta.vessel→iotc_vessel_identifier",
+    "VESSEL_INFORMATION_IDENTIFICATION_REGISTRATION_NUMBER": "ros_meta.vessel→registration_identifier",
     "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_FISHING_MASTER_FULL_NAME": "ros_meta.contact→full_name",
     "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_SKIPPER_CAPTAIN_FULL_NAME": "ros_meta.contact→full_name"
   },
@@ -20,9 +20,9 @@
     "VESSEL_INFORMATION_IDENTIFICATION_MAIN_FISHING_GEAR_CODE": "refs_fishery_config.gears"
   },
   "check_column_should_exists_in_database": {
-    "VESSEL_INFORMATION_IDENTIFICATION_NAME": "ros_common.vessel→vessel_name",
-    "VESSEL_INFORMATION_IDENTIFICATION_IMO_NUMBER": "ros_common.vessel→imo_identifier",
-    "VESSEL_INFORMATION_IDENTIFICATION_IRCS": "ros_common.vessel→ircs_identifier"
+    "VESSEL_INFORMATION_IDENTIFICATION_NAME": "ros_meta.vessel→vessel_name",
+    "VESSEL_INFORMATION_IDENTIFICATION_IMO_NUMBER": "ros_meta.vessel→imo_identifier",
+    "VESSEL_INFORMATION_IDENTIFICATION_IRCS": "ros_meta.vessel→ircs_identifier"
   },
   "check_column_should_exists_in_code_list": {
     "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_FISHING_MASTER_NATIONALITY_CODE": "refs_admin.countries",

@@ -537,7 +537,7 @@ load_ros_databse_registries <- function(models, directory, connection_provider =
   if (!file.exists(directory)) {
     dir.create(directory, recursive = TRUE)
   }
-  data_tables <- unique(unlist(lapply(models, function(x) { x$checks_model$required_data_tables(c("ros_common.vessel", "ros_meta.contact", "ros_meta.observer_identifier_mapping", "ros_meta.focal_point")) })))
+  data_tables <- unique(unlist(lapply(models, function(x) { x$checks_model$required_data_tables(c("ros_meta.vessel", "ros_meta.contact", "ros_meta.observer_identifier_mapping", "ros_meta.focal_point")) })))
   use_connection(connection_provider, function(connection) {
     result <- lapply(data_tables, function(data_table) {
       gav <- table_location$new(data_table)
@@ -554,8 +554,8 @@ load_ros_databse_registries <- function(models, directory, connection_provider =
     result$ros_meta.observer <- contact_table[result$ros_meta.observer, on = .(id = contact_id)][, .(id, full_name, nationality_code, iotc_observer_identifier, national_observer_id, accreditation_year, accredited_by, deregistered_date, full_name_hash)]
     # Denormalize ros_meta.ros_meta.observer_identifier_mapping
     result$ros_meta.observer_identifier_mapping <- result$ros_meta.observer_identifier_mapping[result$ros_meta.observer, on = .(iotc_observer_identifier = iotc_observer_identifier)][!is.na(legacy_iotc_observer_identifier)][, .(legacy_iotc_observer_identifier, iotc_observer_identifier, id)]
-    # Add full_name_hash column on ros_common.vessel
-    vessel_table <- result$ros_common.vessel
+    # Add full_name_hash column on ros_meta.vessel
+    vessel_table <- result$ros_meta.vessel
     compute_vessel_names_hash(vessel_table)
     for (data_table in data_tables) {
       file <- file.path(directory, paste0(data_table, ".csv"))
@@ -594,7 +594,7 @@ ros_cache <- R6Class(
       })
       contact_table <- .data_table_caches$ros_meta.contact
       focal_point_table <- .data_table_caches$ros_meta.focal_point
-      vessel_table <- .data_table_caches$ros_common.vessel
+      vessel_table <- .data_table_caches$ros_meta.vessel
 
       find_full_name <- function(cache, column, value) {
         # transform value to be upper case and with no accent
