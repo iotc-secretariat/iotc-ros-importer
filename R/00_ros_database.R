@@ -551,7 +551,7 @@ load_ros_databse_registries <- function(models, directory, connection_provider =
     # Denormalize ros_meta.focal_point
     result$ros_meta.focal_point <- contact_table[result$ros_meta.focal_point, on = .(id = contact_id)][, .(id, full_name, nationality_code, email, organisation_name, comment, full_name_hash)]
     # Denormalize ros_meta.observer
-    result$ros_meta.observer <- contact_table[result$ros_meta.observer, on = .(id = contact_id)][, .(id, full_name, nationality_code, iotc_observer_identifier, national_observer_id, accreditation_year, accredited_by, deregistered_date, full_name_hash)]
+    result$ros_meta.observer <- contact_table[result$ros_meta.observer, on = .(id = contact_id)][, .(id, full_name, nationality_code, iotc_observer_identifier, national_observer_id, full_name_hash)]
     # Denormalize ros_meta.ros_meta.observer_identifier_mapping
     result$ros_meta.observer_identifier_mapping <- result$ros_meta.observer_identifier_mapping[result$ros_meta.observer, on = .(iotc_observer_identifier = iotc_observer_identifier)][!is.na(legacy_iotc_observer_identifier)][, .(legacy_iotc_observer_identifier, iotc_observer_identifier, id)]
     # Add full_name_hash column on ros_meta.vessel
