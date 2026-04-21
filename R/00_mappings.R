@@ -43,10 +43,31 @@ input_mapping <- R6Class(
       names(private$.sheets)
     },
     sheet_columns = function(sheet_name) {
-      private$.sheets[[sheet_name]]$columns
+      names(private$.sheets[[sheet_name]]$columns)
     },
     sheet_starting_row = function(sheet_name) {
       private$.sheets[[sheet_name]]$starting_row
+    },
+    sheet_column_classes = function(sheet_name) {
+      columns <- as.vector(unlist(private$.sheets[[sheet_name]]$columns))
+      result <- lapply(columns, function(x) {
+        if (x %like% "\\!.+") {
+          x <- str_sub(x, 2)
+        }
+        if (x == "character" ||
+          x == "logical" ||
+          x == "integer" ||
+          x == "numeric" ||
+          x == "Date") {
+          return(x)
+        }
+        if (x %like% "[codelist|database_character|enum]\\:.+") {
+          return("character")
+        }
+        print(sprintf("WHAT!!!! Could not manage %s", x))
+        x
+      })
+      c(unlist(result))
     }
   ),
   private = list(
