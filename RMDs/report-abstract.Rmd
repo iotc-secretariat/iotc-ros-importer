@@ -6,5 +6,5 @@ output: html_fragment
 
 Checks done on file: [`r relative_input_file`](`r paste0("./", basename(input_file))`).
 
-* found `r as.integer(total_error_count)` error(s)
-* found `r as.integer(total_warning_count)` warning(s)
+* found `r as.integer(total_error_count)` **E**rror(s)
+* found `r as.integer(total_warning_count)` **W**arning(s)

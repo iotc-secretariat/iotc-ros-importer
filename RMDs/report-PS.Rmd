@@ -1,16 +1,11 @@
 ---
-title: 'Ros report for input file `r relative_input_file`'
+title: '`r report_title`'
 subtitle: "`r paste0('Last updated: ', format(Sys.time(), format = '%d %B %Y - %H:%M'))`" #%F %r %Z
 author: "Author: [IOTC Secretariat](mailto:IOTC-Secretariat@fao.org)"
 output:
   html_document:
     mathjax: null
     css: "../templates/html_template.css"
-    number_sections: FALSE
-    toc: yes
-    toc_float:
-      collapsed: FALSE
-    smooth_scroll: FALSE
 ---
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(fig.width = 8, echo = FALSE)

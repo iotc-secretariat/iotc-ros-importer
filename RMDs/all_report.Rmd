@@ -1,0 +1,64 @@
+---
+title: "`r context$report_title()`"
+subtitle: "`r paste0('Last updated: ', context$last_update)`" #%F %r %Z
+author: "Author: [IOTC Secretariat](mailto:IOTC-Secretariat@fao.org)"
+output:
+  html_document:
+    mathjax: null
+    css: "../templates/html_template.css"
+---
+
+```{r, setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+with_more_than_one_file <- length(context$files) > 1
+total_error_count <- as.integer(sum(as.vector(unlist(context$files_error_count))))
+total_warning_count <- as.integer(sum(as.vector(unlist(context$files_warning_count))))
+```
+
+# Abstract
+
+* found `r length(context$files)` **F**ile(s)
+* found `r total_error_count` **E**rror(s)
+* found `r total_warning_count` **W**arning(s)
+
+# Summary `r ifelse(with_more_than_one_file, " (global)", "")` {.tabset}
+
+```{r, summary_global_build, include = FALSE}
+summary_title$set_length(50)
+check_data_summary <- context$global_result
+summary_title$set_suffix("-global")
+r <- knitr::knit_child(context$summary_template())
+```
+
+```{r, summary_global, results = "asis"}
+for (i in r) {
+  cat(i, sep = "\n")
+}
+```
+
+```{r, summary_per_file_build, include = FALSE}
+if (with_more_than_one_file) {
+  summary_title$set_length(20)
+  check_data_summary <- context$result
+  summary_title$set_suffix("-file")
+  r <- knitr::knit_child(context$summary_template())
+}
+```
+
+```{r, summary_per_file, results = "asis"}
+if (with_more_than_one_file) {
+  cat("# Summary (per file) {.tabset}", sep = "\n")
+  for (i in r) {
+    cat(i, sep = "\n")
+  }
+}
+```
+
+# Details
+
+```{r, details, results = "asis"}
+r <- context$generate_details_navigation()
+for (i in r) {
+  cat(i, sep = "\n")
+}
+```
