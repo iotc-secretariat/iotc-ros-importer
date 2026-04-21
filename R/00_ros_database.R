@@ -67,14 +67,6 @@ split_foreign_key <- function(value) {
   unlist(strsplit(value, ":"))
 }
 
-get_row_count <- function(table) {
-  dim(table)[1]
-}
-
-get_column_count <- function(table) {
-  dim(table)[2]
-}
-
 simple_quote <- function(text) {
   ifelse(is.na(text), "NULL", paste0("'", text, "'"))
 }
@@ -255,23 +247,63 @@ data_id_cache <- R6Class(
   )
 )
 
+format_timestamp <- function(timestamp) {
+  str_replace_all(timestamp, "[ :.]", "_")
+}
 
 task_report <- R6Class(
   "TaskReport",
   public = list(
-    initialize = function(output_file, comment, log_pattern, files) {
-      stopifnot(!is.null(output_file))
+    initialize = function(output_directory, output_file_name, comment, log_pattern, files, timestamp="", to_string_file = function(x) x) {
+      stopifnot(!is.null(output_directory))
+      stopifnot(!is.null(output_file_name))
+      stopifnot(!is.null(timestamp))
+      stopifnot(!is.null(log_pattern))
+      stopifnot(!is.null(files))
+      private$.to_string_file <- to_string_file
       private$.comment <- comment
       private$.log_pattern <- log_pattern
-      private$.output_file <- output_file
+      private$.output_file <- file.path(output_directory, sprintf("%s%s.json", output_file_name, timestamp))
       private$.start_time <- Sys.time()
       private$.task_total_count <- length(files)
+      private$.files <- files
+    },
+    run = function(function_for_file) {
+      result <- list()
+      for (file in private$.files) {
+        self$start_task(file)
+        tryCatch({
+          file_result <- function_for_file(file)
+          if (file_result$skip == TRUE) {
+            self$skip_task(file)
+          }else {
+            self$end_task(file)
+            result[[private$.to_string_file(file)]] <- file_result$result
+          }
+        }, error = function(e) {
+          print(e$message)
+          calls <- sys.calls()
+          if (length(calls) >= 2L) {
+            sink(stderr())
+            on.exit(sink(NULL))
+            cat("Backtrace:\n")
+            calls <- rev(calls[-length(calls)])
+            for (i in seq_along(calls)) {
+              cat(i, ": ", deparse(calls[[i]], nlines = 1L), "\n", sep = "")
+            }
+          }
+          private$.error_count <- private$.error_count + 1
+          private$.summary$error[[private$.to_string_file(file)]] <- unlist(str_split(e$message, "\n"))
+        })
+      }
+      self$end()
+      result
     },
     start_task = function(file) {
       private$.current_time <- Sys.time()
       private$.task_count <- private$.task_count + 1
       cat(paste0("Start ", sprintf(private$.log_pattern,
-                                   private$.task_count, private$.task_total_count, file), "\n"))
+                                   private$.task_count, private$.task_total_count, private$.to_string_file(file)), "\n"))
     },
     skip_task = function(file) {
       now <- Sys.time()
@@ -284,9 +316,9 @@ task_report <- R6Class(
       if (is.null(private$.max_duration) || private$.max_duration < task_duration) {
         private$.max_duration <- task_duration
       }
-      private$.summary$skip[[file]] <- private$.format_duration(task_duration)
+      private$.summary$skip[[private$.to_string_file(file)]] <- private$.format_duration(task_duration)
       cat(paste0("Skip  ", sprintf(private$.log_pattern,
-                                   private$.task_count, private$.task_total_count, file), "\n"))
+                                   private$.task_count, private$.task_total_count, private$.to_string_file(file)), "\n"))
 
       self$end()
     },
@@ -300,9 +332,9 @@ task_report <- R6Class(
       if (is.null(private$.max_duration) || private$.max_duration < task_duration) {
         private$.max_duration <- task_duration
       }
-      private$.summary$done[[file]] <- private$.format_duration(task_duration)
+      private$.summary$success[[private$.to_string_file(file)]] <- private$.format_duration(task_duration)
       cat(paste0("End   ", sprintf(private$.log_pattern,
-                                   private$.task_count, private$.task_total_count, file), sprintf(" - duration: %s, total duration %s\n", private$.format_duration(task_duration), private$.format_duration(private$.total_duration))))
+                                   private$.task_count, private$.task_total_count, private$.to_string_file(file)), sprintf(" - duration: %s, total duration %s\n", private$.format_duration(task_duration), private$.format_duration(private$.total_duration))))
       self$end()
     },
     end = function() {
@@ -310,15 +342,25 @@ task_report <- R6Class(
       private$.total_duration <- difftime(now, private$.start_time)
       units(private$.total_duration) <- "secs"
       total_duration_str <- private$.format_duration(private$.total_duration)
-      content <- c(comment = private$.comment,
-                   done_count = private$.task_count - private$.skip_count,
-                   skip_count = private$.skip_count,
-                   files_count = private$.task_count,
-                   total_duration = total_duration_str,
-                   file_min_duration = private$.format_duration(private$.min_duration),
-                   file_avg_duration = private$.format_duration(private$.total_duration / private$.task_total_count),
-                   file_max_duration = private$.format_duration(private$.max_duration),
-                   files = list(private$.summary))
+      success_count <- private$.task_count -
+        private$.skip_count -
+        private$.error_count
+      content <- c(
+        time = list(
+          start = paste0("", private$.start_time),
+          end = paste0("", Sys.time())),
+        comment = private$.comment,
+        count = list(
+          total = private$.task_count,
+          success = success_count,
+          skip = private$.skip_count,
+          error = private$.error_count),
+        duration = list(
+          total = total_duration_str,
+          min = private$.format_duration(private$.min_duration),
+          avg = private$.format_duration(private$.total_duration / success_count),
+          max = private$.format_duration(private$.max_duration)),
+        result = list(private$.summary))
       write_json(content,
                  private$.output_file,
                  pretty = TRUE,
@@ -327,8 +369,11 @@ task_report <- R6Class(
 
   ),
   private = list(
+    .to_string_file = NULL,
     # comment
     .comment = NULL,
+    # files to process
+    .files = NULL,
     # log pattern
     .log_pattern = NULL,
     # output file
@@ -339,6 +384,8 @@ task_report <- R6Class(
     .task_count = 0,
     # skip task count
     .skip_count = 0,
+    # error task count
+    .error_count = 0,
     # starting time
     .start_time = NULL,
     # current task time
@@ -350,7 +397,7 @@ task_report <- R6Class(
     # total duration
     .total_duration = NULL,
     # summary
-    .summary = list( done=list(), skip = list()),
+    .summary = list(success = list(), skip = list(), error = list()),
     .format_duration = function(duration) {
       ifelse(is.null(duration), "", sprintf("%.2f %s", duration, units(duration)))
     })
@@ -372,8 +419,8 @@ data_table_cache <- R6Class(
       private$.values
     },
     find = function(column, value) {
-      result <-  self$find0(column, value)
-      if (nrow(result==1)) {
+      result <- self$find0(column, value)
+      if (nrow(result == 1)) {
         return(result)
       }
       simple_mapping <- private$.extra_simple_column_mapping[[column]]
@@ -664,4 +711,4 @@ create_ros_cache <- function(models, directory) {
   ros_cache <- ros_cache$new(models, code_lists, data_registries)
 }
 
-create_ros_cache(LL_LATEST_MODEL,  "../iotc-ros-input-data/build/ros")
+create_ros_cache(LL_LATEST_MODEL, "../iotc-ros-input-data/build/ros")

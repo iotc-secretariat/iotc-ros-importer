@@ -9,10 +9,14 @@ load_ros_csv_input_files <- function(mapping, directory) {
   sheets_size <- length(sheet_names)
   for (i in seq(1:sheets_size)) {
     sheet_name <- sheet_names[[i]]
+    colClasses <- mapping$sheet_column_classes(sheet_name)
     sheet_columns <- unlist(mapping$sheet_columns(sheet_name))
     file <- file.path(directory, paste0(sheet_name, ".csv"))
+    if (length(colClasses)!= length(sheet_columns)) {
+      print("Error!")
+    }
     if (file.exists(file)) {
-      sheet_content <- fread(file)
+      sheet_content <- fread(file, na.strings=c("NA",""), colClasses = colClasses, col.names = sheet_columns)
     }else {
       sheet_content <- data.table(data.frame(matrix(nrow = 0, ncol = length(sheet_columns))))
       names(sheet_content) <- sheet_columns
@@ -372,29 +376,27 @@ check_data <- function(models, ros_cache, data, output_directory) {
 }
 
 do_check <- function(models, ros_cache, input) {
-  data <- load_ros_csv_input_files(models$input_mapping_model, file.path(input, "input"))
+  data <- load_ros_csv_input_files(models$input_mapping_model, file.path(input, INTIAL_INPUT_DIRECTORY))
   meta_values <- load_meta_values(models, data)
-  check_directory <- file.path(input, "checks")
+  check_directory <- file.path(input, CHECKS_INPUT_DIRECTORY)
   result <- list()
   result$META <- check_metas(models, ros_cache, meta_values, check_directory)
   append(result, check_data(models, ros_cache, data, check_directory))
 }
 
-do_check_all <- function(models, data_root_directory, ros_cache_directory, force = FALSE) {
+do_check_all <- function(models, data_root_directory, ros_cache_directory, force = FALSE, timestamp = format_timestamp(Sys.time())) {
   ros_cache <- create_ros_cache(models, ros_cache_directory)
   files <- list.files(data_root_directory,
                       recursive = TRUE,
                       pattern = "(.)+\\.xlsx$",
                       full.names = TRUE)
-  task_report <- task_report$new(file.path(data_root_directory,"02_check.json"), "Checks input files", "Check %3s/%3s : %s", files)
-  for (file in files) {
-    task_report$start_task(file)
+  task_report <- task_report$new(data_root_directory, CHECKS_INPUT_DIRECTORY, "Checks input files", "Check %3s/%3s : %s", files, timestamp)
+  task_report$run(function(report, file) {
     input_directory <- dirname(file)
-    check_directory <- file.path(input_directory, "checks")
+    check_directory <- file.path(input_directory, CHECKS_INPUT_DIRECTORY)
     if (file.exists(check_directory)) {
       if (!force) {
-        task_report$skip_task(file)
-        # print(sprintf("Skip %3s/%3s : %s", index, length, file))
+        report$skip_task(file)
         next
       }
       lapply(list.files(check_directory,
@@ -403,12 +405,36 @@ do_check_all <- function(models, data_root_directory, ros_cache_directory, force
                         full.names = TRUE), file.remove)
 
     }
-    # print(sprintf("Check %3s/%3s : %s", index, length, file))
     do_check(models, ros_cache, input_directory)
-    gc()
-    task_report$end_task(file)
-  }
-  task_report$end()
+    NULL
+  })
+}
+
+do_check_domain <- function(domain, data_root_directory, ros_cache_directory, model_version = LATEST_MODEL, force = FALSE, timestamp = format_timestamp(Sys.time())) {
+  models <- load_models(domain, model_version)
+  ros_cache <- create_ros_cache(models, ros_cache_directory)
+  output_directory <- file.path(data_root_directory, domain)
+  files <- list.files(output_directory,
+                      recursive = TRUE,
+                      pattern = "(.)+\\.xlsx$",
+                      full.names = TRUE)
+  task_report <- task_report$new(output_directory, CHECKS_INPUT_DIRECTORY, "Checks input files", "Check %3s/%3s : %s", files, timestamp)
+  task_report$run(function(file) {
+    input_directory <- dirname(file)
+    check_directory <- file.path(input_directory, "checks")
+    if (file.exists(check_directory)) {
+      if (!force) {
+        return(list(skip = TRUE))
+      }
+      lapply(list.files(check_directory,
+                        recursive = TRUE,
+                        pattern = "(.)+\\.csv",
+                        full.names = TRUE), file.remove)
+
+    }
+    do_check(models, ros_cache, input_directory)
+    return(list(skip = FALSE, result = NULL))
+  })
 }
 
 # code_lists <- load_ros_databse_code_lists(list(LL_LATEST_MODEL, PS_LATEST_MODEL), "../iotc-ros-input-data/build/ros/code_lists")
@@ -421,5 +447,5 @@ do_check_all <- function(models, data_root_directory, ros_cache_directory, force
 # do_check_all(LL_LATEST_MODEL, "../iotc-ros-input-data/build/LL/2022/EU-FRANCE/ROS_LL_data_reporting_EU_FRA_REU_2022", "../iotc-ros-input-data/build/ros", force = TRUE)
 # do_check_all(LL_LATEST_MODEL, "../iotc-ros-input-data/build/LL/2021/TAIWAN/AN_WEN_FA_NO_3_51812", "../iotc-ros-input-data/build/ros", force = TRUE)
 
-# do_check_all(LL_LATEST_MODEL, "../iotc-ros-input-data/build/LL", "../iotc-ros-input-data/build/ros", force = TRUE)
-# do_check_all(PS_LATEST_MODEL, "../iotc-ros-input-data/build/PS", "../iotc-ros-input-data/build/ros", force = TRUE)
+# do_check_domain("LL", "../iotc-ros-input-data/build", "../iotc-ros-input-data/build/ros", force = TRUE, timestamp = "-2026-04-20")
+# do_check_domain("PS", "../iotc-ros-input-data/build", "../iotc-ros-input-data/build/ros", force = TRUE, timestamp = "-2026-04-20")

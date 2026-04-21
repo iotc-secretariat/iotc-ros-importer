@@ -2,6 +2,10 @@ library(data.table)
 library(openxlsx)
 library(stringr)
 
+INTIAL_INPUT_DIRECTORY <- "1_input"
+CONSOLIDATE_INPUT_DIRECTORY <- "2_consolidate"
+CHECKS_INPUT_DIRECTORY <- "3_checks"
+
 load_ros_xlsx_file <- function(mapping, file) {
   sheet_names <- mapping$sheet_names()
   # The result (list of data.table, one per sheet)
@@ -61,7 +65,7 @@ check_sheet_columns_count <- function(content, check_content) {
     if (is.null(data)) {
       next
     }
-    actual_columns_count <- get_column_count(data)
+    actual_columns_count <- ncol(data)
     if (expected_columns_count != actual_columns_count) {
       result_data[[sheet_name]] <- list(
         expected_columns_count = expected_columns_count,
@@ -87,7 +91,7 @@ check_sheet_rows_count <- function(content, check_content) {
     if (is.null(data)) {
       next
     }
-    actual_rows_count <- get_row_count(data)
+    actual_rows_count <- nrow(data)
     if (expected_rows_count != actual_rows_count) {
       result_data[[sheet_name]] <- list(
         expected_rows_count = expected_rows_count,
@@ -138,7 +142,7 @@ load_column_names <- function(mapping, data) {
 sanitize_values <- function(data) {
   for (sheet_name in names(data)) {
     sheet <- data[[sheet_name]]
-    if (get_row_count(sheet) == 0) {
+    if (nrow(sheet) == 0) {
       next
     }
     for (col_name in names(sheet)) {
@@ -183,7 +187,7 @@ transform_one_to_csv <- function(models, file, export_directory) {
       file.remove(path)
     }
     sheet_content <- data3[[sheet_name]]
-    if (get_row_count(sheet_content) > 0) {
+    if (nrow(sheet_content) > 0) {
       fwrite(data3[[sheet_name]], file = path, sep = ",", sep2 = c("", "\"", ""), quote = "auto", encoding = "UTF-8")
     }
   }
@@ -192,71 +196,36 @@ transform_one_to_csv <- function(models, file, export_directory) {
 }
 
 ros_xlsx_file_to_working_directory <- function(file) {
-  file.path(str_replace_all(str_trim(str_replace_all(str_replace(basename(file), ".xlsx$", ""), "[ ()-.]", " ")), "[ ]", "_"), "input")
+  file.path(str_replace_all(str_trim(str_replace_all(str_replace(basename(file), ".xlsx$", ""), "[ ()-.]", " ")), "[ ]", "_"), INTIAL_INPUT_DIRECTORY)
 }
 
-transform_some_to_csv <- function(models, data_root_directory, export_root_directory, force = FALSE) {
+transform_some_to_csv <- function(models, data_root_directory, export_root_directory, force = FALSE, timestamp = format_timestamp(Sys.time())) {
   files <- list.files(data_root_directory,
                       recursive = TRUE,
                       pattern = "(.)+\\.xlsx$",
                       full.names = TRUE)
-  task_report <- task_report$new(file.path(export_root_directory,"01_prepare.json"), "Prepare input files", "Prepare %3s/%3s : %s", files)
-  for (file in files) {
-    task_report$start_task(file)
+  task_report <- task_report$new(export_root_directory, INTIAL_INPUT_DIRECTORY, "Extract input files", "Extract %3s/%3s : %s", files, timestamp)
+  task_report$run(function(file) {
     relative_file <- str_sub(file, str_length(data_root_directory) + 1)
     export_directory <- file.path(export_root_directory, dirname(relative_file), ros_xlsx_file_to_working_directory(relative_file))
     if (file.exists(export_directory)) {
       if (!force) {
-        task_report$skip_task(file)
-        next
+        return(list(skip = TRUE))
       }
     }
     result <- transform_one_to_csv(models, file, export_directory)
-    remove(list = "result")
-    gc()
-    task_report$end_task(file)
-  }
-  task_report$end()
-}
-
-
-options(error = function() {
-  calls <- sys.calls()
-  if (length(calls) >= 2L) {
-    sink(stderr())
-    on.exit(sink(NULL))
-    cat("Backtrace:\n")
-    calls <- rev(calls[-length(calls)])
-    for (i in seq_along(calls)) {
-      cat(i, ": ", deparse(calls[[i]], nlines = 1L), "\n", sep = "")
-    }
-  }
-  if (!interactive()) {
-    q(status = 1)
-  }
-})
-
-transform_all_to_csv <- function(data_root_directory, export_root_directory, model_version = LATEST_MODEL, force = FALSE) {
-  tryCatch( {
-  transform_some_to_csv(load_models("LL", model_version),
-                        file.path(data_root_directory, "LL"),
-                        file.path(export_root_directory, "LL"),
-                        force)
-  transform_some_to_csv(load_models("PS", model_version),
-                        file.path(data_root_directory, "PS"),
-                        file.path(export_root_directory, "PS"),
-                        force)
-  }, error = function(e) {
-    print(e$message)
-     calls <- sys.calls()
-    sink(stderr())
-    on.exit(sink(NULL))
-    cat("Backtrace:\n")
-    calls <- rev(calls[-length(calls)])
-    for (i in seq_along(calls)) {
-      cat(i, ": ", deparse(calls[[i]], nlines = 1L), "\n", sep = "")
-    }
+    return(list(skip = FALSE, result = NULL))
   })
 }
 
-# transform_all_to_csv("../iotc-ros-input-data/data", "../iotc-ros-input-data/build", force = FALSE)
+transform_domain <- function(domain, data_root_directory, export_root_directory, model_version = LATEST_MODEL, force = FALSE, timestamp = format_timestamp(Sys.time())) {
+  transform_some_to_csv(load_models(domain, model_version),
+                        file.path(data_root_directory, domain),
+                        file.path(export_root_directory, domain),
+                        force,
+                        timestamp)
+  invisible()
+}
+
+# transform_domain("LL", "../iotc-ros-input-data/data", "../iotc-ros-input-data/build", force = TRUE, timestamp="-2026-04-20")
+# transform_domain("PS", "../iotc-ros-input-data/data", "../iotc-ros-input-data/build", force = TRUE, timestamp = "-2026-04-20")
