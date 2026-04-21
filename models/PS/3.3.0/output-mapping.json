@@ -150,7 +150,7 @@
     "E-SET-CATCHES": {
       "CATCH_NUMBER": "ros_ps.catch_details→catch_detail_original_id",
       "CATCH_DETAILS_SPECIES_CODE": "ros_ps.catch_details→species_code",
-      "CATCH_DETAILS_FATE_TYPE": "ros_ps.catch_details→type_of_fate_code",
+      "CATCH_DETAILS_FATE_TYPE_CODE": "ros_ps.catch_details→type_of_fate_code",
       "CATCH_DETAILS_FATE_CODE": "ros_ps.catch_details→fates_code",
       "CATCH_DETAILS_SAMPLING_METHOD_CODE": "ros_ps.catch_details→estimated_weight_sampling_method_code",
       "CATCH_DETAILS_NUM_FISH": "ros_ps.catch_details→estimated_catch_in_numbers",

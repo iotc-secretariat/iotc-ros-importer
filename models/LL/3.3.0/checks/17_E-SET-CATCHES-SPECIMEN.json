@@ -23,7 +23,7 @@
     "SPECIMEN_DETAILS_ALL_SPECIES_LENGTH_3_MEASURING_TOOL_CODE": "refs_biology.measurement_tools",
     "SPECIMEN_DETAILS_ALL_SPECIES_WEIGHT_PROCESSING_TYPE_CODE": "refs_fishery.fish_processing_types",
     "SPECIMEN_DETAILS_ALL_SPECIES_WEIGHT_ESTIMATION_METHOD_CODE": "refs_biology.measurement_tools",
-    "SPECIMEN_DETAILS_ALL_SPECIES_SEX": "refs_biology.sex",
+    "SPECIMEN_DETAILS_ALL_SPECIES_SEX_CODE": "refs_biology.sex",
     "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TYPE_CODE": "refs_biology.tag_types"
   }
 }

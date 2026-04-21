@@ -1,7 +1,6 @@
 {
   "check_column_mandatory": [
-    "OBSERVED_TRIP_NUMBER",
-    "SET_NUMBER"
+    "OBSERVED_TRIP_NUMBER"
   ],
   "check_column_exists_in_code_list": {
     "SURFACE_FISHERIES_DAILY_ACTIVITIES_ACTIVITY_TYPE_CODE": "refs_fishery.surface_fishery_activities"
