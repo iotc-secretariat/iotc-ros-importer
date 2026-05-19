@@ -5,6 +5,7 @@ library(bookdown)
 library(htmlwidgets)
 library(fontawesome)
 library(DT)
+library(zip)
 
 PAGE_LENGTH <- 20
 
@@ -467,8 +468,51 @@ generate_PS_report <- function(input_file) {
   generate_report("PS", input_file, "./RMDs/report-PS.Rmd", FALSE)
 }
 
-timestamp <- "-2026-04-20"
-# result_ll <- generate_domain_reports("LL", "../iotc-ros-input-data/build", force = TRUE, do_generate_parent_navigation = TRUE, timestamp = timestamp)
+get_country <- function(output_directory, file) {
+  str_sub(dirname(dirname(dirname(file))), start = str_length(output_directory) + 2)
+}
+
+get_countries <- function(domain, root_directory) {
+  output_directory <- file.path(root_directory, domain)
+  files <- list.files(output_directory,
+                      recursive = TRUE,
+                      pattern = "(.)+\\.xlsx$",
+                      full.names = TRUE)
+  unique(lapply(files, function(x) { get_country(output_directory, x) }))
+}
+
+# ll_countries <- get_countries("LL", "../iotc-ros-input-data/build")
+# ps_countries <- get_countries("PS", "../iotc-ros-input-data/build")
+
+explode_build_per_country <- function(domain, root_directory, force = FALSE, do_generate_parent_navigation = TRUE, timestamp = format_timestamp(Sys.time())) {
+  output_directory <- file.path(root_directory, domain)
+  countries <- get_countries(domain, root_directory)
+  for (country in countries) {
+    country_directory <- file.path(output_directory, country)
+    target_root_directory <- file.path(root_directory, "per_country", paste0(domain, "-", country))
+    if (force) {
+      if (dir.exists(target_root_directory)) {
+        unlink(target_root_directory, recursive = TRUE)
+      }
+      if (file.exists(zip_file)) {
+        file.remove(zip_file)
+      }
+    }
+    target_directory <- file.path(target_root_directory, domain)
+    if (!dir.exists(target_directory)) {
+      dir.create(target_directory, recursive = TRUE)
+    }
+    file.copy(country_directory, target_directory, recursive = TRUE)
+    result <- generate_domain_reports(domain, target_root_directory, force = force, do_generate_parent_navigation = do_generate_parent_navigation, timestamp = timestamp)
+    generate_main_parent_report(result)
+  }
+  countries
+}
+
+# result_ll <- generate_domain_reports("LL", "../iotc-ros-input-data/build", force = TRUE, do_generate_parent_navigation = TRUE, timestamp = DEFAULT_TIME_STAMP)
 # generate_main_parent_report(result_ll)
-# result_ps <- generate_domain_reports("PS", "../iotc-ros-input-data/build", force = TRUE, do_generate_parent_navigation = TRUE, timestamp = timestamp)
+# result_ps <- generate_domain_reports("PS", "../iotc-ros-input-data/build", force = TRUE, do_generate_parent_navigation = TRUE, timestamp = DEFAULT_TIME_STAMP)
 # generate_main_parent_report(result_ps)
+
+# ll_countries <- explode_build_per_country("LL", "../iotc-ros-input-data/build", force = TRUE, do_generate_parent_navigation = TRUE, timestamp = DEFAULT_TIME_STAMP)
+# ps_countries <- explode_build_per_country("PS", "../iotc-ros-input-data/build", force = TRUE, do_generate_parent_navigation = TRUE, timestamp = DEFAULT_TIME_STAMP)

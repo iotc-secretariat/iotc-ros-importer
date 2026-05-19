@@ -227,5 +227,21 @@ transform_domain <- function(domain, data_root_directory, export_root_directory,
   invisible()
 }
 
-# transform_domain("LL", "../iotc-ros-input-data/data", "../iotc-ros-input-data/build", force = TRUE, timestamp="-2026-04-20")
-# transform_domain("PS", "../iotc-ros-input-data/data", "../iotc-ros-input-data/build", force = TRUE, timestamp = "-2026-04-20")
+trasnform_domain_per_country <- function (domain, data_root_directory, export_root_directory, model_version = LATEST_MODEL, force = FALSE, timestamp = format_timestamp(Sys.time()), countries) {
+  models <- load_models(domain, model_version)
+  for (country in countries) {
+    transform_some_to_csv(models,
+                        file.path(data_root_directory, domain, country),
+                        file.path(export_root_directory, domain, country),
+                        force,
+                        timestamp)
+  }
+}
+
+# For all input files
+# transform_domain("LL", "../iotc-ros-input-data/data", "../iotc-ros-input-data/build", force = TRUE, timestamp= DEFAULT_TIME_STAMP)
+# transform_domain("PS", "../iotc-ros-input-data/data", "../iotc-ros-input-data/build", force = TRUE, timestamp = DEFAULT_TIME_STAMP)
+
+# Per country
+# trasnform_domain_per_country("LL", "../iotc-ros-input-data/data", "../iotc-ros-input-data/build", force = TRUE, timestamp= DEFAULT_TIME_STAMP, countries=INPUT_FILES_PER_COUNTRY$LL)
+# trasnform_domain_per_country("PS", "../iotc-ros-input-data/data", "../iotc-ros-input-data/build", force = TRUE, timestamp= DEFAULT_TIME_STAMP, countries=INPUT_FILES_PER_COUNTRY$PS)

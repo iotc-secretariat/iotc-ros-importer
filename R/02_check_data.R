@@ -447,5 +447,5 @@ do_check_domain <- function(domain, data_root_directory, ros_cache_directory, mo
 # do_check_all(LL_LATEST_MODEL, "../iotc-ros-input-data/build/LL/2022/EU-FRANCE/ROS_LL_data_reporting_EU_FRA_REU_2022", "../iotc-ros-input-data/build/ros", force = TRUE)
 # do_check_all(LL_LATEST_MODEL, "../iotc-ros-input-data/build/LL/2021/TAIWAN/AN_WEN_FA_NO_3_51812", "../iotc-ros-input-data/build/ros", force = TRUE)
 
-# do_check_domain("LL", "../iotc-ros-input-data/build", "../iotc-ros-input-data/build/ros", force = TRUE, timestamp = "-2026-04-20")
-# do_check_domain("PS", "../iotc-ros-input-data/build", "../iotc-ros-input-data/build/ros", force = TRUE, timestamp = "-2026-04-20")
+# do_check_domain("LL", "../iotc-ros-input-data/build", "../iotc-ros-input-data/build/ros", force = TRUE, timestamp = DEFAULT_TIME_STAMP)
+# do_check_domain("PS", "../iotc-ros-input-data/build", "../iotc-ros-input-data/build/ros", force = TRUE, timestamp = DEFAULT_TIME_STAMP)
