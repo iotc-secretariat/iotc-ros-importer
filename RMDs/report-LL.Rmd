@@ -1,0 +1,99 @@
+---
+title: '`r report_title`'
+subtitle: "`r paste0('Last updated: ', format(Sys.time(), format = '%d %B %Y - %H:%M'))`" #%F %r %Z
+author: "Author: [IOTC Secretariat](mailto:IOTC-Secretariat@fao.org)"
+output:
+  html_document:
+    mathjax: null
+    css: "../templates/html_template.css"
+---
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(fig.width = 8, echo = FALSE, message = FALSE)
+```
+```{r detail, child='report-abstract.Rmd'}
+```
+
+# Summary {.tabset}
+
+```{r }
+options(DT.options = list(pageLength = -1))
+```
+```{r summary, child='report-LL-summary.Rmd'}
+```
+
+# Details {.tabset}
+
+```{r }
+options(DT.options = list(pageLength = PAGE_LENGTH))
+```
+```{r echo = FALSE }
+out_dt_detail(check_data,"O-INFO")
+```
+```{r }
+out_dt_detail(check_data,"V-INFO")
+```
+
+```{r }
+out_dt_detail(check_data,"V-TRIP")
+```
+
+```{r }
+out_dt_detail(check_data,"V-ATTRIBUTES")
+```
+
+```{r }
+out_dt_detail(check_data,"G-GENERAL")
+```
+
+```{r }
+out_dt_detail(check_data,"G-CONFIG-BRANCHLINES")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET-LIGHTS")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET-BRANCHLINES")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET-HOOKS")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET-BAITS")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET-MITIGATION-MEASURES")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET-HAULING")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET-HAULING-BITEOFFS")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET-CATCHES")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET-CATCHES-SPECIMEN")
+```
+
+```{r }
+out_dt_detail(check_data,"E-SET-CATCHES-SPECIMEN-SSI")
+```
+```{r results = "asis"}
+if (length(check_data) == 0) {
+  cat("No message :)")
+}
+```

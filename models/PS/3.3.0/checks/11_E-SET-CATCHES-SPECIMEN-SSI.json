@@ -1,0 +1,13 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_NUMBER",
+    "SET_NUMBER",
+    "CATCH_NUMBER",
+    "SPECIMEN_NUMBER",
+    "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_GEAR_INTERACTION_CODE"
+  ],
+  "check_column_exists_in_code_list": {
+    "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_GEAR_INTERACTION_CODE": "refs_biology.gear_interactions",
+    "SPECIMEN_DETAILS_ADDITIONAL_CATCH_DETAILS_SSI_HANDLING_METHOD_CODE": "refs_biology.handling_methods"
+  }
+}

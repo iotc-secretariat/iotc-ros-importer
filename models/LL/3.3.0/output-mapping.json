@@ -1,11 +1,11 @@
 {
   "META": {
     //"form_version": "ros_ll.observer_data→",
-    "data_model_version": "ros_ll.observer_data→ros_model_version",
-    "organisation_name": "ros_ll.observer_data→reporting_country_code",
-    "finalisation_date": "ros_ll.observer_data→finalization_time",
-    "submission_date": "ros_ll.observer_data→submission_time",
-    "comments": "ros_ll.observer_data→comment"
+    "data_model_version": "ros_common.observer_data→ros_model_version",
+    "organisation_name": "ros_common.observer_data→reporting_country_code",
+    "finalisation_date": "ros_common.observer_data→finalization_time",
+    "submission_date": "ros_common.observer_data→submission_time",
+    "comments": "ros_common.observer_data→comment"
   },
   "sheets": {
     "O-INFO": {
@@ -40,10 +40,10 @@
       "VESSEL_INFORMATION_OWNER_AND_PERSONNEL_CREW_NUMBER": "ros_common.trip_vessel→number_of_crew"
     },
     "V-TRIP": {
-      "TRIP_DETAILS_VESSEL_DEPARTURE_PORT_PORT_CODE": "ros_common.trip_vessel→departure_port_code",
-      "TRIP_DETAILS_VESSEL_DEPARTURE_TIMESTAMP": "ros_common.trip_vessel→date_time_vessel_sailed",
-      "TRIP_DETAILS_VESSEL_RETURN_PORT_PORT_CODE": "ros_common.trip_vessel→return_port_code",
-      "TRIP_DETAILS_VESSEL_RETURN_TIMESTAMP": "ros_common.trip_vessel→date_time_vessel_returned_to_port"
+      "TRIP_DETAILS_VESSEL_DEPARTURE_PORT_PORT_CODE": "ros_common.locations→port_code",
+      "TRIP_DETAILS_VESSEL_DEPARTURE_TIMESTAMP": "ros_common.trip_vessel→departure_timestamp",
+      "TRIP_DETAILS_VESSEL_RETURN_PORT_PORT_CODE": "ros_common.locations→port_code",
+      "TRIP_DETAILS_VESSEL_RETURN_TIMESTAMP": "ros_common.trip_vessel→return_timestamp"
     },
     "V-ATTRIBUTES": {
       "VESSEL_ATTRIBUTES_TONNAGE_VALUE": "ros_common.tonnages→value",
@@ -91,9 +91,9 @@
       "VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_4_STORAGE_DISPOSAL_METHOD_4_CODE": "ros_common.waste_managements→waste_storage_or_disposal_method_code"
     },
     "G-GENERAL": {
-      "SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_SETTER": "ros_ll.special_equipment→line_setter",
-      "SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_HAULER": "ros_ll.special_equipment→line_hauler",
-      "SPECIAL_EQUIPMENT_OR_MACHINERY_BAIT_CASTING_MACHINE": "ros_ll.special_equipment→bait_casting_machine",
+      "SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_SETTER": "ros_ll.gear_specifications→line_setter",
+      "SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_HAULER": "ros_ll.gear_specifications→line_hauler",
+      "SPECIAL_EQUIPMENT_OR_MACHINERY_BAIT_CASTING_MACHINE": "ros_ll.gear_specifications→bait_casting_machine",
       "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_1_CODE": "branchline_configurations_storage→branchline_storage_code",
       "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_2_CODE": "branchline_configurations_storage→branchline_storage_code",
       "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_3_CODE": "branchline_configurations_storage→branchline_storage_code",
@@ -209,7 +209,7 @@
     "E-SET-CATCHES": {
       "CATCH_NUMBER": "ros_ll.catch_details→catch_detail_original_id",
       "CATCH_DETAILS_SPECIES_CODE": "ros_ll.catch_details→species_code",
-      "CATCH_DETAILS_FATE_TYPE": "ros_ll.catch_details→type_of_fate_code",
+      "CATCH_DETAILS_FATE_TYPE_CODE": "ros_ll.catch_details→type_of_fate_code",
       "CATCH_DETAILS_FATE_CODE": "ros_ll.catch_details→fates_code",
       "CATCH_DETAILS_SAMPLING_METHOD_CODE": "ros_ll.catch_details→estimated_weight_sampling_method_code",
       "CATCH_DETAILS_NUM_FISH": "ros_ll.catch_details→estimated_catch_in_numbers",
@@ -237,11 +237,11 @@
       "SPECIMEN_DETAILS_ALL_SPECIES_WEIGHT_PROCESSING_TYPE_CODE": "ros_common.estimated_weights→processing_type_code",
       "SPECIMEN_DETAILS_ALL_SPECIES_WEIGHT_VALUE_KG": "ros_common.estimated_weights→value",
       "SPECIMEN_DETAILS_ALL_SPECIES_WEIGHT_ESTIMATION_METHOD_CODE": "ros_common.estimated_weights→weight_estimation_method_code",
-      "SPECIMEN_DETAILS_ALL_SPECIES_SEX": "ros_common.biometric_information→sex_code",
+      "SPECIMEN_DETAILS_ALL_SPECIES_SEX_CODE": "ros_common.biometric_information→sex_code",
       "SPECIMEN_DETAILS_ALL_SPECIES_MATURITY_SCALE": "ros_common.maturity_stages→scale",
       "SPECIMEN_DETAILS_ALL_SPECIES_MATURITY_STAGE": "ros_common.maturity_stages→maturity_level",
-      "SPECIMEN_DETAILS_ALL_SPECIES_SAMPLE_COLLECTED_TYPE": "ros_common.sample_collection_details→sample_type",
-      "SPECIMEN_DETAILS_ALL_SPECIES_SAMPLE_COLLECTED_PRESERVATION_METHOD": "ros_common.sample_collection_details→preservation_method",
+      "SPECIMEN_DETAILS_ALL_SPECIES_SAMPLE_COLLECTED_TYPE_CODE": "ros_common.sample_collection_details→sample_type",
+      "SPECIMEN_DETAILS_ALL_SPECIES_SAMPLE_COLLECTED_PRESERVATION_METHOD_CODE": "ros_common.sample_collection_details→preservation_method",
       "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_RELEASE": "ros_ll.tag_details→tag_release",
       "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_RECOVERY": "ros_ll.tag_details→tag_recovery",
       "SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TYPE_CODE": "ros_ll.tag_details→tag_type_code",
