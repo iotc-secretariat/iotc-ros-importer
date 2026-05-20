@@ -1,0 +1,37 @@
+{
+  "check_sheet_names": [
+    "META",
+    "O-INFO",
+    "V-INFO",
+    "V-TRIP",
+    "V-ATTRIBUTES",
+    "G-GENERAL",
+    "E-SET",
+    "E-SET-CETACEANS",
+    "E-SET-CATCHES",
+    "E-SET-CATCHES-SPECIMEN",
+    "E-SET-CATCHES-SPECIMEN-SSI",
+    "A-SURFACE",
+    "T-EVENTS",
+    "T-PRODUCTS"
+  ],
+  "check_sheet_columns_count": {
+    "META": 6,
+    "O-INFO": 25,
+    "V-INFO": 32,
+    "V-TRIP": 11,
+    "V-ATTRIBUTES": 50,
+    "G-GENERAL": 14,
+    "E-SET": 29,
+    "E-SET-CETANCEANS": 6,
+    "E-SET-CATCHES": 14,
+    "E-SET-CATCHES-SPECIMEN": 29,
+    "E-SET-CATCHES-SPECIMEN_SSI": 9,
+    "A-SURFACE": 6,
+    "T-EVENTS": 0,
+    "T-PRODUCTS": 0
+  },
+  "check_sheet_rows_count": {
+    "META": 14
+  }
+}
