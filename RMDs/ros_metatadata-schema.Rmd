@@ -1,0 +1,9 @@
+---
+output: html_fragment
+---
+
+# Schema `r db_schema$schema()`
+
+#### Description
+
+`r ifelse(is.na(db_schema$schema_comment()), '<p class="error">*Not filled*</p>', paste0('*', db_schema$schema_comment(), '*'))`

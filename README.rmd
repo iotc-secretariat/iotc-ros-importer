@@ -53,6 +53,7 @@ source("R/00_ros_database.R")
 source("R/01_check_structure.R")
 source("R/02_check_data.R")
 source("R/03_generate_report.R")
+source("R/04_db_metadata.R")
 ```
 ## Load models
 ```{r}

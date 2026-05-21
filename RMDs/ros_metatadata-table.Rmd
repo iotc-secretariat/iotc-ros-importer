@@ -1,0 +1,15 @@
+---
+output: html_fragment
+---
+
+## Table `r db_table$table()`
+
+#### Description
+
+`r ifelse(is.na(db_table$table_comment()), '<p class="error">*Not filled*</p>', paste0('*', db_table$table_comment(), '*'))`
+
+#### Columns
+
+```{r}
+out_dt(db_table$table_columns())
+```

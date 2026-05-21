@@ -145,3 +145,6 @@ pre {
   word-wrap: normal;
 }
 
+.error {
+  color:red;
+}
