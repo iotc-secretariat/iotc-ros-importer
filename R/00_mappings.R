@@ -4,7 +4,7 @@ library(data.table, warn.conflicts = FALSE)
 
 LATEST_MODEL <- "3.3.0"
 
-DEFAULT_TIME_STAMP <- "-2026-05-19"
+DEFAULT_TIME_STAMP <- "-2026-05-22"
 
 load_models <- function(domain, model_version = LATEST_MODEL, model_directory = "models") {
   mapping <- input_mapping$new(domain, model_version, model_directory)
