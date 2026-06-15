@@ -1,0 +1,20 @@
+[
+  {
+    "refs_admin.ports": {
+      "code": {
+        "MU PLU": "MUSPLU",
+        "RE LPT": "REULPT",
+        "VGO": "ESPVGO",
+        "LK CMB": "LKACMB",
+        "SC POV": "SYCPOV",
+        "MG DIE": "MDGDIE",
+        /*???"NA NA": "",*/
+        "FR COC": "FRACOC",
+        /*???"YT DZA": "",*/
+        "IT BRI": "ITABRI",
+        "BRM": "ESPBRM"
+        /*???"VI3": ""*/
+      }
+    }
+  }
+]

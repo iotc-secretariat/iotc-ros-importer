@@ -1,0 +1,22 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_NUMBER",
+    "BRANCHLINE_CONFIGURATIONS_CONFIGURATION_NUMBER",
+    "BRANCHLINE_CONFIGURATIONS_SECTION_NUMBER"
+  ],
+  "check_column_mandatory_if_other_columns_are_filled": {
+    "BRANCHLINE_CONFIGURATIONS_LENGTH_CM_M": [
+      "BRANCHLINE_CONFIGURATIONS_LENGTH_VALUE"
+    ],
+    "BRANCHLINE_CONFIGURATIONS_DIAMETER_MM_CM": [
+      "BRANCHLINE_CONFIGURATIONS_DIAMETER_VALUE"
+    ]
+  },
+  "check_column_exists_in_code_list": {
+    "BRANCHLINE_CONFIGURATIONS_MATERIAL_TYPE_CODE": "refs_fishery.line_material_types"
+  },
+  "check_column_values": {
+    "BRANCHLINE_CONFIGURATIONS_LENGTH_CM_M": "^CM$|^M$",
+    "BRANCHLINE_CONFIGURATIONS_DIAMETER_MM_CM": "^MM$|^CM$"
+  }
+}

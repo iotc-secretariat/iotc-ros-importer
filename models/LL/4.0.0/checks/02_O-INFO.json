@@ -1,0 +1,27 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_NUMBER",
+    "OBSERVER_IDENTIFICATION_OBSERVER_IOTC_NUMBER",
+    "OBSERVED_TRIP_SUMMARY_NUMBER_OF_SETS_CONDUCTED",
+    "OBSERVED_TRIP_SUMMARY_NUMBER_OF_SETS_OBSERVED",
+    "OBSERVED_TRIP_SUMMARY_NUMBER_OF_DAYS_SEARCHING",
+    "OBSERVED_TRIP_SUMMARY_NUMBER_OF_DAYS_ACTIVELY_FISHING",
+    "OBSERVED_TRIP_SUMMARY_NUMBER_OF_DAYS_LOST"
+  ],
+  "check_column_exists_in_database": {
+    "OBSERVER_IDENTIFICATION_OBSERVER_IOTC_NUMBER": "ros_meta.observer→iotc_observer_identifier"
+  },
+  "check_column_exists_in_code_list": {
+    "OBSERVER_TRIP_DETAILS_EMBARKATION_IN_PORT_COUNTRY_CODE": "refs_admin.countries",
+    "OBSERVER_TRIP_DETAILS_EMBARKATION_IN_PORT_PORT_CODE": "refs_admin.ports",
+    "OBSERVER_TRIP_DETAILS_DISEMBARKATION_IN_PORT_COUNTRY_CODE": "refs_admin.countries",
+    "OBSERVER_TRIP_DETAILS_DISEMBARKATION_IN_PORT_PORT_CODE": "refs_admin.ports",
+    "OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_1_CODE": "refs_fishery.reasons_days_lost",
+    "OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_2_CODE": "refs_fishery.reasons_days_lost",
+    "OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_3_CODE": "refs_fishery.reasons_days_lost",
+    "OBSERVED_TRIP_SUMMARY_REASONS_FOR_DAYS_LOST_REASON_4_CODE": "refs_fishery.reasons_days_lost"
+  },
+  "check_column_should_exists_in_database": {
+    "OBSERVER_IDENTIFICATION_FULL_NAME": "ros_meta.observer→full_name"
+  }
+}

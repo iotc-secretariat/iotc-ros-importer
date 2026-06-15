@@ -1,0 +1,20 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_NUMBER",
+    "SET_NUMBER",
+    "SETTING_OPERATIONS_START_SETTING_DATE_TIME_UTC",
+    "SETTING_OPERATIONS_START_SETTING_LATITUDE",
+    "SETTING_OPERATIONS_START_SETTING_LONGITUDE",
+    /* missing School_type */
+    "SETTING_OPERATIONS_DATE_TIME_SKIFF_ONBOARD_UTC"
+  ],
+  "check_column_exists_in_code_list": {
+    "SETTING_OPERATIONS_SCHOOL_SIGHTING_CUE_1_CODE": "refs_fishery.school_sighting_cues",
+    "SETTING_OPERATIONS_SCHOOL_SIGHTING_CUE_2_CODE": "refs_fishery.school_sighting_cues",
+    "SETTING_OPERATIONS_SCHOOL_SIGHTING_CUE_3_CODE": "refs_fishery.school_sighting_cues",
+    "SETTING_OPERATIONS_SCHOOL_SIGHTING_CUE_4_CODE": "refs_fishery.school_sighting_cues",
+    "SETTING_OPERATIONS_FIRST_DETECTION_METHOD_CODE": "refs_fishery.school_detection_methods",
+    "SETTING_OPERATIONS_OBJECT_DETAILS_ARTIFICIAL_FAD_DESIGN_RAFT_DESIGN_CODE": "refs_fishery.fad_raft_designs",
+    "SETTING_OPERATIONS_OBJECT_DETAILS_ARTIFICIAL_FAD_DESIGN_TAIL_DESIGN_CODE": "refs_fishery.fad_tail_designs"
+  }
+}

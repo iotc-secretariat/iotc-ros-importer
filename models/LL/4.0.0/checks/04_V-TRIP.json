@@ -1,0 +1,9 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_NUMBER"
+  ],
+  "check_column_exists_in_code_list": {
+    "TRIP_DETAILS_VESSEL_DEPARTURE_PORT_PORT_CODE": "refs_admin.ports",
+    "TRIP_DETAILS_VESSEL_RETURN_PORT_PORT_CODE": "refs_admin.ports"
+  }
+}
