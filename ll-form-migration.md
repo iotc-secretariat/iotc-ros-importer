@@ -171,6 +171,26 @@ This document describes migration from Form LL v3 to v4.
 | `VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_CATEGORY_1`                | mandatory → optional |      |
 | `VESSEL_ATTRIBUTES_WASTE_MANAGEMENT_WASTE_MANAGEMENT_DETAIL_1_STORAGE_DISPOSAL_METHOD_1` | mandatory → optional |      |
 
+## Columns changed to use `refs_data.logical_responses`
+
+| Column                                                       |
+|--------------------------------------------------------------|
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_GNSS`                  |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_VMS`                   |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_AIS`                   |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_RADARS`                |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_TRACK_PLOTTER`         |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_DEPTH_SOUNDER`         |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_SONAR`                 |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_DOPPLER_CURRENT_METER` |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_XBT`                   |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_VHF_RADIOS`            |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_HF_RADIOS`             |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_SATELLITE_COMM`        |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_SST_GAUGE`             |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_WEATHER_FAX`           |
+| `VESSEL_ATTRIBUTES_VESSEL_ELECTRONICS_FIS`                   |
+
 # G-GENERAL
 
 ## Renamed Columns
@@ -216,6 +236,15 @@ This document describes migration from Form LL v3 to v4.
 | `MITIGATION_DEVICES_DEVICE_2_CODE`                   | `G-CONFIG-MITIGATION-DEVICES` |      |
 | `MITIGATION_DEVICES_DEVICE_3_CODE`                   | `G-CONFIG-MITIGATION-DEVICES` |      |
 | `MITIGATION_DEVICES_DEVICE_4_CODE`                   | `G-CONFIG-MITIGATION-DEVICES` |      |
+
+
+## Columns Using `refs_data.logical_responses`
+
+| Column                                                |
+|-------------------------------------------------------|
+| `SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_SETTER`          |
+| `SPECIAL_EQUIPMENT_OR_MACHINERY_LINE_HAULER`          |
+| `SPECIAL_EQUIPMENT_OR_MACHINERY_BAIT_CASTING_MACHINE` |
 
 # G-CONFIG-BRANCELINES
 
@@ -311,6 +340,12 @@ New sheet
 |-----------------------------|------|
 | `SETTING_OPERATIONS_VMS_ON` |      |
 
+## Columns Using `refs_data.logical_responses`
+
+| Column                               |
+|--------------------------------------|
+| `SETTING_OPERATIONS_SHARK_LINES_SET` |
+
 # E-SET-LIGHTS
 
 ## Renamed Columns
@@ -366,6 +401,13 @@ New sheet
 |--------------------------------------------------------------|----------------------|------|
 | `SETTING_OPERATIONS_MITIGATION_MEASURES_BRANCHLINE_WEIGHTED` | mandatory → optional |      |
 
+## Columns Using `refs_data.logical_responses`
+
+| Column                                                          |
+|-----------------------------------------------------------------|
+| `SETTING_OPERATIONS_MITIGATION_MEASURES_MIN_DECK_LIGHTING_USED` |
+| `SETTING_OPERATIONS_MITIGATION_MEASURES_BRANCHLINE_WEIGHTED`    |
+
 # E-SET-HOOKS
 
 ## Renamed Columns
@@ -420,6 +462,12 @@ New sheet
 | Column                                             | Change               | Note |
 |----------------------------------------------------|----------------------|------|
 | `HAULING_OPERATIONS_BIRD_SCARING_DEVICE_AT_HAULER` | optional → mandatory |      |
+
+## Columns Using `refs_data.logical_responses`
+
+| Column                                             |
+|----------------------------------------------------|
+| `HAULING_OPERATIONS_BIRD_SCARING_DEVICE_AT_HAULER` |
 
 # E-SET-HAULING-BITEOFFS
 
@@ -508,6 +556,13 @@ New sheet
 | `SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_2`                            | `sheet E-SET-TAG-DETAILS`         |      |
 | `SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_FINDER_NAME_AND_CONTACT_DETAILS`         | `sheet E-SET-TAG-DETAILS`         |      |
 
+## Columns Using `refs_data.logical_responses`
+
+| Column                          |
+|---------------------------------|
+| `SPECIMEN_LENGTH_1_IS_STRAIGHT` |
+| `SPECIMEN_LENGTH_2_IS_STRAIGHT` |
+
 # E-SET-CATCH-SPECIMENS-SSI (renamed from sheet E-SET-CATCH-SPECIMEN-SSI)
 
 ## Renamed Columns
@@ -545,6 +600,14 @@ New sheet
 | `SPECIMEN_NON_TARGET_SPECIES_CONDITION_AT_CAPTURE` | optional → mandatory |      |
 | `SPECIMEN_NON_TARGET_SPECIES_CONDITION_AT_RELEASE` | optional → mandatory |      |
 
+## Columns Using `refs_data.logical_responses`
+
+| Column                                                  |
+|---------------------------------------------------------|
+| `SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_LIGHT_ATTACHED`  |
+| `SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_BROUGHT_ONBOARD` |
+| `SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_REVIVAL`         |
+
 # E-SET-TAG-DETAILS
 New sheet
 | Column                                        | Source                                                                                               | Note |
@@ -560,3 +623,10 @@ New sheet
 | `SPECIMEN_TAG_DETAILS_TAG_NUMBER_2`           | `E-SET-CATCH-SPECIMENS` → `SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_TAG_NUMBER_2`                    |      |
 | `SPECIMEN_TAG_DETAILS_FINDER_NAME`            | `E-SET-CATCH-SPECIMENS` → `SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_FINDER_NAME_AND_CONTACT_DETAILS` |      |
 | `SPECIMEN_TAG_DETAILS_FINDER_CONTACT_DETAILS` | `E-SET-CATCH-SPECIMENS` → `SPECIMEN_DETAILS_ALL_SPECIES_TAG_DETAILS_FINDER_NAME_AND_CONTACT_DETAILS` |      |
+
+## Columns Using `refs_data.logical_responses`
+
+| Column                          |
+|---------------------------------|
+| `SPECIMEN_TAG_DETAILS_RELEASE`  |
+| `SPECIMEN_TAG_DETAILS_RECOVERY` |
