@@ -244,8 +244,7 @@ input_checks <- R6Class(
       if (file.exists(file)) {
         return(jsonlite::read_json(file))
       }
-      file.create(file)
-      jsonlite::serializeJSON("{}")
+      cat(jsonlite::serializeJSON("{}"), file = file)
     }
   )
 )
