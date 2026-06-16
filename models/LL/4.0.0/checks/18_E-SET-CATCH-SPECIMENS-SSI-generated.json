@@ -1,0 +1,25 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_ID",
+    "SET_ID",
+    "CATCH_ID",
+    "SPECIMEN_ID",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_CONDITION_AT_CAPTURE",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_CONDITION_AT_RELEASE",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_GEAR_INTERACTION"
+  ],
+  "check_column_exists_in_code_list": {
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_CONDITION_AT_CAPTURE": "refs_biology.incidental_captures_conditions",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_CONDITION_AT_RELEASE": "refs_biology.incidental_captures_conditions",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_GEAR_INTERACTION": "refs_biology.gear_interactions",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_HOOK_TYPE": "refs_fishery.hook_types",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_BAIT_CONDITION": "refs_biology.bait_conditions",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_BAIT_TYPE": "refs_biology.bait_types",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_LEADER_MATERIAL": "refs_fishery.line_material_types",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_DE_HOOKER_DEVICE": "refs_fishery.dehooker_types",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_LIGHT_ATTACHED": "refs_data.logical_responses",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_BROUGHT_ONBOARD": "refs_data.logical_responses",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_HANDLING_METHOD": "refs_biology.handling_methods",
+    "SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_REVIVAL": "refs_data.logical_responses"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_ID",
+    "SET_ID"
+  ],
+  "check_column_exists_in_code_list": {
+    "SETTING_OPERATIONS_ATTACHED_LIGHTS_TYPE": "refs_fishery.light_types",
+    "SETTING_OPERATIONS_ATTACHED_LIGHTS_COLOR": "refs_fishery.light_colours"
+  }
+}

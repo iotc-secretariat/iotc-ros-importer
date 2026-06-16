@@ -1,0 +1,32 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_ID",
+    "SET_ID",
+    "CATCH_ID",
+    "SPECIMEN_ID",
+    "SPECIMEN_SAMPLING_PERIOD",
+    "SPECIMEN_SAMPLING_METHOD",
+    "SPECIMEN_LENGTH_1_TYPE",
+    "SPECIMEN_LENGTH_1_VALUE_CM",
+    "SPECIMEN_LENGTH_1_MEASURING_TOOL",
+    "SPECIMEN_LENGTH_1_IS_STRAIGHT"
+  ],
+  "check_column_exists_in_code_list": {
+    "SPECIMEN_SAMPLING_PERIOD": "refs_biology.sampling_periods",
+    "SPECIMEN_SAMPLING_METHOD": "refs_biology.sampling_methods_for_sampling_collections",
+    "SPECIMEN_LENGTH_1_TYPE": "refs_biology.measurements",
+    "SPECIMEN_LENGTH_1_MEASURING_TOOL": "refs_biology.measurement_tools",
+    "SPECIMEN_LENGTH_1_IS_STRAIGHT": "refs_data.logical_responses",
+    "SPECIMEN_LENGTH_2_TYPE": "refs_biology.measurements",
+    "SPECIMEN_LENGTH_2_MEASURING_TOOL": "refs_biology.measurement_tools",
+    "SPECIMEN_LENGTH_2_IS_STRAIGHT": "refs_data.logical_responses",
+    "SPECIMEN_WEIGHT_PROCESSING_TYPE": "refs_fishery.fish_processing_types",
+    "SPECIMEN_WEIGHT_ESTIMATION_METHOD": "refs_biology.measurement_tools",
+    "SPECIMEN_SPECIES_SEX": "refs_biology.sex",
+    "SPECIMEN_MATURITY_STAGE": "refs_biology.maturity_stages",
+    "SPECIMEN_SAMPLE_COLLECTED_TYPE": "ros_common.sample_collection_details→sample_type",
+    "SPECIMEN_SAMPLE_COLLECTED_PRESERVATION_METHOD": "ros_common.sample_collection_details→preservation_method",
+    "SPECIMEN_DEPREDATION_DETAILS_DEPREDATION_SOURCE": "refs_biology.scars",
+    "SPECIMEN_DEPREDATION_DETAILS_OBSERVED_PREDATOR": "refs_biology.species"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_ID"
+  ],
+  "check_column_exists_in_code_list": {
+    "TORI_LINE_DETAILS_STREAMER_TYPE": "refs_fishery.streamer_types",
+    "TORI_LINE_DETAILS_STREAMER_REACH_SURFACE": "refs_data.logical_responses",
+    "MITIGATION_DEVICES_DEVICE_1": "refs_fishery.mitigation_devices",
+    "MITIGATION_DEVICES_DEVICE_2": "refs_fishery.mitigation_devices",
+    "MITIGATION_DEVICES_DEVICE_3": "refs_fishery.mitigation_devices",
+    "MITIGATION_DEVICES_DEVICE_4": "refs_fishery.mitigation_devices",
+    "MITIGATION_DEVICES_DEVICE_5": "refs_fishery.mitigation_devices"
+  }
+}

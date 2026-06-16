@@ -1,0 +1,13 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_ID",
+    "SET_ID",
+    "CATCH_ID",
+    "SPECIMEN_ID"
+  ],
+  "check_column_exists_in_code_list": {
+    "SPECIMEN_TAG_DETAILS_RELEASE": "refs_data.logical_responses",
+    "SPECIMEN_TAG_DETAILS_RECOVERY": "refs_data.logical_responses",
+    "SPECIMEN_TAG_DETAILS_TYPE": "refs_biology.tag_types"
+  }
+}

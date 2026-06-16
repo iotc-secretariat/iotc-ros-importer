@@ -1,0 +1,12 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_ID"
+  ],
+  "check_column_exists_in_code_list": {
+    "BRANCHLINE_CONFIGURATIONS_MATERIAL_TYPE": "refs_fishery.line_material_types",
+    "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_1": "refs_fishery.branchline_storages",
+    "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_2": "refs_fishery.branchline_storages",
+    "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_3": "refs_fishery.branchline_storages",
+    "ADDITIONAL_BRANCHLINE_DETAILS_STORAGE_4": "refs_fishery.branchline_storages"
+  }
+}

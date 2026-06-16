@@ -1,0 +1,10 @@
+{
+  "check_column_mandatory": [
+    "OBSERVED_TRIP_ID",
+    "SET_ID",
+    "SETTING_OPERATIONS_HOOKS_DETAILS_TYPE"
+  ],
+  "check_column_exists_in_code_list": {
+    "SETTING_OPERATIONS_HOOKS_DETAILS_TYPE": "refs_fishery.hook_types"
+  }
+}
