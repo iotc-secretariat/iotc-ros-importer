@@ -70,6 +70,37 @@ input_mapping <- R6Class(
         x
       })
       c(unlist(result))
+    },
+    mandatory_columns = function(sheet_name) {
+      columns <- private$.sheets[[sheet_name]]$columns
+      names(Filter(function(x) { x %like% "\\!.+" }, columns))
+    },
+    code_list_columns = function(sheet_name) {
+      columns <- private$.sheets[[sheet_name]]$columns
+      lapply(Filter(function(x) { x %like% "codelist\\:.+" }, columns), function(x) { ifelse(x %like% "\\!.+", str_sub(x, 11), str_sub(x, 10)) })
+    },
+    mandatory_ros_registry_columns = function(sheet_name) {
+      columns <- private$.sheets[[sheet_name]]$columns
+      lapply(Filter(function(x) { x %like% "\\!database_character\\:.+" }, columns), function(x) { str_sub(x, 21) })
+    },
+    optional_ros_registry_columns = function(sheet_name) {
+      columns <- private$.sheets[[sheet_name]]$columns
+      lapply(Filter(function(x) { x %like% "^database_character\\:.+" }, columns), function(x) { str_sub(x, 20) })
+    },
+    enum_columns = function(sheet_name) {
+      columns <- private$.sheets[[sheet_name]]$columns
+      lapply(Filter(function(x) { x %like% "enum\\:.+" }, columns), function(x) { private$.to_regex_enum(ifelse(x %like% "\\!.+", str_sub(x, 7), str_sub(x, 6))) })
+    },
+    generate_checks = function(domain, version = LATEST_MODEL, directory = "models") {
+      models_directory <- file.path(directory, domain, version, "checks")
+      index <- 1
+      for (x in self$sheet_names()) {
+        index <- index + 1
+        prefix <- ifelse(index < 10, "0", "")
+        file <- file.path(models_directory, sprintf("%s%s_%s-generated.json", prefix, index, x))
+        data <- private$.generate_checks(x)
+        jsonlite::write_json(data, file, pretty = TRUE, auto_unbox = TRUE)
+      }
     }
   ),
   private = list(
@@ -78,7 +109,63 @@ input_mapping <- R6Class(
     # meta sheet
     .meta_sheet = NULL,
     # columns of the sheet
-    .sheets = NULL
+    .sheets = NULL,
+    .generate_checks = function(sheet_name) {
+      result <- list()
+      mandatory_columns <- self$mandatory_columns(sheet_name)
+      code_list_columns <- self$code_list_columns(sheet_name)
+      mandatory_ros_registry_columns <- self$mandatory_ros_registry_columns(sheet_name)
+      optional_ros_registry_columns <- self$optional_ros_registry_columns(sheet_name)
+      check_column_values <- self$enum_columns(sheet_name)
+      if (length(mandatory_columns) > 0) {
+        result$check_column_mandatory <- mandatory_columns
+      }
+      if (length(check_column_values) > 0) {
+        result$check_column_mandatory_if_other_columns_are_filled <- private$.unit_columns_with_previous_value(private$.sheets[[sheet_name]]$columns, names(check_column_values))
+      }
+      if (length(mandatory_ros_registry_columns) > 0) {
+        result$check_column_exists_in_database <- mandatory_ros_registry_columns
+      }
+      if (length(code_list_columns) > 0) {
+        result$check_column_exists_in_code_list <- code_list_columns
+      }
+      if (length(optional_ros_registry_columns) > 0) {
+        result$check_column_should_exists_in_database <- optional_ros_registry_columns
+      }
+      if (length(check_column_values) > 0) {
+        result$check_column_values <- check_column_values
+      }
+      private$.box_scalars_recursive(result, exclude = c("check_column_values", "check_column_exists_in_database", "check_column_should_exists_in_database", "check_column_exists_in_code_list"))
+    },
+    .to_regex_enum = function(x) {
+      paste0('^', gsub('\\|', '$|^', x), '$')
+    },
+    .unit_columns_with_previous_value = function(columns, targets) {
+      setNames(
+        as.list(names(columns)[match(targets, names(columns)) - 1]),
+        targets
+      )
+    },
+    .box_scalars_recursive = function(x, exclude = character()) {
+      if (!is.list(x)) {
+        return(x)
+      }
+      result <- lapply(names(x), function(name) {
+        value <- x[[name]]
+        if (name %in% exclude) {
+          return(value)
+        }
+        if (is.list(value)) {
+          return(private$.box_scalars_recursive(value, exclude))
+        }
+        if (length(value) == 1) {
+          return(I(list(value)))
+        }
+        value
+      })
+      names(result) <- names(x)
+      result
+    }
   )
 )
 
