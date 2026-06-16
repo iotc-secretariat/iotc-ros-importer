@@ -630,3 +630,41 @@ New sheet
 |---------------------------------|
 | `SPECIMEN_TAG_DETAILS_RELEASE`  |
 | `SPECIMEN_TAG_DETAILS_RECOVERY` |
+
+# Unit management
+
+We propose to remove any unit from the database. Here is the list of units appearances in the database (only for the LL model):
+
+| sheet                         | column                                                              | Unit        | database location                                                           | values in database | check in database         | Note   |
+|-------------------------------|---------------------------------------------------------------------|-------------|-----------------------------------------------------------------------------|--------------------|---------------------------|--------|
+| `V-ATTRIBUTES`                | `VESSEL_ATTRIBUTES_GROSS_TONNAGE_GT`                                | `gt`        | `ros_common.trip_vessel.tonnage_unit`                                       | `grt,gt`           | ok                        | See 1. |
+| `V-ATTRIBUTES`                | `VESSEL_ATTRIBUTES_LENGTH_OVERALL_M`                                | `m`         | `ros_common.trip_vessel.loa_unit`                                           | `m`                | Missing check in database |        |
+| `V-ATTRIBUTES`                | `VESSEL_ATTRIBUTES_MAIN_ENGINE_1_POWER_VALUE`                       | `kW,hp,bhp` | `ros_common.trip_vessel_main_engines.main_engines_unit`                     | `hp,bhp`           | 2 checks in database...   |        |
+| `V-ATTRIBUTES`                | `VESSEL_ATTRIBUTES_MAIN_ENGINE_2_POWER_VALUE`                       | `kW,hp,bhp` | `ros_common.trip_vessel_main_engines.main_engines_unit`                     | `hp,bhp`           | 2 checks in database...   |        |
+| `V-ATTRIBUTES`                | `VESSEL_ATTRIBUTES_AUTONOMY_RANGE_DAYS_NM`                          | `DAYS,NM`   | `ros_common.trip_vessel.autonomy_range_unit`                                | `unk,null`         | Missing check in database | See 3. |
+| `V-ATTRIBUTES`                | `VESSEL_ATTRIBUTES_FISH_STORAGE_CAPACITY_M3`                        | `m3`        | `ros_common.trip_vessel.fish_storage_capacity_unit`                         | `m3,mt`            | ok                        |        |
+| `G-CONFIG-BRANCHLINES`        | `BRANCHLINE_CONFIGURATIONS_LENGTH_M`                                | `km,m`      | `ros_ll.branchline_sections.length_unit`                                    | `m`                | 2 checks in database...   |        |
+| `G-CONFIG-BRANCHLINES`        | `BRANCHLINE_CONFIGURATIONS_DIAMETER_CM`                             | `cm`        | `ros_ll.branchline_sections.diameter_unit`                                  | `mm`               | 2 checks in database...   |        |
+| `G-CONFIG-MITIGATION-DEVICES` | `TORI_LINE_DETAILS_TORI_LINE_LENGTH_M`                              | `m`         | `ros_ll.tori_line_details.tori_line_length_unit`                            | `m,null`           | 2 checks in database...   |        |
+| `G-CONFIG-MITIGATION-DEVICES` | `TORI_LINE_DETAILS_STREAMER_LINE_LENGTH_MAX_M`                      | `m`         | `ros_ll.tori_line_details.streamer_line_length_max_unit`                    | `null`             | 2 checks in database...   |        |
+| `G-CONFIG-MITIGATION-DEVICES` | `TORI_LINE_DETAILS_STREAMER_LINE_LENGTH_MIN_M`                      | `m`         | `ros_ll.tori_line_details.streamer_line_length_min_unit`                    | `null`             | 2 checks in database...   |        |
+| `G-CONFIG-MITIGATION-DEVICES` | `TORI_LINE_DETAILS_DISTANCE_BETWEEN_STREAMERS_VALUE_M`              | `m`         | `ros_ll.tori_line_details.streamer_distance_unit`                           | `null`             | Missing check in database |        |
+| `G-CONFIG-MITIGATION-DEVICES` | `TORI_LINE_DETAILS_TORI_LINE_ATTACHED_HEIGHT_VALUE_M`               | `m`         | `ros_ll.tori_line_details.attached_height_unit`                             | `null`             | Missing check in database |        |
+| `E-SET`                       | `SETTING_OPERATIONS_SPEED_VESSEL_VALUE_KNOTS`                       | `kn`        | `ros_ll.setting_operations.vessel_speed_unit`                               | `null,kn`          | 2 checks in database...   |        |
+| `E-SET`                       | `SETTING_OPERATIONS_SPEED_LINE_SETTER_VALUE_MS`                     | `ms`        | `ros_ll.setting_operations.line_setter_speed_unit`                          | `null`             | 2 checks in database...   |        |
+| `E-SET`                       | `SETTING_OPERATIONS_MAINLINE_LENGTH_KM_NM`                          | `km,m`      | `ros_ll.setting_operations.mainline_set_length_unit`                        | `null,km,m`        | 2 checks in database...   |        |
+| `E-SET`                       | `SETTING_OPERATIONS_LEADER_MATERIAL_BRANCHLINE_LENGTH_MINIMUM_UNIT` | `km,m`      | `ros_ll.setting_operations.leader_set.total_branchline_minimum_length_unit` | ``                 | 2 checks in database...   |        |
+| `E-SET`                       | `SETTING_OPERATIONS_LEADER_MATERIAL_BRANCHLINE_LENGTH_MAXIMUM_UNIT` | `km,m`      | `ros_ll.setting_operations.leader_set.total_branchline_maximum_length_unit` | ``                 | 2 checks in database...   |        |
+| `E-SET-MITIGATION-MEASURES`   | `SETTING_OPERATIONS_MITIGATION_MEASURES_AVERAGE_SINKER_WEIGHT_G`    | `g`         | `ros_ll.mitigation_measures.average_sinker_weight_unit`                     | `null`             | Missing check in database |        |
+| `E-SET-MITIGATION-MEASURES`   | `SETTING_OPERATIONS_MITIGATION_MEASURES_HOOK_SINKER_DISTANCE_CM`    | `cm`        | `ros_ll.mitigation_measures.hook_sinker_distance_unit`                      | `null`             | Missing check in database |        |
+| `E-SET-CATCHES`               | `CATCH_WEIGHT_KG`                                                   | `kg`        | `ros_ll.catch_details`                                                      | `null,t`           | 2 checks in database...   |        |
+| `E-SET-CATCH-SPECIMENS`       | `SPECIMEN_LENGTH_1_VALUE_CM`                                        | `cm`        | `ros_common.biometric_information.measured_length_unit`                     | `cm,null`          | 2 checks in database...   |        |
+| `E-SET-CATCH-SPECIMENS`       | `SPECIMEN_LENGTH_2_VALUE_CM`                                        | `cm`        | `ros_common.biometric_information.alternative_measured_length_unit`         | `cm,null`          | 2 checks in database...   |        |
+| `E-SET-CATCH-SPECIMENS`       | `SPECIMEN_WEIGHT_VALUE_KG`                                          | `kg`        | `ros_common.biometric_information.estimated_weight_unit`                    | `kg,null`          | 2 checks in database...   |        |
+| `E-SET-CATCH-SPECIMENS-SSI`   | `SPECIMEN_ADDITIONAL_CATCH_DETAILS_SSI_LEADER_DIAMETER_MM`          | `mm`        | `ros_ll.additional_catch_details_on_ssi`                                    | `null`             | Missing check in database |        |
+
+## Notes
+
+1. can't convert gt and grt (grt is the old system and gt the modern one (since 1969 Tonnage convention))
+2. could convert mt to m3 (with approximation: 1 mt fish ≈ 1.05 m³), but not exact conversion
+3. can't convert autonomy range (days and nautical miles), but since we have no value in database we could use the nm unit
