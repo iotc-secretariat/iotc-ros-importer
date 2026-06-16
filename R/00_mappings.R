@@ -2,9 +2,9 @@ library(R6, warn.conflicts = FALSE)
 library(jsonlite)
 library(data.table, warn.conflicts = FALSE)
 
-LATEST_MODEL <- "3.3.0"
+LATEST_MODEL <- "4.0.0"
 
-DEFAULT_TIME_STAMP <- "-2026-05-22"
+DEFAULT_TIME_STAMP <- "-2026-06-15"
 
 load_models <- function(domain, model_version = LATEST_MODEL, model_directory = "models") {
   mapping <- input_mapping$new(domain, model_version, model_directory)
