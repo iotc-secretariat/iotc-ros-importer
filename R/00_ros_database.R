@@ -75,12 +75,13 @@ simple_quote <- function(text) {
 #'
 #' @param connection An JDBC connection to a RDBMS server
 #' @param query The query to perform
+#' @param params optional parameters paseed to the query
 #' @return The results of executing \code{query} through \code{connection} as a data table
 #' @examples
 #' query(connection = DB_IOTC_ROS(), query = "SELECT * FROM V_LEGACY_NC")
 #' @export
-query <- function(connection, query) {
-  data.table(dbGetQuery(connection, query))
+query <- function(connection, query, params = NULL) {
+  data.table(dbGetQuery(connection, query, params))
 }
 
 #' Generic method to load the content of a given table.
